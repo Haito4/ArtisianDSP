@@ -1,19 +1,19 @@
-#include "Scene1Component.h"
+#include "Gate1Component.h"
 
-Scene1Component::Scene1Component()
+Gate1Component::Gate1Component()
 {
     helloLabel.setFont(20.0f);
     helloLabel.setJustificationType(juce::Justification::centred);
-    helloLabel.setText("Hello World", juce::dontSendNotification);
+    helloLabel.setText("Noise Gate", juce::dontSendNotification);
     addAndMakeVisible(helloLabel);
 }
 
-void Scene1Component::resized()
+void Gate1Component::resized()
 {
     helloLabel.setBounds(getLocalBounds());
 }
 
-Scene1Component::~Scene1Component()
+Gate1Component::~Gate1Component()
 {
 }
 
