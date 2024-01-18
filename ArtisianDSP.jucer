@@ -5,6 +5,18 @@
               pluginFormats="buildStandalone,buildVST3">
   <MAINGROUP id="jQ0XFJ" name="ArtisianDSP">
     <GROUP id="{1336A030-A105-CEDF-C0E4-DB803E980675}" name="Source">
+      <FILE id="xwvdNi" name="MultiSceneComponent.cpp" compile="1" resource="0"
+            file="Source/MultiSceneComponent.cpp"/>
+      <FILE id="aUIHJJ" name="MultiSceneComponent.h" compile="0" resource="0"
+            file="Source/MultiSceneComponent.h"/>
+      <FILE id="gnGTSk" name="Scene2Component.cpp" compile="1" resource="0"
+            file="Source/Scene2Component.cpp"/>
+      <FILE id="PufNDU" name="Scene2Component.h" compile="0" resource="0"
+            file="Source/Scene2Component.h"/>
+      <FILE id="Ue7Gof" name="Scene1Component.cpp" compile="1" resource="0"
+            file="Source/Scene1Component.cpp"/>
+      <FILE id="YrrsR4" name="Scene1Component.h" compile="0" resource="0"
+            file="Source/Scene1Component.h"/>
       <FILE id="sm6PRF" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="WUY4kd" name="PluginProcessor.h" compile="0" resource="0"
