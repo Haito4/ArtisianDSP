@@ -26,10 +26,19 @@ Drive3Component::Drive3Component()
     volumeKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     volumeKnob.setRange(0.0, 1.0);
     volumeKnob.setValue(0.5);
-    
-    
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout Drive3Component::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout driveLayout;
     
 
+    driveLayout.add(std::make_unique<juce::AudioParameterFloat>("Drive",
+                                                                "Drive",
+                                                                 juce::NormalisableRange<float>(0.0, 1.0, 0.05, 1.f),
+                                                                   0.0));
+    
+    return driveLayout;
 }
 
 void Drive3Component::resized()

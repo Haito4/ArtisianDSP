@@ -16,6 +16,8 @@ ArtisianDSPAudioProcessorEditor::ArtisianDSPAudioProcessorEditor (ArtisianDSPAud
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     addAndMakeVisible(multiSceneComponent);
+    
+    
     setSize (720, 540);
 }
 
