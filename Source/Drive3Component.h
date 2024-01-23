@@ -11,4 +11,8 @@ public:
     void resized() override;
 private:
     juce::Label driveLabel;
+    
+    juce::Slider driveKnob;
+    juce::Slider toneKnob;
+    juce::Slider volumeKnob;
 };
