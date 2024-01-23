@@ -8,14 +8,16 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Drive3Component.h"
+#include "MultiSceneComponent.h"
 
 //==============================================================================
 ArtisianDSPAudioProcessorEditor::ArtisianDSPAudioProcessorEditor (ArtisianDSPAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p), multiSceneComponent(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    addAndMakeVisible(multiSceneComponent)  ;
+    addAndMakeVisible(multiSceneComponent);
     setSize (720, 540);
 }
 

@@ -9,6 +9,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Gate1Component.h"
+#include "Comp2Component.h"
 
 //==============================================================================
 /**
@@ -28,7 +30,7 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) override;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -52,8 +54,17 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    juce::AudioProcessorValueTreeState& getState();
+    
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
 private:
+    Gate1Component scene1;
+    Comp2Component scene2;
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState> state;
+    int currentSceneIndex;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
 };

@@ -8,6 +8,7 @@ public:
     Comp2Component();
     ~Comp2Component();
     
+    void processAudioBlock(juce::AudioBuffer<float>& buffer);
     void resized() override;
 private:
     juce::Label compLabel;

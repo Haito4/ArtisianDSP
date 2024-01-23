@@ -2,18 +2,23 @@
 
 Gate1Component::Gate1Component()
 {
-    helloLabel.setFont(20.0f);
-    helloLabel.setJustificationType(juce::Justification::centred);
-    helloLabel.setText("Noise Gate", juce::dontSendNotification);
-    addAndMakeVisible(helloLabel);
+    gateLabel.setFont(20.0f);
+    gateLabel.setJustificationType(juce::Justification::centred);
+    gateLabel.setText("Noise Gate", juce::dontSendNotification);
+    addAndMakeVisible(gateLabel);
 }
 
 void Gate1Component::resized()
 {
-    helloLabel.setBounds(getLocalBounds());
+    gateLabel.setBounds(getLocalBounds());
 }
 
 Gate1Component::~Gate1Component()
 {
 }
 
+void Gate1Component::processAudioBlock(juce::AudioBuffer<float>& buffer)
+    {
+        // Implement audio processing logic for Scene 1
+
+    }

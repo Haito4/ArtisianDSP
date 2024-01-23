@@ -15,10 +15,10 @@
 //==============================================================================
 /**
 */
-class ArtisianDSPAudioProcessorEditor  : public juce::AudioProcessorEditor
+class ArtisianDSPAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    ArtisianDSPAudioProcessorEditor (ArtisianDSPAudioProcessor&);
+    ArtisianDSPAudioProcessorEditor(ArtisianDSPAudioProcessor& p);
     ~ArtisianDSPAudioProcessorEditor() override;
 
     //==============================================================================
@@ -30,6 +30,6 @@ private:
     // access the processor object that created it.
     ArtisianDSPAudioProcessor& audioProcessor;
     MultiSceneComponent multiSceneComponent;
-
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessorEditor)
 };

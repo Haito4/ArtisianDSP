@@ -16,3 +16,9 @@ void Comp2Component::resized()
 Comp2Component::~Comp2Component()
 {
 }
+
+void Comp2Component::processAudioBlock(juce::AudioBuffer<float>& buffer)
+{
+
+    
+}
