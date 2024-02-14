@@ -22,6 +22,7 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
                        )
 #endif
 {
+    
 }
 
 ArtisianDSPAudioProcessor::~ArtisianDSPAudioProcessor()
@@ -93,6 +94,8 @@ void ArtisianDSPAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    
+    
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 }
@@ -143,7 +146,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
+    
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
@@ -152,10 +155,20 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-
         // ..do something to the data...
+        auto* channelData = buffer.getWritePointer (channel);
+            
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] = buffer.getSample(channel, sample) * rawVolume;
+        }
     }
+
+//    juce::dsp::AudioBlock<float> block(buffer);
+    
+//    float gain = inputGainParameter->get();
+    
+    
 }
 
 //==============================================================================
@@ -166,7 +179,11 @@ bool ArtisianDSPAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ArtisianDSPAudioProcessor::createEditor()
 {
+    // Standard Editor
     return new ArtisianDSPAudioProcessorEditor (*this);
+    
+    //Parameter Editor
+//    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -175,13 +192,26 @@ void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    
 }
 
 void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    
 }
+
+//juce::AudioProcessorValueTreeState::ParameterLayout
+//    ArtisianDSPAudioProcessor::createParameterLayout()
+//{
+//    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+////    layout.add(std::make_unique<juce::AudioParameterFloat>("gain", "Gain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+//    layout.add(std::make_unique<juce::AudioParameterFloat>("inputGain", "Input Gain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+//    
+//    return layout;
+//
+//}
 
 //==============================================================================
 // This creates new instances of the plugin..
