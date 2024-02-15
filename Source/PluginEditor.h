@@ -27,16 +27,14 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-//    void sliderValueChanged(juce::Slider* slider) override;
+
+    // Slider Object Decleration
     juce::Slider inputGainSlider;
     
-    void sliderValueChanged(juce::Slider* slider) override
-    {
-        if (slider == &inputGainSlider)
-        {
-            inputGainSlider.setValue (inputGainSlider.getValue(), juce::dontSendNotification);
-        }
-    }
+    void sliderValueChanged(juce::Slider* slider) override;
+    
+//    juce::String getTextFromValue (double value) override;
+
 
 private:
     // This reference is provided as a quick way for your editor to

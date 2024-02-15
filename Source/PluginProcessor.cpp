@@ -158,9 +158,11 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // ..do something to the data...
         auto* channelData = buffer.getWritePointer (channel);
             
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
-            channelData[sample] = buffer.getSample(channel, sample) * rawVolume;
+            // this doesn't seem to work, need to figure out a working way
+            channelData[sample] = channelData[sample] * inputGain;
+
         }
     }
 
@@ -170,6 +172,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     
     
 }
+
 
 //==============================================================================
 bool ArtisianDSPAudioProcessor::hasEditor() const
@@ -206,9 +209,8 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
 //    ArtisianDSPAudioProcessor::createParameterLayout()
 //{
 //    juce::AudioProcessorValueTreeState::ParameterLayout layout;
-////    layout.add(std::make_unique<juce::AudioParameterFloat>("gain", "Gain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-//    layout.add(std::make_unique<juce::AudioParameterFloat>("inputGain", "Input Gain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-//    
+//    layout.add(std::make_unique<juce::AudioParameterFloat>("inputGain", "Input Gain", juce::NormalisableRange<float>(-48.0f, 0.5f), -1.0f));
+//
 //    return layout;
 //
 //}

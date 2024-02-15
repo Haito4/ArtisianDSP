@@ -55,12 +55,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    double rawVolume;
+    float inputGain{ 0.5f };
     
-    
+    // probably initialise like this for apvts maybe??
 //    juce::AudioParameterFloat* inputGainParameter;
     
-    
+
     
 //    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 //    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};

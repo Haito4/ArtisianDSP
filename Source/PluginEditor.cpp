@@ -17,13 +17,14 @@ ArtisianDSPAudioProcessorEditor::ArtisianDSPAudioProcessorEditor(ArtisianDSPAudi
     
     addAndMakeVisible(multiSceneComponent);
     
-    addAndMakeVisible(inputGainSlider);
     
+    // Input Gain Knob
+    addAndMakeVisible(inputGainSlider);
     inputGainSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    inputGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 25);
-    inputGainSlider.setRange(-48.0, 0.0);
-    inputGainSlider.setValue(-1.0); // optimise
-    inputGainSlider.addListener (this); // what connects slider to function
+    inputGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    inputGainSlider.setRange(-48.0f, 0.0f);
+    inputGainSlider.setValue(0.5f);
+    inputGainSlider.addListener (this); // enables connection of slider to function
     
     
     setSize (720, 540);
@@ -45,9 +46,26 @@ void ArtisianDSPAudioProcessorEditor::paint (juce::Graphics& g)
 
 void ArtisianDSPAudioProcessorEditor::resized()
 {
-    multiSceneComponent.setBounds(getLocalBounds());
+    auto area = getLocalBounds();
     
-    inputGainSlider.setBounds(getLocalBounds());
+    multiSceneComponent.setBounds(area);
+    
+    inputGainSlider.setBounds(10, 25, 100, 100);
+    
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 }
+
+void ArtisianDSPAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
+{
+    if (slider == &inputGainSlider)
+    {
+        audioProcessor.inputGain = (float) inputGainSlider.getValue();
+        
+        
+        // It does get value successfully, but need to figure out what to do with it..
+//        std::cout << std::to_string(audioProcessor.inputGain);
+    }
+}
+
+
