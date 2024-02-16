@@ -15,16 +15,22 @@ ArtisianDSPAudioProcessorEditor::ArtisianDSPAudioProcessorEditor(ArtisianDSPAudi
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     
+    
     addAndMakeVisible(multiSceneComponent);
     
     
     // Input Gain Knob
     addAndMakeVisible(inputGainSlider);
     inputGainSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-    inputGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
-    inputGainSlider.setRange(-48.0f, 0.0f);
-    inputGainSlider.setValue(0.5f);
-    inputGainSlider.addListener (this); // enables connection of slider to function
+    inputGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+    inputGainSlider.setRange(-15.0f, 15.0f);
+    inputGainSlider.setValue(0.0f);
+    inputGainSlider.addListener (this);
+    
+    // Input Gain Label
+//    addAndMakeVisible(inputGainLabel);
+
+    
     
     
     setSize (720, 540);
@@ -46,26 +52,41 @@ void ArtisianDSPAudioProcessorEditor::paint (juce::Graphics& g)
 
 void ArtisianDSPAudioProcessorEditor::resized()
 {
+    // This is generally where you'll want to lay out the positions of any
+    // subcomponents in your editor..
+    
+//    setResizable(true, true);
+//    float aspectRatio = 720 / 540;
     auto area = getLocalBounds();
     
     multiSceneComponent.setBounds(area);
     
     inputGainSlider.setBounds(10, 25, 100, 100);
     
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+
 }
 
 void ArtisianDSPAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &inputGainSlider)
     {
-        audioProcessor.inputGain = (float) inputGainSlider.getValue();
+//        auto& parameters = audioProcessor.getParameters();
+//        auto* inputGain = parameters.getUnchecked(0);
+//        inputGain->setValueNotifyingHost(inputGainSlider.getValue());
+        
+        // effectively mute at mininum value
+        if (inputGainSlider.getValue() == -15.0f)
+        {
+            audioProcessor.oldInputGain = (float) -48.0f;
+            
+        }
+        else
+        {
+            audioProcessor.oldInputGain = (float) inputGainSlider.getValue();
+        }
         
         
-        // It does get value successfully, but need to figure out what to do with it..
-//        std::cout << std::to_string(audioProcessor.inputGain);
+        
+
     }
 }
-
-

@@ -55,15 +55,14 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    float inputGain{ 0.5f };
     
-    // probably initialise like this for apvts maybe??
-//    juce::AudioParameterFloat* inputGainParameter;
+    float oldInputGain{ 0.0f };
     
-
-    
+//
 //    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 //    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
+    
+//    float inputGain = *apvts.getRawParameterValue("inputGain");
 private:
     ArtisianDSPAudioProcessor* editor;
     

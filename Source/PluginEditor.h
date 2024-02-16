@@ -31,10 +31,13 @@ public:
     // Slider Object Decleration
     juce::Slider inputGainSlider;
     
+    juce::Label inputGainLabel;
+    
     void sliderValueChanged(juce::Slider* slider) override;
     
+    
+    
 //    juce::String getTextFromValue (double value) override;
-
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -42,6 +45,7 @@ private:
     ArtisianDSPAudioProcessor& audioProcessor;
     
     MultiSceneComponent multiSceneComponent;
+    
     
 //    juce::AudioParameterFloat* inputGainParameter;
 

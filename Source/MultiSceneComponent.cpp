@@ -1,5 +1,7 @@
 #include "MultiSceneComponent.h"
 
+//make optimised
+
 MultiSceneComponent::MultiSceneComponent()
     : scene1(std::make_unique<Gate1Component>()),
       scene2(std::make_unique<Comp2Component>()),
@@ -57,12 +59,12 @@ void MultiSceneComponent::resized()
     scene5->setBounds(getLocalBounds());
     scene6->setBounds(getLocalBounds());
 
-    sceneButton1.setBounds(10, 10, 80, 30);
-    sceneButton2.setBounds(100, 10, 80, 30);
-    sceneButton3.setBounds(190, 10, 80, 30);
-    sceneButton4.setBounds(280, 10, 80, 30);
-    sceneButton5.setBounds(370, 10, 80, 30);
-    sceneButton6.setBounds(460, 10, 80, 30);
+    sceneButton1.setBounds(100, 10, 80, 30);
+    sceneButton2.setBounds(190, 10, 80, 30);
+    sceneButton3.setBounds(280, 10, 80, 30);
+    sceneButton4.setBounds(370, 10, 80, 30);
+    sceneButton5.setBounds(460, 10, 80, 30);
+    sceneButton6.setBounds(550, 10, 80, 30);
 }
 
 void MultiSceneComponent::showScene(int sceneIndex)

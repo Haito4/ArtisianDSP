@@ -95,9 +95,10 @@ void ArtisianDSPAudioProcessor::changeProgramName (int index, const juce::String
 void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     
-    
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    
+    
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -160,8 +161,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
-            // this doesn't seem to work, need to figure out a working way
-            channelData[sample] = channelData[sample] * inputGain;
+            
+            channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(oldInputGain);
 
         }
     }
@@ -209,10 +210,11 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
 //    ArtisianDSPAudioProcessor::createParameterLayout()
 //{
 //    juce::AudioProcessorValueTreeState::ParameterLayout layout;
-//    layout.add(std::make_unique<juce::AudioParameterFloat>("inputGain", "Input Gain", juce::NormalisableRange<float>(-48.0f, 0.5f), -1.0f));
+//
+//    // figure out how to make unique_ptr work
+////    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("inputGain", 1), "Input Gain", juce::NormalisableRange<float>(-48.0f, 0.5f), -1.0f));
 //
 //    return layout;
-//
 //}
 
 //==============================================================================
