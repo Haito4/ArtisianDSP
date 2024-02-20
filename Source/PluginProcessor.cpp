@@ -161,16 +161,10 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
-            
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(oldInputGain);
 
         }
     }
-
-//    juce::dsp::AudioBlock<float> block(buffer);
-    
-//    float gain = inputGainParameter->get();
-    
     
 }
 

@@ -34,4 +34,6 @@ private:
     juce::TextButton sceneButton6;
 
     void showScene(int sceneIndex);
+    
+    
 };

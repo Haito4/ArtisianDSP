@@ -16,7 +16,8 @@
 /**
 */
 class ArtisianDSPAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                         public juce::Slider::Listener
+                                         public juce::Slider::Listener,
+                                         public juce::ComboBox::Listener
 {
 public:
 //    ArtisianDSPAudioProcessorEditor ();
@@ -30,10 +31,16 @@ public:
 
     // Slider Object Decleration
     juce::Slider inputGainSlider;
+    juce::Slider outputGainSlider;
     
     juce::Label inputGainLabel;
+    juce::Label outputGainLabel;
     
     void sliderValueChanged(juce::Slider* slider) override;
+    void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override;
+    
+    float uiScaleFactor{ 1 };
+    
     
     
     
@@ -45,6 +52,20 @@ private:
     ArtisianDSPAudioProcessor& audioProcessor;
     
     MultiSceneComponent multiSceneComponent;
+    
+    juce::ComboBox resizenator;
+        
+    void updateResolution();
+    
+    int width{ 720 };
+    
+    int height{ 540 };
+    
+    
+    
+    
+    
+    
     
     
 //    juce::AudioParameterFloat* inputGainParameter;

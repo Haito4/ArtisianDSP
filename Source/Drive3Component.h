@@ -18,6 +18,8 @@ private:
     juce::Slider toneKnob;
     juce::Slider volumeKnob;
 
+    
+    
     // GUI
     juce::Label driveLabel;
 

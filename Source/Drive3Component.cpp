@@ -32,12 +32,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout Drive3Component::createParam
 {
     juce::AudioProcessorValueTreeState::ParameterLayout driveLayout;
     
-
     driveLayout.add(std::make_unique<juce::AudioParameterFloat>("Drive",
                                                                 "Drive",
                                                                  juce::NormalisableRange<float>(0.0, 1.0, 0.05, 1.f),
                                                                    0.0));
-    
     return driveLayout;
 }
 
