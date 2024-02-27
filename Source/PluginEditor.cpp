@@ -10,16 +10,13 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-ArtisianDSPAudioProcessorEditor::ArtisianDSPAudioProcessorEditor(ArtisianDSPAudioProcessor& p) : AudioProcessorEditor (&p), audioProcessor(p)
+RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     
-    setResizable(true, false);
-    setResizeLimits(360, 260, 1280, 960);
-    
-    const float ratio = 3 / 4;
-    getConstrainer ()->setFixedAspectRatio (ratio);
+//    setResizable(true, false);
+//    setResizeLimits(360, 260, 1280, 960);
     
     addAndMakeVisible(multiSceneComponent);
     
@@ -54,7 +51,6 @@ ArtisianDSPAudioProcessorEditor::ArtisianDSPAudioProcessorEditor(ArtisianDSPAudi
     outputGainLabel.attachToComponent (&outputGainSlider, false);
     outputGainLabel.setColour (juce::Label::textColourId, juce::Colours::ghostwhite);
     outputGainLabel.setJustificationType (juce::Justification::centredBottom);
-
     
     // Resize Combobox
     addAndMakeVisible(resizenator);
@@ -66,15 +62,15 @@ ArtisianDSPAudioProcessorEditor::ArtisianDSPAudioProcessorEditor(ArtisianDSPAudi
     
     resizenator.setSelectedId(2);
     
-    setSize(width, height);
+//    setSize(width, height);
 }
 
-ArtisianDSPAudioProcessorEditor::~ArtisianDSPAudioProcessorEditor()
+RasterComponent::~RasterComponent()
 {
 }
 
 //==============================================================================
-void ArtisianDSPAudioProcessorEditor::paint (juce::Graphics& g)
+void RasterComponent::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
 //    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
@@ -83,7 +79,7 @@ void ArtisianDSPAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll(juce::Colours::black);
 }
 
-void ArtisianDSPAudioProcessorEditor::resized()
+void RasterComponent::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
@@ -96,14 +92,50 @@ void ArtisianDSPAudioProcessorEditor::resized()
     multiSceneComponent.setBounds(bounds);
     
     
-    inputGainSlider.setBounds(40 * uiScaleFactor, 55 * uiScaleFactor, 100 * uiScaleFactor, 100 * uiScaleFactor);
-    outputGainSlider.setBounds(575 * uiScaleFactor, 55 * uiScaleFactor, 100 * uiScaleFactor, 100 * uiScaleFactor);
+    inputGainSlider.setBounds(40, 55, 100, 100);
+    outputGainSlider.setBounds(575, 55, 100, 100);
     
-    resizenator.setBounds(690 * uiScaleFactor, 496 * uiScaleFactor, 30 * uiScaleFactor, 24 * uiScaleFactor);
+    resizenator.setBounds(690, 496, 30, 24);
 
 }
 
-void ArtisianDSPAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
+
+
+// Wrapper Implementation
+
+WrappedRasterAudioProcessorEditor::WrappedRasterAudioProcessorEditor(ArtisianDSPAudioProcessor& p)
+: AudioProcessorEditor(p),
+  rasterComponent(p)
+{
+    addAndMakeVisible(rasterComponent);
+    
+    // Only execute if the constainer is not a null pointer
+    if (auto* constrainer = getConstrainer())
+    {
+        constrainer->setFixedAspectRatio(static_cast<double> (originalWidth) / static_cast<double> (originalHeight));
+        constrainer->setSizeLimits(originalWidth / 4, originalHeight / 4, originalWidth * 1.5, originalHeight * 1.5);
+        
+    }
+    
+    setResizable(true, true);
+    //Set Inital Size
+    setSize(originalWidth, originalHeight);
+}
+
+void WrappedRasterAudioProcessorEditor::resized()
+{
+    // When the wrapper component's size is changed, scale the raster component
+    const auto scaleFactor = static_cast<float> (getWidth()) / originalWidth;
+    rasterComponent.setTransform(juce::AffineTransform::scale(scaleFactor));
+    rasterComponent.setBounds(0, 0, originalWidth, originalHeight);
+}
+
+
+
+
+
+
+void RasterComponent::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &inputGainSlider)
     {
@@ -120,7 +152,7 @@ void ArtisianDSPAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
     }
 }
 
-void ArtisianDSPAudioProcessorEditor::comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged)
+void RasterComponent::comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged)
 {
     if (comboBoxThatHasChanged == &resizenator)
     {
@@ -128,38 +160,39 @@ void ArtisianDSPAudioProcessorEditor::comboBoxChanged(juce::ComboBox* comboBoxTh
         juce::String selectedText = resizenator.getItemText(selectedId - 1);
         juce::Logger::outputDebugString("Selected: " + selectedText);
         
-        updateResolution();
+//        updateResolution();
         
-        setSize(width, height);
+//        setSize(width, height);
     }
 }
 
-void ArtisianDSPAudioProcessorEditor::updateResolution()
-{
-    // Get the selected resolution
-    int selectedId = resizenator.getSelectedId();
-    // Set bounds based on selected resolution
-    switch (selectedId)
-    {
-        case 1: // Small
-            width = 360;
-            height = 260;
-            uiScaleFactor = 0.5;
-            break;
-        case 2: // Medium
-            width = 720;
-            height = 520;
-            uiScaleFactor = 1;
-            break;
-        case 3: // Large
-            width = 1080;
-            height = 780;
-            uiScaleFactor = 1.5;
-            break;
-        default:
-            // Use default medium resolution
-            width = 720;
-            height = 520;
-            uiScaleFactor = 1;
-    }
-}
+
+//void RasterComponent::updateResolution()
+//{
+//    // Get the selected resolution
+//    int selectedId = resizenator.getSelectedId();
+//    // Set bounds based on selected resolution
+//    switch (selectedId)
+//    {
+//        case 1: // Small
+//            width = 360;
+//            height = 260;
+//            uiScaleFactor = 0.5;
+//            break;
+//        case 2: // Medium
+//            width = 720;
+//            height = 520;
+//            uiScaleFactor = 1;
+//            break;
+//        case 3: // Large
+//            width = 1080;
+//            height = 780;
+//            uiScaleFactor = 1.5;
+//            break;
+//        default:
+//            // Use default medium resolution
+//            width = 720;
+//            height = 520;
+//            uiScaleFactor = 1;
+//    }
+//}

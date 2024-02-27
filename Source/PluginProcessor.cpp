@@ -178,7 +178,7 @@ bool ArtisianDSPAudioProcessor::hasEditor() const
 juce::AudioProcessorEditor* ArtisianDSPAudioProcessor::createEditor()
 {
     // Standard Editor
-    return new ArtisianDSPAudioProcessorEditor (*this);
+    return new WrappedRasterAudioProcessorEditor (*this);
     
     //Parameter Editor
 //    return new juce::GenericAudioProcessorEditor(*this);

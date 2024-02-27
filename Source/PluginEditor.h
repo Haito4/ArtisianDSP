@@ -15,14 +15,14 @@
 //==============================================================================
 /**
 */
-class ArtisianDSPAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                         public juce::Slider::Listener,
-                                         public juce::ComboBox::Listener
+class RasterComponent  : public juce::Component,
+                         public juce::Slider::Listener,
+                         public juce::ComboBox::Listener
 {
 public:
 //    ArtisianDSPAudioProcessorEditor ();
-    ArtisianDSPAudioProcessorEditor (ArtisianDSPAudioProcessor&);
-    ~ArtisianDSPAudioProcessorEditor() override;
+    RasterComponent (ArtisianDSPAudioProcessor&);
+    ~RasterComponent() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -40,11 +40,6 @@ public:
     void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override;
     
     float uiScaleFactor{ 1 };
-    
-    
-    
-    
-//    juce::String getTextFromValue (double value) override;
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -55,21 +50,30 @@ private:
     
     juce::ComboBox resizenator;
         
-    void updateResolution();
+//    void updateResolution();
     
     int width{ 720 };
     
     int height{ 540 };
     
-    
-    
-    
-    
-    
-    
-    
-//    juce::AudioParameterFloat* inputGainParameter;
 
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RasterComponent)
+};
+
+
+
+// Root Wrapper
+
+class WrappedRasterAudioProcessorEditor : public juce::AudioProcessorEditor
+{
+public:
+    WrappedRasterAudioProcessorEditor(ArtisianDSPAudioProcessor&);
+    void resized() override;
+    
+private:
+    static constexpr int originalWidth{ 720 };
+    static constexpr int originalHeight{ 540 };
+    
+    RasterComponent rasterComponent;
 };
