@@ -11,19 +11,24 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "MultiSceneComponent.h"
+#include "VerticalMeter.h"
+
 
 //==============================================================================
 /**
 */
 class RasterComponent  : public juce::Component,
                          public juce::Slider::Listener,
-                         public juce::ComboBox::Listener
+                         public juce::ComboBox::Listener,
+                         public juce::Timer
 {
 public:
     RasterComponent (ArtisianDSPAudioProcessor&);
     ~RasterComponent() override;
 
     //==============================================================================
+    
+    void timerCallback() override;
     void paint (juce::Graphics&) override;
     void resized() override;
     
@@ -45,7 +50,9 @@ private:
     
     MultiSceneComponent multiSceneComponent;
     
-    juce::ComboBox resizenator;
+    juce::ComboBox presetSelector;
+    
+    gui::VerticalMeter verticalMeterL, verticalMeterR;
     
 
 

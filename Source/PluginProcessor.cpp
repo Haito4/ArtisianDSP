@@ -94,9 +94,13 @@ void ArtisianDSPAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    rmsLevelLeft.reset(sampleRate, 0.5);
+    rmsLevelRight.reset(sampleRate, 0.5);
+    
+    rmsLevelLeft.setCurrentAndTargetValue(-100.f);
+    rmsLevelRight.setCurrentAndTargetValue(-100.f);
     
     
 }
@@ -136,6 +140,25 @@ bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+    
+    rmsLevelLeft.skip(buffer.getNumSamples());
+    rmsLevelRight.skip(buffer.getNumSamples());
+    {
+        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
+        if (value < rmsLevelLeft.getCurrentValue())
+            rmsLevelLeft.setTargetValue(value);
+        else
+            rmsLevelLeft.setCurrentAndTargetValue(value);
+        
+    }
+    
+    {
+        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
+        if (value < rmsLevelRight.getCurrentValue())
+            rmsLevelRight.setTargetValue(value);
+        else
+            rmsLevelRight.setCurrentAndTargetValue(value);
+    }
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -154,6 +177,11 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
+    
+    
+   
+    
+    
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         // ..do something to the data...
@@ -198,6 +226,16 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
+}
+
+float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return rmsLevelLeft.getCurrentValue();
+    if (channel == 1)
+        return rmsLevelRight.getCurrentValue();
+    return 0.f;
 }
 
 //juce::AudioProcessorValueTreeState::ParameterLayout

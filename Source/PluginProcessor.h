@@ -54,18 +54,20 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    float getRmsValue(const int channel) const;
 
     
     float oldInputGain{ 0.0f };
     
-//
 //    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 //    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
-    
-//    float inputGain = *apvts.getRawParameterValue("inputGain");
 private:
     ArtisianDSPAudioProcessor* editor;
     
+//    float rmsLevelLeft, rmsLevelRight;
+    
+    juce::LinearSmoothedValue<float> rmsLevelLeft, rmsLevelRight;
     
     
     //==============================================================================

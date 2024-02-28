@@ -9,11 +9,17 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
 //==============================================================================
 RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+    
+    // Vertical Meter
+    addAndMakeVisible(verticalMeterL);
+    addAndMakeVisible(verticalMeterR);
+    
+    startTimerHz(30);
+    
     
     addAndMakeVisible(multiSceneComponent);
     
@@ -50,18 +56,26 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     outputGainLabel.setJustificationType (juce::Justification::centredBottom);
     
     // Resize Combobox
-    addAndMakeVisible(resizenator);
-    resizenator.addListener(this);
+    addAndMakeVisible(presetSelector);
+    presetSelector.addListener(this);
     
-    resizenator.addItem("Small", 1);
-    resizenator.addItem("Medium", 2);
-    resizenator.addItem("Large", 3);
+    presetSelector.addItem("Preset 1", 1);
+    presetSelector.addItem("Preset 2", 2);
+    presetSelector.addItem("Preset 3", 3);
     
-    resizenator.setSelectedId(2);
+    presetSelector.setSelectedId(2);
 }
 
 RasterComponent::~RasterComponent()
 {
+}
+
+void RasterComponent::timerCallback()
+{
+    verticalMeterL.setLevel(audioProcessor.getRmsValue(0));
+    verticalMeterR.setLevel(audioProcessor.getRmsValue(1));
+    verticalMeterL.repaint();
+    verticalMeterR.repaint();
 }
 
 //==============================================================================
@@ -84,11 +98,14 @@ void RasterComponent::resized()
     
     multiSceneComponent.setBounds(bounds);
     
+    verticalMeterL.setBounds(5, 15, 15, 200);
+    verticalMeterR.setBounds(25, 15, 15, 200);
+    
     
     inputGainSlider.setBounds(40, 55, 100, 100);
     outputGainSlider.setBounds(575, 55, 100, 100);
     
-    resizenator.setBounds(690, 496, 30, 24);
+    presetSelector.setBounds(283, 70, 150, 24);
 
 }
 
@@ -166,10 +183,10 @@ void RasterComponent::sliderValueChanged(juce::Slider* slider)
 
 void RasterComponent::comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged)
 {
-    if (comboBoxThatHasChanged == &resizenator)
+    if (comboBoxThatHasChanged == &presetSelector)
     {
-        int selectedId = resizenator.getSelectedId();
-        juce::String selectedText = resizenator.getItemText(selectedId - 1);
+        int selectedId = presetSelector.getSelectedId();
+        juce::String selectedText = presetSelector.getItemText(selectedId - 1);
         juce::Logger::outputDebugString("Selected: " + selectedText);
         
     }
