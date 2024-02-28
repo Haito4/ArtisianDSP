@@ -20,7 +20,6 @@ class RasterComponent  : public juce::Component,
                          public juce::ComboBox::Listener
 {
 public:
-//    ArtisianDSPAudioProcessorEditor ();
     RasterComponent (ArtisianDSPAudioProcessor&);
     ~RasterComponent() override;
 
@@ -38,8 +37,6 @@ public:
     
     void sliderValueChanged(juce::Slider* slider) override;
     void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override;
-    
-    float uiScaleFactor{ 1 };
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -49,12 +46,6 @@ private:
     MultiSceneComponent multiSceneComponent;
     
     juce::ComboBox resizenator;
-        
-//    void updateResolution();
-    
-    int width{ 720 };
-    
-    int height{ 540 };
     
 
 
@@ -64,7 +55,6 @@ private:
 
 
 // Root Wrapper
-
 class WrappedRasterAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
@@ -76,4 +66,5 @@ private:
     static constexpr int originalHeight{ 540 };
     
     RasterComponent rasterComponent;
+    juce::ApplicationProperties applicationProperties;
 };
