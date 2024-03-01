@@ -5,10 +5,21 @@
 class Gate1Component : public juce::Component
 {
 public:
-    Gate1Component();
-    ~Gate1Component();
+    Gate1Component()
+    {
+        helloLabel.setFont(20.0f);
+        helloLabel.setJustificationType(juce::Justification::centred);
+        helloLabel.setText("Noise Gate", juce::dontSendNotification);
+        addAndMakeVisible(helloLabel);
+    }
+//    ~Gate1Component();
 
-    void resized() override;
+    virtual void resized() override
+    {
+        helloLabel.setBounds(getLocalBounds());
+    }
+
 private:
     juce::Label helloLabel;
 };
+

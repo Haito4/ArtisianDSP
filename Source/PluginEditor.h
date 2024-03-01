@@ -52,9 +52,10 @@ private:
     
     juce::ComboBox presetSelector;
     
-    gui::VerticalMeter verticalMeterL, verticalMeterR;
+    gui::VerticalMeter verticalInputMeterL, verticalInputMeterR;
     
-
+    gui::VerticalMeter verticalOutputMeterL, verticalOutputMeterR;
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RasterComponent)
 };

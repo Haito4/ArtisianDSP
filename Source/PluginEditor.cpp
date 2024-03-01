@@ -14,12 +14,16 @@
 RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p)
 {
     
-    // Vertical Meter
-    addAndMakeVisible(verticalMeterL);
-    addAndMakeVisible(verticalMeterR);
+    // Vertical Input Meter
+    addAndMakeVisible(verticalInputMeterL);
+    addAndMakeVisible(verticalInputMeterR);
     
+    // Vertical Output Meter
+    addAndMakeVisible(verticalOutputMeterL);
+    addAndMakeVisible(verticalOutputMeterR);
+    
+    // Refresh Rate for Meter
     startTimerHz(30);
-    
     
     addAndMakeVisible(multiSceneComponent);
     
@@ -59,11 +63,12 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     addAndMakeVisible(presetSelector);
     presetSelector.addListener(this);
     
+    // Make a for loop that reads preset folder
     presetSelector.addItem("Preset 1", 1);
     presetSelector.addItem("Preset 2", 2);
     presetSelector.addItem("Preset 3", 3);
     
-    presetSelector.setSelectedId(2);
+    presetSelector.setSelectedId(2); // Default value
 }
 
 RasterComponent::~RasterComponent()
@@ -72,10 +77,16 @@ RasterComponent::~RasterComponent()
 
 void RasterComponent::timerCallback()
 {
-    verticalMeterL.setLevel(audioProcessor.getRmsValue(0));
-    verticalMeterR.setLevel(audioProcessor.getRmsValue(1));
-    verticalMeterL.repaint();
-    verticalMeterR.repaint();
+    verticalInputMeterL.setLevel(audioProcessor.getRmsValue(0));
+    verticalInputMeterR.setLevel(audioProcessor.getRmsValue(1));
+    verticalInputMeterL.repaint();
+    verticalInputMeterR.repaint();
+    
+    // need to get the RMS level for output
+    verticalOutputMeterL.setLevel(audioProcessor.getRmsValue(0));
+    verticalOutputMeterR.setLevel(audioProcessor.getRmsValue(1));
+    verticalOutputMeterL.repaint();
+    verticalOutputMeterR.repaint();
 }
 
 //==============================================================================
@@ -98,9 +109,11 @@ void RasterComponent::resized()
     
     multiSceneComponent.setBounds(bounds);
     
-    verticalMeterL.setBounds(5, 15, 15, 200);
-    verticalMeterR.setBounds(25, 15, 15, 200);
+    verticalInputMeterL.setBounds(5, 15, 15, 200);
+    verticalInputMeterR.setBounds(25, 15, 15, 200);
     
+    verticalOutputMeterL.setBounds(676, 15, 15, 200);
+    verticalOutputMeterR.setBounds(696, 15, 15, 200);
     
     inputGainSlider.setBounds(40, 55, 100, 100);
     outputGainSlider.setBounds(575, 55, 100, 100);
@@ -124,8 +137,6 @@ WrappedRasterAudioProcessorEditor::WrappedRasterAudioProcessorEditor(ArtisianDSP
     options.filenameSuffix = "settings";
     options.osxLibrarySubFolder = "Application Support";
     applicationProperties.setStorageParameters(options);
-    
-    
     
     // Only execute if the constainer is not a null pointer
     if (auto* constrainer = getConstrainer())

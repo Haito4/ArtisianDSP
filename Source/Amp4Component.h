@@ -5,10 +5,20 @@
 class Amp4Component : public juce::Component
 {
 public:
-    Amp4Component();
-    ~Amp4Component();
+    Amp4Component()
+    {
+        ampLabel.setFont(20.f);
+        ampLabel.setJustificationType(juce::Justification::centred);
+        ampLabel.setText("Amplifier", juce::dontSendNotification);
+        addAndMakeVisible(ampLabel);
+    }
+//    ~Amp4Component();
     
-    void resized() override;
+    virtual void resized() override
+    {
+        ampLabel.setBounds(getLocalBounds());
+    }
+    
 private:
     juce::Label ampLabel;
 };
