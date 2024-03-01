@@ -7,27 +7,15 @@
     <GROUP id="{1336A030-A105-CEDF-C0E4-DB803E980675}" name="Source">
       <FILE id="hL4TWG" name="VerticalMeter.h" compile="0" resource="0" file="Source/VerticalMeter.h"/>
       <GROUP id="{DE184668-32B0-421B-F6F5-8A7FCF554DF2}" name="MultiScene">
-        <FILE id="CndXN7" name="Drive3Component.cpp" compile="1" resource="0"
-              file="Source/Drive3Component.cpp"/>
-        <FILE id="iKK5oZ" name="Amp4Component.cpp" compile="1" resource="0"
-              file="Source/Amp4Component.cpp"/>
-        <FILE id="k0qrip" name="Amp4Component.h" compile="0" resource="0" file="Source/Amp4Component.h"/>
-        <FILE id="NwEJiv" name="Impulse6Component.cpp" compile="1" resource="0"
-              file="Source/Impulse6Component.cpp"/>
         <FILE id="Y19KGc" name="Impulse6Component.h" compile="0" resource="0"
               file="Source/Impulse6Component.h"/>
-        <FILE id="NDFQ2a" name="Reverb5Component.cpp" compile="1" resource="0"
-              file="Source/Reverb5Component.cpp"/>
         <FILE id="E3UBMN" name="Reverb5Component.h" compile="0" resource="0"
               file="Source/Reverb5Component.h"/>
+        <FILE id="k0qrip" name="Amp4Component.h" compile="0" resource="0" file="Source/Amp4Component.h"/>
         <FILE id="Sc3rk6" name="Drive3Component.h" compile="0" resource="0"
               file="Source/Drive3Component.h"/>
-        <FILE id="YfJAW6" name="Comp2Component.cpp" compile="1" resource="0"
-              file="Source/Comp2Component.cpp"/>
         <FILE id="yu4rgU" name="Comp2Component.h" compile="0" resource="0"
               file="Source/Comp2Component.h"/>
-        <FILE id="nshSso" name="Gate1Component.cpp" compile="1" resource="0"
-              file="Source/Gate1Component.cpp"/>
         <FILE id="DkMdlx" name="Gate1Component.h" compile="0" resource="0"
               file="Source/Gate1Component.h"/>
         <FILE id="xwvdNi" name="MultiSceneComponent.cpp" compile="1" resource="0"
