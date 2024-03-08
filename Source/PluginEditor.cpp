@@ -14,16 +14,15 @@
 RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p)
 {
     
-    // Vertical Input Meter
+    // Vertical Input & Output Meters
     addAndMakeVisible(verticalInputMeterL);
     addAndMakeVisible(verticalInputMeterR);
-    
-    // Vertical Output Meter
     addAndMakeVisible(verticalOutputMeterL);
     addAndMakeVisible(verticalOutputMeterR);
-    
     // Refresh Rate for Meter
-    startTimerHz(30);
+    startTimerHz(60);
+    
+    
     
     addAndMakeVisible(multiSceneComponent);
     
@@ -77,16 +76,20 @@ RasterComponent::~RasterComponent()
 
 void RasterComponent::timerCallback()
 {
+    //Input
     verticalInputMeterL.setLevel(audioProcessor.getRmsValue(0));
     verticalInputMeterR.setLevel(audioProcessor.getRmsValue(1));
     verticalInputMeterL.repaint();
     verticalInputMeterR.repaint();
     
-    // need to get the RMS level for output
+    // Output
     verticalOutputMeterL.setLevel(audioProcessor.getRmsValue(0));
     verticalOutputMeterR.setLevel(audioProcessor.getRmsValue(1));
     verticalOutputMeterL.repaint();
     verticalOutputMeterR.repaint();
+
+
+    // auto cpu = deviceManager.getCpuUsage() * 100;
 }
 
 //==============================================================================
@@ -124,6 +127,9 @@ void RasterComponent::resized()
 
 
 
+
+
+//======================================================================
 // Wrapper Implementation
 WrappedRasterAudioProcessorEditor::WrappedRasterAudioProcessorEditor(ArtisianDSPAudioProcessor& p)
 : AudioProcessorEditor(p),
@@ -172,22 +178,34 @@ void WrappedRasterAudioProcessorEditor::resized()
 }
 
 
-
-
+//===============================================================
 // Value Changes
 void RasterComponent::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &inputGainSlider)
     {
-        // effectively mute at mininum value
+        // effectively mute at minimum value
         if (inputGainSlider.getValue() == -15.0f)
         {
-            audioProcessor.oldInputGain = (float) -48.0f;
+            audioProcessor.inputGainFloat = (float) -100.0f;
             
         }
         else
         {
-            audioProcessor.oldInputGain = (float) inputGainSlider.getValue();
+            audioProcessor.inputGainFloat = (float) inputGainSlider.getValue();
+        }
+    }
+    
+    if (slider == &outputGainSlider)
+    {
+        if (inputGainSlider.getValue() == -15.0f)
+        {
+            audioProcessor.outputGainFloat = (float) -100.0f;
+            
+        }
+        else
+        {
+            audioProcessor.outputGainFloat = (float) outputGainSlider.getValue();
         }
     }
 }

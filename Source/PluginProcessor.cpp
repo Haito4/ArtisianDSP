@@ -20,6 +20,7 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
+//, mainProcessor(new juce::AudioProcessorGraph())
 #endif
 {
     
@@ -140,18 +141,24 @@ bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
     
+    
+    //==============================================================================
+    // RMS Level for input meter
     rmsLevelLeft.skip(buffer.getNumSamples());
     rmsLevelRight.skip(buffer.getNumSamples());
+    // RMS Left Channel
     {
         const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
-        if (value < rmsLevelLeft.getCurrentValue())
-            rmsLevelLeft.setTargetValue(value);
+        if (value < rmsLevelLeft.getCurrentValue()) // if value less than current RMS value
+            rmsLevelLeft.setTargetValue(value); // then go toward value steadily
         else
-            rmsLevelLeft.setCurrentAndTargetValue(value);
+            rmsLevelLeft.setCurrentAndTargetValue(value); // otherwise immediately jump to higher value
         
     }
-    
+    // RMS Right Channel
     {
         const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
         if (value < rmsLevelRight.getCurrentValue())
@@ -159,29 +166,14 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         else
             rmsLevelRight.setCurrentAndTargetValue(value);
     }
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    //==============================================================================
+    
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    // Clears any output channels that didn't contain input data
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    
-    
-   
-    
-    
+    // Main Processing
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         // ..do something to the data...
@@ -189,12 +181,56 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
-            channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(oldInputGain);
+            
+            
+            // Input Gain
+            channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(inputGainFloat);
 
+            
+            
+       
+            
+            
+            // Output Gain
+            channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
+            
         }
+  
     }
     
+    
+
+
+    
 }
+
+
+//// For AudioProcessorGraph
+//void initialiseGraph()
+//{
+//  mainProcessor->clear();
+//
+//    audioInputNode  = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::audioInputNode));
+//    audioOutputNode = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::audioOutputNode));
+//    midiInputNode   = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::midiInputNode));
+//    midiOutputNode  = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::midiOutputNode));
+//
+//    connectAudioNodes();
+//    connectMidiNodes();
+//}
+//
+//void connectAudioNodes()
+//{
+//    for (int channel = 0; channel < 2; ++channel)
+//        mainProcessor->addConnection ({ { audioInputNode->nodeID,  channel },
+//                                        { audioOutputNode->nodeID, channel } });
+//}
+//
+//void connectMidiNodes()
+//{
+//    mainProcessor->addConnection ({ { midiInputNode->nodeID,  juce::AudioProcessorGraph::midiChannelIndex },
+//                                    { midiOutputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex } });
+//}
 
 
 //==============================================================================
@@ -238,16 +274,22 @@ float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const
     return 0.f;
 }
 
-//juce::AudioProcessorValueTreeState::ParameterLayout
-//    ArtisianDSPAudioProcessor::createParameterLayout()
+//float ArtisianDSPAudioProcessor::getRmsValue(const int channel, bool pos) const
 //{
-//    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+//    jassert(channel == 0 || channel == 1);
+//    if (channel == 0 and pos == false)
+//        return rmsLevelLeft.getCurrentValue();
+//    if (channel == 1 and pos == false)
+//        return rmsLevelRight.getCurrentValue();
 //
-//    // figure out how to make unique_ptr work
-////    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("inputGain", 1), "Input Gain", juce::NormalisableRange<float>(-48.0f, 0.5f), -1.0f));
-//
-//    return layout;
+//    if (channel == 0 and pos == true)
+//        return rmsOutputLevelLeft.getCurrentValue();
+//    if (channel == 1 and pos == true)
+//        return rmsOutputLevelRight.getCurrentValue();
+//    return 0.f;
 //}
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..

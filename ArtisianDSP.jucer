@@ -5,7 +5,11 @@
               pluginFormats="buildStandalone,buildVST3">
   <MAINGROUP id="jQ0XFJ" name="ArtisianDSP">
     <GROUP id="{1336A030-A105-CEDF-C0E4-DB803E980675}" name="Source">
-      <FILE id="hL4TWG" name="VerticalMeter.h" compile="0" resource="0" file="Source/VerticalMeter.h"/>
+      <GROUP id="{6EE2CD03-7313-1380-10EC-D7A7C997CCB0}" name="Components">
+        <FILE id="BWy3Wz" name="AudioProcessorGraph.h" compile="0" resource="0"
+              file="Source/AudioProcessorGraph.h"/>
+        <FILE id="hL4TWG" name="VerticalMeter.h" compile="0" resource="0" file="Source/VerticalMeter.h"/>
+      </GROUP>
       <GROUP id="{DE184668-32B0-421B-F6F5-8A7FCF554DF2}" name="MultiScene">
         <FILE id="Y19KGc" name="Impulse6Component.h" compile="0" resource="0"
               file="Source/Impulse6Component.h"/>
