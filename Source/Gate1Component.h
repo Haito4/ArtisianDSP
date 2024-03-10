@@ -7,15 +7,16 @@ class Gate1Component : public juce::Component,
                        public juce::Button::Listener
 {
 public:
-    Gate1Component()
+    Gate1Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
         helloLabel.setFont(20.0f);
         helloLabel.setJustificationType(juce::Justification::centred);
         helloLabel.setText("Noise Gate", juce::dontSendNotification);
         addAndMakeVisible(helloLabel);
         
-        
-//        addAndMakeVisible(gateToggle);
+        gateToggle.setButtonText("Gate On/Off");
+        gateToggle.addListener(this);
+        addAndMakeVisible(gateToggle);
         
     }
 //    ~Gate1Component();
@@ -23,58 +24,24 @@ public:
     virtual void resized() override
     {
         helloLabel.setBounds(getLocalBounds());
-//        gateToggle.setBounds(getLocalBounds());
+        gateToggle.setBounds(360, 270, 100, 50);
+        
     }
         
     void buttonClicked(juce::Button* button) override
     {
         if (button == &gateToggle)
         {
+            audioProcessor.usingGate = !audioProcessor.usingGate;
             
+            juce::Logger::outputDebugString("usingGate: " + juce::String(audioProcessor.usingGate ? "true" : "false"));
         }
     };
 
 private:
-//    ArtisianDSPAudioProcessor& audioProcessor;
+    ArtisianDSPAudioProcessor& audioProcessor;
     
     juce::Label helloLabel;
     
-    juce::ToggleButton gateToggle;
-};
-
-
-
-
-
-
-
-
-class GateProcessor  : public ProcessorBase
-{
-public:
-    GateProcessor()
-    {
-        // audio processing goes here
-    }
-
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override
-    {
-        // preprocessing
-    }
-
-    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
-    {
-        
-    }
-
-    void reset() override
-    {
-        // can reset the state of the dsp::Oscillator object by overriding the reset() function of the AudioProcessor and calling the same function onto it
-        // oscillator.reset();
-    }
-
-    const juce::String getName() const override { return "Gate"; }
-
-private:
-
+    juce::TextButton gateToggle;
 };

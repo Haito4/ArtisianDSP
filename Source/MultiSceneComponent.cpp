@@ -1,9 +1,9 @@
 #include "MultiSceneComponent.h"
 
-//make optimised
 
-MultiSceneComponent::MultiSceneComponent()
-    : scene1(std::make_unique<Gate1Component>()),
+MultiSceneComponent::MultiSceneComponent(ArtisianDSPAudioProcessor& processor)
+    : audioProcessor(processor),
+      scene1(std::make_unique<Gate1Component>(processor)),
       scene2(std::make_unique<Comp2Component>()),
       scene3(std::make_unique<Drive3Component>()),
       scene4(std::make_unique<Amp4Component>()),

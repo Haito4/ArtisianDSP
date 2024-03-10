@@ -11,9 +11,8 @@
 
 
 //==============================================================================
-RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p)
+RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p), multiSceneComponent(p)
 {
-    
     // Vertical Input & Output Meters
     addAndMakeVisible(verticalInputMeterL);
     addAndMakeVisible(verticalInputMeterR);
@@ -23,7 +22,7 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     startTimerHz(60);
     
     
-    
+    // MultiScene Elements
     addAndMakeVisible(multiSceneComponent);
     
     
@@ -41,7 +40,6 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     inputGainLabel.attachToComponent (&inputGainSlider, false);
     inputGainLabel.setColour (juce::Label::textColourId, juce::Colours::ghostwhite);
     inputGainLabel.setJustificationType (juce::Justification::centredBottom);
-
 
     // Output Gain Knob
     addAndMakeVisible(outputGainSlider);
@@ -66,7 +64,6 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     presetSelector.addItem("Preset 1", 1);
     presetSelector.addItem("Preset 2", 2);
     presetSelector.addItem("Preset 3", 3);
-    
     presetSelector.setSelectedId(2); // Default value
 }
 
@@ -88,7 +85,6 @@ void RasterComponent::timerCallback()
     verticalOutputMeterL.repaint();
     verticalOutputMeterR.repaint();
 
-
     // auto cpu = deviceManager.getCpuUsage() * 100;
 }
 
@@ -107,14 +103,12 @@ void RasterComponent::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    
     auto bounds = getLocalBounds();
     
     multiSceneComponent.setBounds(bounds);
     
     verticalInputMeterL.setBounds(5, 15, 15, 200);
     verticalInputMeterR.setBounds(25, 15, 15, 200);
-    
     verticalOutputMeterL.setBounds(676, 15, 15, 200);
     verticalOutputMeterR.setBounds(696, 15, 15, 200);
     
@@ -122,11 +116,7 @@ void RasterComponent::resized()
     outputGainSlider.setBounds(575, 55, 100, 100);
     
     presetSelector.setBounds(283, 70, 150, 24);
-
 }
-
-
-
 
 
 //======================================================================
@@ -176,9 +166,9 @@ void WrappedRasterAudioProcessorEditor::resized()
     rasterComponent.setTransform(juce::AffineTransform::scale(scaleFactor));
     rasterComponent.setBounds(0, 0, originalWidth, originalHeight);
 }
-
-
 //===============================================================
+
+
 // Value Changes
 void RasterComponent::sliderValueChanged(juce::Slider* slider)
 {

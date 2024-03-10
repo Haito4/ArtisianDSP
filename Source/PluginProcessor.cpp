@@ -20,8 +20,7 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
-//, mainProcessor(new juce::AudioProcessorGraph())
-#endif
+                     #endif
 {
     
 }
@@ -102,6 +101,7 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     
     rmsLevelLeft.setCurrentAndTargetValue(-100.f);
     rmsLevelRight.setCurrentAndTargetValue(-100.f);
+    
     
     
 }
@@ -187,7 +187,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(inputGainFloat);
 
             
-            
        
             
             
@@ -199,38 +198,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     }
     
     
-
-
-    
 }
 
-
-//// For AudioProcessorGraph
-//void initialiseGraph()
-//{
-//  mainProcessor->clear();
-//
-//    audioInputNode  = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::audioInputNode));
-//    audioOutputNode = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::audioOutputNode));
-//    midiInputNode   = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::midiInputNode));
-//    midiOutputNode  = mainProcessor->addNode (std::make_unique<ArtisianDSPAudioProcessor::AudioGraphIOProcessor> (ArtisianDSPAudioProcessor::AudioGraphIOProcessor::midiOutputNode));
-//
-//    connectAudioNodes();
-//    connectMidiNodes();
-//}
-//
-//void connectAudioNodes()
-//{
-//    for (int channel = 0; channel < 2; ++channel)
-//        mainProcessor->addConnection ({ { audioInputNode->nodeID,  channel },
-//                                        { audioOutputNode->nodeID, channel } });
-//}
-//
-//void connectMidiNodes()
-//{
-//    mainProcessor->addConnection ({ { midiInputNode->nodeID,  juce::AudioProcessorGraph::midiChannelIndex },
-//                                    { midiOutputNode->nodeID, juce::AudioProcessorGraph::midiChannelIndex } });
-//}
 
 
 //==============================================================================
@@ -273,23 +242,6 @@ float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const
         return rmsLevelRight.getCurrentValue();
     return 0.f;
 }
-
-//float ArtisianDSPAudioProcessor::getRmsValue(const int channel, bool pos) const
-//{
-//    jassert(channel == 0 || channel == 1);
-//    if (channel == 0 and pos == false)
-//        return rmsLevelLeft.getCurrentValue();
-//    if (channel == 1 and pos == false)
-//        return rmsLevelRight.getCurrentValue();
-//
-//    if (channel == 0 and pos == true)
-//        return rmsOutputLevelLeft.getCurrentValue();
-//    if (channel == 1 and pos == true)
-//        return rmsOutputLevelRight.getCurrentValue();
-//    return 0.f;
-//}
-
-
 
 //==============================================================================
 // This creates new instances of the plugin..

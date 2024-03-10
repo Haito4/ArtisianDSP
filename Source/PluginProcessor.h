@@ -9,7 +9,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-//#include "PluginEditor.h"
 
 
 //==============================================================================
@@ -20,8 +19,7 @@ class ArtisianDSPAudioProcessor
     
 {
 public:
-    using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor;
-    using Node = juce::AudioProcessorGraph::Node;
+
     //==============================================================================
     ArtisianDSPAudioProcessor();
     ~ArtisianDSPAudioProcessor() override;
@@ -61,26 +59,13 @@ public:
     
     float getRmsValue(const int channel) const;
 
-    
+    //==============================================================================
     float inputGainFloat{ 0.0f };
     float outputGainFloat{ 0.0f };
-    
     bool usingGate = false;
     
-
+    
 private:
-    void initialiseGraph();
-    
-    void connectAudioNodes();
-    
-    void connectMidiNodes();
-
-    // Pointers to the main AudioProcessorGraph & to the input and output processor nodes
-    // which will be instantiated later on within the graph.
-    Node::Ptr audioInputNode;
-    Node::Ptr audioOutputNode;
-    Node::Ptr midiInputNode;
-    Node::Ptr midiOutputNode;
     //==============================================================================
     
     
@@ -93,50 +78,4 @@ private:
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
-};
-
-
-
-
-
-
-// Base for the individual effect's processing
-class ProcessorBase  : public juce::AudioProcessor
-{
-public:
-    //==============================================================================
-    ProcessorBase()
-        : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo())
-                                           .withOutput ("Output", juce::AudioChannelSet::stereo()))
-    {}
-
-    //==============================================================================
-    void prepareToPlay (double, int) override {}
-    void releaseResources() override {}
-    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override {}
-
-    //==============================================================================
-    juce::AudioProcessorEditor* createEditor() override          { return nullptr; }
-    bool hasEditor() const override                              { return false; }
-
-    //==============================================================================
-    const juce::String getName() const override                  { return {}; }
-    bool acceptsMidi() const override                            { return false; }
-    bool producesMidi() const override                           { return false; }
-    double getTailLengthSeconds() const override                 { return 0; }
-
-    //==============================================================================
-    int getNumPrograms() override                                { return 0; }
-    int getCurrentProgram() override                             { return 0; }
-    void setCurrentProgram (int) override                        {}
-    const juce::String getProgramName (int) override             { return {}; }
-    void changeProgramName (int, const juce::String&) override   {}
-
-    //==============================================================================
-    void getStateInformation (juce::MemoryBlock&) override       {}
-    void setStateInformation (const void*, int) override         {}
-
-private:
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorBase)
 };
