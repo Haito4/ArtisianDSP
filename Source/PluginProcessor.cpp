@@ -19,10 +19,22 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
-                     #endif
+                       ), apvts(*this, nullptr, "Parameters", createParameters())
+#endif
 {
+    apvts.state.addListener(this);
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::createParameters()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout params;
     
+    params.add(std::make_unique<juce::AudioParameterFloat>("THRESHOLD", "Threshold", -96.0f, 6.0f, 1.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("RATIO", "Ratio", 1.0f, 10.0f, 1.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 300.0f, 20.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 700.0f, 20.0f));
+    
+    return params;
 }
 
 ArtisianDSPAudioProcessor::~ArtisianDSPAudioProcessor()
@@ -138,11 +150,28 @@ bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 }
 #endif
 
+
+void ArtisianDSPAudioProcessor::valueTreePropertyChanged(juce::ValueTree &treeWhosePropertyChanged, const juce::Identifier &property)
+{
+    shouldUpdate = true;
+    
+
+    auto thresholdValue = apvts.getRawParameterValue("THRESHOLD")->load();
+    juce::Logger::outputDebugString("Threshold value: " + juce::String(thresholdValue));
+}
+
 void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    
+    if (shouldUpdate)
+    {
+        thresholdValue = static_cast<float>(*apvts.getRawParameterValue("THRESHOLD"));
+        shouldUpdate = false;
+    }
+    
     
     
     //==============================================================================
@@ -181,14 +210,16 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
-            
-            
             // Input Gain
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(inputGainFloat);
 
-            
+            // Noise Gate
+            noiseGate.setThreshold(apvts.getRawParameterValue("THRESHOLD")->load());
+            noiseGate.setRatio(apvts.getRawParameterValue("RATIO")->load());
+            noiseGate.setAttack(apvts.getRawParameterValue("ATTACK")->load());
+            noiseGate.setRelease(apvts.getRawParameterValue("RELEASE")->load());
        
-            
+//            noiseGate.process(juce::dsp::ProcessContextReplacing<float>(channelData));
             
             // Output Gain
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
@@ -199,6 +230,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     
     
 }
+
+
 
 
 
@@ -220,6 +253,8 @@ juce::AudioProcessorEditor* ArtisianDSPAudioProcessor::createEditor()
 //==============================================================================
 void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
+    
+    
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.

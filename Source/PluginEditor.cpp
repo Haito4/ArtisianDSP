@@ -11,7 +11,7 @@
 
 
 //==============================================================================
-RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p), multiSceneComponent(p)
+RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p, juce::AudioProcessorValueTreeState& vts) : audioProcessor(p), multiSceneComponent(p, p.apvts), apvts(vts)
 {
     // Vertical Input & Output Meters
     addAndMakeVisible(verticalInputMeterL);
@@ -40,6 +40,16 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     inputGainLabel.attachToComponent (&inputGainSlider, false);
     inputGainLabel.setColour (juce::Label::textColourId, juce::Colours::ghostwhite);
     inputGainLabel.setJustificationType (juce::Justification::centredBottom);
+    
+    // Noise Gate
+//    addAndMakeVisible(sliderThreshold);
+//    sliderThreshold.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+//    sliderThreshold.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 76, 38);
+//    sliderThreshold.setDoubleClickReturnValue(true, 0.0f);
+//    sliderAttachmentThreshold = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "THRESHOLD", sliderThreshold);
+    
+    
+    
 
     // Output Gain Knob
     addAndMakeVisible(outputGainSlider);
@@ -105,6 +115,8 @@ void RasterComponent::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
     
+    sliderThreshold.setBounds(100, 100, 20, 20);
+    
     multiSceneComponent.setBounds(bounds);
     
     verticalInputMeterL.setBounds(5, 15, 15, 200);
@@ -123,7 +135,8 @@ void RasterComponent::resized()
 // Wrapper Implementation
 WrappedRasterAudioProcessorEditor::WrappedRasterAudioProcessorEditor(ArtisianDSPAudioProcessor& p)
 : AudioProcessorEditor(p),
-  rasterComponent(p)
+  rasterComponent(p, p.apvts)
+//  rasterComponent(vts)
 {
     addAndMakeVisible(rasterComponent);
     
@@ -197,6 +210,11 @@ void RasterComponent::sliderValueChanged(juce::Slider* slider)
         {
             audioProcessor.outputGainFloat = (float) outputGainSlider.getValue();
         }
+    }
+    
+    if (slider == &sliderThreshold)
+    {
+//        juce::Logger::outputDebugString("Threshold: " + juce::String(apvts.getRawParameterValue("THRESHOLD")));
     }
 }
 

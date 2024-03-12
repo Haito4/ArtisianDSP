@@ -4,10 +4,12 @@
 #include "PluginProcessor.h"
 
 class Gate1Component : public juce::Component,
-                       public juce::Button::Listener
+                       public juce::Button::Listener,
+                       public juce::Slider::Listener
 {
 public:
-    Gate1Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
+    Gate1Component(ArtisianDSPAudioProcessor& processor, juce::AudioProcessorValueTreeState& vts)
+     : audioProcessor(processor), apvts(vts)
     {
         helloLabel.setFont(20.0f);
         helloLabel.setJustificationType(juce::Justification::centred);
@@ -18,13 +20,33 @@ public:
         gateToggle.addListener(this);
         addAndMakeVisible(gateToggle);
         
+        
+        thresholdSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        thresholdSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        thresholdSlider.setRange(-96.0, 6.0); // Adjust the range to match your parameter
+        thresholdSlider.setValue(1.0); // Set the initial value
+        addAndMakeVisible(thresholdSlider);
+        
+        thresholdSlider.addListener(this);
+        thresholdAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "THRESHOLD", thresholdSlider);
+//
+//        thresholdSynchroniser = std::make_unique<juce::AudioProcessorValueTreeState::LabelAttachment>(apvts, "THRESHOLD", thresholdLabel);
+        
+//        apvts.addParameterListener("THRESHOLD", this);
+        
     }
 //    ~Gate1Component();
 
     virtual void resized() override
     {
+        auto bounds = getLocalBounds();
+        auto height = bounds.getHeight();
+        auto width = bounds.getWidth();
+        
         helloLabel.setBounds(getLocalBounds());
-        gateToggle.setBounds(360, 270, 100, 50);
+        gateToggle.setBounds(450, 270, 100, 50);
+        
+        thresholdSlider.setBounds(width / 2, height / 2, 100, 100);
         
     }
         
@@ -38,10 +60,27 @@ public:
         }
     };
 
+    void sliderValueChanged(juce::Slider* slider) override
+    {
+        if (slider == &thresholdSlider)
+        {
+//            juce::Logger::outputDebugString(apvts.getRawParameterValue("THRESHOLD"));
+        }
+    }
+    
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
+    juce::AudioProcessorValueTreeState& apvts;
     
     juce::Label helloLabel;
     
     juce::TextButton gateToggle;
+    
+    
+    juce::Label thresholdLabel;
+    juce::Slider thresholdSlider;
+    
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment;
+    
 };

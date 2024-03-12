@@ -23,7 +23,7 @@ class RasterComponent  : public juce::Component,
                          public juce::Timer
 {
 public:
-    RasterComponent (ArtisianDSPAudioProcessor&);
+    RasterComponent (ArtisianDSPAudioProcessor& p, juce::AudioProcessorValueTreeState& vts);
     ~RasterComponent() override;
 
     //==============================================================================
@@ -48,11 +48,16 @@ private:
     // access the processor object that created it.
     ArtisianDSPAudioProcessor& audioProcessor;
     
+    juce::AudioProcessorValueTreeState& apvts;
+    
     MultiSceneComponent multiSceneComponent;
     
     juce::ComboBox presetSelector;
     
     gui::VerticalMeter verticalInputMeterL, verticalInputMeterR;
+    
+    juce::Slider sliderThreshold;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachmentThreshold;
     
     gui::VerticalMeter verticalOutputMeterL, verticalOutputMeterR;
     

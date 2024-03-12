@@ -15,7 +15,7 @@
 /**
 */
 class ArtisianDSPAudioProcessor
-: public juce::AudioProcessor
+: public juce::AudioProcessor, public juce::ValueTree::Listener
     
 {
 public:
@@ -64,18 +64,30 @@ public:
     float outputGainFloat{ 0.0f };
     bool usingGate = false;
     
+    bool shouldUpdate = true;
+    
+    juce::AudioProcessorValueTreeState apvts;
+    void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyChanged, const juce::Identifier& property) override;
     
 private:
     //==============================================================================
-    
-    
     ArtisianDSPAudioProcessor* editor;
     
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+    
     juce::LinearSmoothedValue<float> rmsLevelLeft, rmsLevelRight;
+    
+    
+    juce::dsp::NoiseGate<float> noiseGate;
+    
     
     juce::LinearSmoothedValue<float> rmsOutputLevelLeft, rmsOutputLevelRight;
     
     
     //==============================================================================
+    
+    float thresholdValue = static_cast<float>(*apvts.getRawParameterValue("THRESHOLD"));
+    
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
 };
