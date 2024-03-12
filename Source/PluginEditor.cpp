@@ -11,7 +11,7 @@
 
 
 //==============================================================================
-RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p, juce::AudioProcessorValueTreeState& vts) : audioProcessor(p), multiSceneComponent(p, p.apvts), apvts(vts)
+RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p), multiSceneComponent(p)
 {
     // Vertical Input & Output Meters
     addAndMakeVisible(verticalInputMeterL);
@@ -135,8 +135,7 @@ void RasterComponent::resized()
 // Wrapper Implementation
 WrappedRasterAudioProcessorEditor::WrappedRasterAudioProcessorEditor(ArtisianDSPAudioProcessor& p)
 : AudioProcessorEditor(p),
-  rasterComponent(p, p.apvts)
-//  rasterComponent(vts)
+  rasterComponent(p)
 {
     addAndMakeVisible(rasterComponent);
     

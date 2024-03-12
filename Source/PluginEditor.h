@@ -23,7 +23,7 @@ class RasterComponent  : public juce::Component,
                          public juce::Timer
 {
 public:
-    RasterComponent (ArtisianDSPAudioProcessor& p, juce::AudioProcessorValueTreeState& vts);
+    RasterComponent (ArtisianDSPAudioProcessor&);
     ~RasterComponent() override;
 
     //==============================================================================
@@ -48,7 +48,6 @@ private:
     // access the processor object that created it.
     ArtisianDSPAudioProcessor& audioProcessor;
     
-    juce::AudioProcessorValueTreeState& apvts;
     
     MultiSceneComponent multiSceneComponent;
     

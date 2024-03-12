@@ -1,9 +1,9 @@
 #include "MultiSceneComponent.h"
 
 
-MultiSceneComponent::MultiSceneComponent(ArtisianDSPAudioProcessor& processor, juce::AudioProcessorValueTreeState& vts)
-    : audioProcessor(processor), apvts(vts),
-      scene1(std::make_unique<Gate1Component>(processor, processor.apvts)),
+MultiSceneComponent::MultiSceneComponent(ArtisianDSPAudioProcessor& processor)
+    : audioProcessor(processor),
+      scene1(std::make_unique<Gate1Component>(processor)),
       scene2(std::make_unique<Comp2Component>()),
       scene3(std::make_unique<Drive3Component>()),
       scene4(std::make_unique<Amp4Component>()),

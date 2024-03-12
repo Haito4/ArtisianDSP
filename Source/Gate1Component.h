@@ -8,8 +8,8 @@ class Gate1Component : public juce::Component,
                        public juce::Slider::Listener
 {
 public:
-    Gate1Component(ArtisianDSPAudioProcessor& processor, juce::AudioProcessorValueTreeState& vts)
-     : audioProcessor(processor), apvts(vts)
+    Gate1Component(ArtisianDSPAudioProcessor& processor)
+     : audioProcessor(processor)
     {
         helloLabel.setFont(20.0f);
         helloLabel.setJustificationType(juce::Justification::centred);
@@ -29,10 +29,8 @@ public:
         
         thresholdSlider.addListener(this);
         thresholdAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "THRESHOLD", thresholdSlider);
-//
-//        thresholdSynchroniser = std::make_unique<juce::AudioProcessorValueTreeState::LabelAttachment>(apvts, "THRESHOLD", thresholdLabel);
-        
-//        apvts.addParameterListener("THRESHOLD", this);
+
+
         
     }
 //    ~Gate1Component();
@@ -70,17 +68,14 @@ public:
     
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
-    juce::AudioProcessorValueTreeState& apvts;
+    
     
     juce::Label helloLabel;
     
     juce::TextButton gateToggle;
     
     
-    juce::Label thresholdLabel;
     juce::Slider thresholdSlider;
-    
-    
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment;
     
 };

@@ -110,11 +110,13 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // initialisation that you need..
     rmsLevelLeft.reset(sampleRate, 0.5);
     rmsLevelRight.reset(sampleRate, 0.5);
-    
     rmsLevelLeft.setCurrentAndTargetValue(-100.f);
     rmsLevelRight.setCurrentAndTargetValue(-100.f);
     
-    
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
     
 }
 
@@ -158,6 +160,8 @@ void ArtisianDSPAudioProcessor::valueTreePropertyChanged(juce::ValueTree &treeWh
 
     auto thresholdValue = apvts.getRawParameterValue("THRESHOLD")->load();
     juce::Logger::outputDebugString("Threshold value: " + juce::String(thresholdValue));
+    
+    
 }
 
 void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -169,6 +173,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     if (shouldUpdate)
     {
         thresholdValue = static_cast<float>(*apvts.getRawParameterValue("THRESHOLD"));
+        juce::Logger::outputDebugString("Threshold variable: " + juce::String(thresholdValue));
+        
         shouldUpdate = false;
     }
     
@@ -213,22 +219,32 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             // Input Gain
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(inputGainFloat);
 
+            
             // Noise Gate
-            noiseGate.setThreshold(apvts.getRawParameterValue("THRESHOLD")->load());
-            noiseGate.setRatio(apvts.getRawParameterValue("RATIO")->load());
-            noiseGate.setAttack(apvts.getRawParameterValue("ATTACK")->load());
-            noiseGate.setRelease(apvts.getRawParameterValue("RELEASE")->load());
-       
-//            noiseGate.process(juce::dsp::ProcessContextReplacing<float>(channelData));
+            if (usingGate == true)
+            {
+                // This works currently, but audio gets crackly when it gets close to but not to the threshold
+                // Could solve with hysteris
+                float sampleDb = juce::Decibels::gainToDecibels(std::abs(channelData[sample]));
+                if (sampleDb < thresholdValue)
+                    {
+                        // Calculate the reduction in gain based on how far below the threshold the sample is
+                        float reductionDb = thresholdValue - sampleDb;
+                        
+                        // If the reduction in gain exceeds a certain threshold, mute the sample
+                        if (reductionDb > -12.0f)
+                        {
+                            channelData[sample] = 0.0f;
+                        }
+                    }
+            }
+            
             
             // Output Gain
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
             
         }
-  
     }
-    
-    
 }
 
 

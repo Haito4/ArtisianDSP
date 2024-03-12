@@ -12,14 +12,13 @@
 class MultiSceneComponent : public juce::Component
 {
 public:
-    MultiSceneComponent(ArtisianDSPAudioProcessor& processor, juce::AudioProcessorValueTreeState& vts);
+    MultiSceneComponent(ArtisianDSPAudioProcessor&);
     ~MultiSceneComponent();
 
     void resized() ;
 
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
-    juce::AudioProcessorValueTreeState& apvts;
     
     std::unique_ptr<Gate1Component> scene1;
     std::unique_ptr<Comp2Component> scene2;
