@@ -23,14 +23,33 @@ public:
         
         thresholdSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         thresholdSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
-        thresholdSlider.setRange(-96.0, 6.0); // Adjust the range to match your parameter
+        thresholdSlider.setRange(-100.0, 6.0); // Adjust the range to match your parameter
         thresholdSlider.setValue(1.0); // Set the initial value
+        thresholdSlider.setTextValueSuffix(" dB");
         addAndMakeVisible(thresholdSlider);
+        
+        attackSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        attackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        attackSlider.setRange(1.0, 100.0);
+        attackSlider.setValue(50.0);
+        attackSlider.setTextValueSuffix(" ms");
+        addAndMakeVisible(attackSlider);
+        
+        releaseSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        releaseSlider.setRange(1.0, 100.0);
+        releaseSlider.setValue(50.0);
+        releaseSlider.setTextValueSuffix(" ms");
+        addAndMakeVisible(releaseSlider);
         
         thresholdSlider.addListener(this);
         thresholdAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "THRESHOLD", thresholdSlider);
 
-
+        attackSlider.addListener(this);
+        attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ATTACK", attackSlider);
+        
+        releaseSlider.addListener(this);
+        releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "RELEASE", releaseSlider);
         
     }
 //    ~Gate1Component();
@@ -42,9 +61,12 @@ public:
         auto width = bounds.getWidth();
         
         helloLabel.setBounds(getLocalBounds());
-        gateToggle.setBounds(450, 270, 100, 50);
+        gateToggle.setBounds(600, 270, 100, 50);
         
         thresholdSlider.setBounds(width / 2, height / 2, 100, 100);
+        attackSlider.setBounds(500, 300, 100, 100);
+        
+        releaseSlider.setBounds(600, 300, 100, 100);
         
     }
         
@@ -77,5 +99,12 @@ private:
     
     juce::Slider thresholdSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment;
+    
+    
+    juce::Slider attackSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
+    
+    juce::Slider releaseSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
     
 };

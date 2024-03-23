@@ -19,7 +19,7 @@ class ArtisianDSPAudioProcessor
     
 {
 public:
-
+    
     //==============================================================================
     ArtisianDSPAudioProcessor();
     ~ArtisianDSPAudioProcessor() override;
@@ -86,7 +86,26 @@ private:
     
     //==============================================================================
     
-    float thresholdValue = static_cast<float>(*apvts.getRawParameterValue("THRESHOLD"));
+    float thresholdValue = -20;
+    
+    float attackTime = 50 * 0.001;
+    
+    float releaseTime = 50 * 0.001;
+    
+    
+    
+    double attackRate = 0.0;
+    double releaseRate = 0.0;
+    double averagingBufferDuration = 0.015;
+    double averagedValue;
+    
+    
+    std::vector<int> currentBufferIndex{ 0,0 };
+    std::vector<double> gateMultiplier{ 0,0 };
+    std::vector<double> openTime{ 0.0, 0.0 };
+    std::vector<bool> isOpen{ false, false };
+    std::vector<std::vector<float>> averagingBuffer = std::vector<std::vector<float>>(2, std::vector<float>(0, 0.0));
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
 };

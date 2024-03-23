@@ -23,16 +23,31 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
 #endif
 {
     apvts.state.addListener(this);
+    
+    
+    
+    isOpen = {true, true};
+    
+    
+    
+    double sampleRate = getSampleRate();
+    int bufferSize = static_cast<int>(0.015 * sampleRate);
+    averagingBuffer.resize(getTotalNumInputChannels(), std::vector<float>(bufferSize, 0.0f));
+
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::createParameters()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout params;
     
-    params.add(std::make_unique<juce::AudioParameterFloat>("THRESHOLD", "Threshold", -96.0f, 6.0f, 1.0f));
+    
+    
+    
+    // Noise Gate
+    params.add(std::make_unique<juce::AudioParameterFloat>("THRESHOLD", "Threshold", -100.0f, 6.0f, -20.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("RATIO", "Ratio", 1.0f, 10.0f, 1.0f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 300.0f, 20.0f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 700.0f, 20.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 100.0f, 50.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 100.0f, 50.0f));
     
     return params;
 }
@@ -106,6 +121,16 @@ void ArtisianDSPAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    for (int i = 0; i < (int)(averagingBuffer.size()); i++)
+    {
+        averagingBuffer[i].resize((int)(averagingBufferDuration * sampleRate), 0.0);
+    }
+    
+    attackRate = 1 / (sampleRate * attackTime);
+    releaseRate = 1 / (sampleRate * releaseTime);
+
+    
+    
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     rmsLevelLeft.reset(sampleRate, 0.5);
@@ -156,12 +181,6 @@ bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 void ArtisianDSPAudioProcessor::valueTreePropertyChanged(juce::ValueTree &treeWhosePropertyChanged, const juce::Identifier &property)
 {
     shouldUpdate = true;
-    
-
-    auto thresholdValue = apvts.getRawParameterValue("THRESHOLD")->load();
-    juce::Logger::outputDebugString("Threshold value: " + juce::String(thresholdValue));
-    
-    
 }
 
 void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -172,8 +191,13 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     
     if (shouldUpdate)
     {
-        thresholdValue = static_cast<float>(*apvts.getRawParameterValue("THRESHOLD"));
-        juce::Logger::outputDebugString("Threshold variable: " + juce::String(thresholdValue));
+        thresholdValue = juce::Decibels::decibelsToGain(static_cast<float>(*apvts.getRawParameterValue("THRESHOLD")));
+        
+        attackTime = static_cast<float>(*apvts.getRawParameterValue("ATTACK")) * 0.001; // Convert value to seconds
+        releaseTime = static_cast<float>(*apvts.getRawParameterValue("RELEASE")) * 0.001;
+        
+        attackRate = 1 / (getSampleRate() * attackTime);
+        releaseRate = 1 / (getSampleRate() * releaseTime);
         
         shouldUpdate = false;
     }
@@ -213,6 +237,9 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     {
         // ..do something to the data...
         auto* channelData = buffer.getWritePointer (channel);
+        
+        
+//        double averagedValue;
             
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
@@ -223,22 +250,47 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             // Noise Gate
             if (usingGate == true)
             {
-                // This works currently, but audio gets crackly when it gets close to but not to the threshold
-                // Could solve with hysteris
-                float sampleDb = juce::Decibels::gainToDecibels(std::abs(channelData[sample]));
-                if (sampleDb < thresholdValue)
+                auto current = channelData[sample];
+                
+                // Adds the squared value of the current sample to the averaging buffer of current channel at the current index
+                averagingBuffer[channel][currentBufferIndex[channel]] = current * current;
+                currentBufferIndex[channel] += 1; // increment current index
+                if (currentBufferIndex[channel] == averagingBuffer[channel].size()) // reset index if it goes over buffer size
+                {
+                    currentBufferIndex[channel] = 0;
+                }
+                
+                // Average of the squared values from the averaging buffer
+                averagedValue = std::accumulate(averagingBuffer[channel].begin(), averagingBuffer[channel].end(), 0.0) / (double)(averagingBuffer[channel].size());
+                
+                
+                if (isOpen[channel] == true) // Gate Open
+                {
+                    // Increment by reciprocal of sample rate to track time open
+                    openTime[channel] += 1 / getSampleRate();
+                    gateMultiplier[channel] += attackRate;
+                    gateMultiplier[channel] = juce::jlimit(0.0, 1.0, gateMultiplier[channel]); // clamp value within range of 0 and 1
+                    if ((averagedValue < thresholdValue)) // && (openTime[channel] > holdTime)
                     {
-                        // Calculate the reduction in gain based on how far below the threshold the sample is
-                        float reductionDb = thresholdValue - sampleDb;
-                        
-                        // If the reduction in gain exceeds a certain threshold, mute the sample
-                        if (reductionDb > -12.0f)
-                        {
-                            channelData[sample] = 0.0f;
-                        }
+                        isOpen[channel] = false; // Close the Gate
+                        openTime[channel] = 0.0;
                     }
+                }
+                else // Gate Closed
+                {
+                    openTime[channel] += 1/ getSampleRate();
+                    gateMultiplier[channel] -= releaseRate;
+                    gateMultiplier[channel] = juce::jlimit(0.0, 1.0, gateMultiplier[channel]);
+                    if ((averagedValue > thresholdValue))
+                    {
+                        isOpen[channel] = true; // Open the Gate
+                        openTime[channel] = 0.0;
+                    }
+                }
+                
+                // Actually apply the changes
+                channelData[sample] *= gateMultiplier[channel];
             }
-            
             
             // Output Gain
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
