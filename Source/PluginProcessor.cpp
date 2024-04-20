@@ -15,7 +15,7 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+                       .withInput  ("Input",  juce::AudioChannelSet::mono(), true)
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
@@ -24,23 +24,17 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
 {
     apvts.state.addListener(this);
     
-    
-    
-    isOpen = {true, true};
-    
-    
+    isOpen = true;
     
     double sampleRate = getSampleRate();
     int bufferSize = static_cast<int>(0.015 * sampleRate);
-    averagingBuffer.resize(getTotalNumInputChannels(), std::vector<float>(bufferSize, 0.0f));
+    averagingBuffer.resize(bufferSize, 0.0f);
 
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::createParameters()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout params;
-    
-    
     
     
     // Noise Gate
@@ -121,10 +115,8 @@ void ArtisianDSPAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    for (int i = 0; i < (int)(averagingBuffer.size()); i++)
-    {
-        averagingBuffer[i].resize((int)(averagingBufferDuration * sampleRate), 0.0);
-    }
+    int bufferSize = static_cast<int>(0.015 * sampleRate);
+    averagingBuffer.resize(bufferSize, 0.0f);
     
     attackRate = 1 / (sampleRate * attackTime);
     releaseRate = 1 / (sampleRate * releaseTime);
@@ -154,26 +146,14 @@ void ArtisianDSPAudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
-    return true;
-  #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
+    if (layouts.getMainInputChannelSet() != juce::AudioChannelSet::mono())
+        return false;
+    
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
-
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-   #endif
-
+    
     return true;
-  #endif
 }
 #endif
 
@@ -233,14 +213,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         buffer.clear (i, 0, buffer.getNumSamples());
     
     // Main Processing
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        // ..do something to the data...
-        auto* channelData = buffer.getWritePointer (channel);
-        
-        
-//        double averagedValue;
-            
+        auto* channelData = buffer.getWritePointer(0);
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
             // Input Gain
@@ -252,51 +225,51 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             {
                 auto current = channelData[sample];
                 
-                // Adds the squared value of the current sample to the averaging buffer of current channel at the current index
-                averagingBuffer[channel][currentBufferIndex[channel]] = current * current;
-                currentBufferIndex[channel] += 1; // increment current index
-                if (currentBufferIndex[channel] == averagingBuffer[channel].size()) // reset index if it goes over buffer size
-                {
-                    currentBufferIndex[channel] = 0;
-                }
+                // Adds the squared value of the current sample to the averaging buffer at the current index
+                averagingBuffer[currentBufferIndex] = current * current;
+                // increment current index while staying within buffer size
+                currentBufferIndex = (currentBufferIndex + 1) % averagingBuffer.size();
                 
-                // Average of the squared values from the averaging buffer
-                averagedValue = std::accumulate(averagingBuffer[channel].begin(), averagingBuffer[channel].end(), 0.0) / (double)(averagingBuffer[channel].size());
+                // Average of the squared values from the averaging buffer for use when comparing to threshold
+                float sumSquaredValues = std::accumulate(averagingBuffer.begin(), averagingBuffer.end(), 0.0f);
+                float averagedValue = sumSquaredValues / static_cast<float>(averagingBuffer.size());
                 
-                
-                if (isOpen[channel] == true) // Gate Open
+                if (isOpen == true) // If Gate Open
                 {
                     // Increment by reciprocal of sample rate to track time open
-                    openTime[channel] += 1 / getSampleRate();
-                    gateMultiplier[channel] += attackRate;
-                    gateMultiplier[channel] = juce::jlimit(0.0, 1.0, gateMultiplier[channel]); // clamp value within range of 0 and 1
-                    if ((averagedValue < thresholdValue)) // && (openTime[channel] > holdTime)
+                    openTime += 1 / getSampleRate();
+                    gateMultiplier += attackRate;
+                    gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier); // clamp value within range of 0 and 1
+                    if ((averagedValue < thresholdValue)) // && (openTime > holdTime)
                     {
-                        isOpen[channel] = false; // Close the Gate
-                        openTime[channel] = 0.0;
+                        isOpen = false; // Close the Gate
+                        openTime = 0.0;
                     }
                 }
-                else // Gate Closed
+                else // If Gate Closed
                 {
-                    openTime[channel] += 1/ getSampleRate();
-                    gateMultiplier[channel] -= releaseRate;
-                    gateMultiplier[channel] = juce::jlimit(0.0, 1.0, gateMultiplier[channel]);
+                    openTime += 1/ getSampleRate();
+                    gateMultiplier -= releaseRate;
+                    gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier);
                     if ((averagedValue > thresholdValue))
                     {
-                        isOpen[channel] = true; // Open the Gate
-                        openTime[channel] = 0.0;
+                        isOpen = true; // Open the Gate
+                        openTime = 0.0;
                     }
                 }
                 
                 // Actually apply the changes
-                channelData[sample] *= gateMultiplier[channel];
+                channelData[sample] *= gateMultiplier;
             }
             
             // Output Gain
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
             
+            
+            auto* rightChannelData = buffer.getWritePointer(1);
+            rightChannelData[sample] = channelData[sample];
         }
-    }
+//    }
 }
 
 

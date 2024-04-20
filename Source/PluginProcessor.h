@@ -100,11 +100,11 @@ private:
     double averagedValue;
     
     
-    std::vector<int> currentBufferIndex{ 0,0 };
-    std::vector<double> gateMultiplier{ 0,0 };
-    std::vector<double> openTime{ 0.0, 0.0 };
-    std::vector<bool> isOpen{ false, false };
-    std::vector<std::vector<float>> averagingBuffer = std::vector<std::vector<float>>(2, std::vector<float>(0, 0.0));
+    int currentBufferIndex = 0;
+    double gateMultiplier = 0;
+    double openTime = 0.0;
+    bool isOpen = false;
+    std::vector<float> averagingBuffer;
     
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)

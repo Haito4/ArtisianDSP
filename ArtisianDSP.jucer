@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="KToqpb" name="ArtisianDSP" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="Artisian"
+<JUCERPROJECT id="KToqpb" name="ArtisianDSP2" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="Artisian2"
               pluginFormats="buildStandalone,buildVST3">
-  <MAINGROUP id="jQ0XFJ" name="ArtisianDSP">
+  <MAINGROUP id="jQ0XFJ" name="ArtisianDSP2">
     <GROUP id="{1336A030-A105-CEDF-C0E4-DB803E980675}" name="Source">
       <GROUP id="{6EE2CD03-7313-1380-10EC-D7A7C997CCB0}" name="Components">
         <FILE id="BWy3Wz" name="AudioProcessorGraph.h" compile="0" resource="0"
