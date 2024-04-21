@@ -36,8 +36,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
 {
     juce::AudioProcessorValueTreeState::ParameterLayout params;
     
+    // Input & Output Gain
+    params.add(std::make_unique<juce::AudioParameterFloat>("INPUT_GAIN", "Input Gain", -15.f, 15.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("OUTPUT_GAIN", "Output Gain", -15.f, 15.f, 0.f));
     
     // Noise Gate
+    params.add(std::make_unique<juce::AudioParameterBool>("USING_GATE", "Using Gate", false));
     params.add(std::make_unique<juce::AudioParameterFloat>("THRESHOLD", "Threshold", -100.0f, 6.0f, -20.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("RATIO", "Ratio", 1.0f, 10.0f, 1.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 100.0f, 50.0f));
@@ -160,6 +164,27 @@ bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 
 void ArtisianDSPAudioProcessor::valueTreePropertyChanged(juce::ValueTree &treeWhosePropertyChanged, const juce::Identifier &property)
 {
+    // Input & Output Gain
+    if (property == juce::Identifier("INPUT_GAIN"))
+    {
+        if (*apvts.getRawParameterValue("INPUT_GAIN") == -15.0f)
+        {
+            inputGainFloat = -1000.0f; // Mute at minimum value
+        }
+        else
+        {
+            inputGainFloat = *apvts.getRawParameterValue("INPUT_GAIN");
+        }
+    }
+    else if (property == juce::Identifier("OUTPUT_GAIN"))
+    {
+        outputGainFloat = *apvts.getRawParameterValue("OUTPUT_GAIN");
+    }
+    
+   
+    
+    
+    
     shouldUpdate = true;
 }
 
@@ -171,13 +196,18 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     
     if (shouldUpdate)
     {
-        thresholdValue = juce::Decibels::decibelsToGain(static_cast<float>(*apvts.getRawParameterValue("THRESHOLD")));
+        // Noise Gate
+//        usingGate = static_cast<bool>(*apvts.getRawParameterValue("USING_GATE"));
         
+        thresholdValue = juce::Decibels::decibelsToGain(static_cast<float>(*apvts.getRawParameterValue("THRESHOLD")));
+
         attackTime = static_cast<float>(*apvts.getRawParameterValue("ATTACK")) * 0.001; // Convert value to seconds
         releaseTime = static_cast<float>(*apvts.getRawParameterValue("RELEASE")) * 0.001;
-        
+
         attackRate = 1 / (getSampleRate() * attackTime);
         releaseRate = 1 / (getSampleRate() * releaseTime);
+        
+        
         
         shouldUpdate = false;
     }
@@ -262,12 +292,31 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
                 channelData[sample] *= gateMultiplier;
             }
             
+            // Compressor
+            
+            
+            // Overdrive
+            
+            
+            // Amplifier
+            
+            
+            // Reverb
+            
+            
+            
+            // Impulse Response
+            
+            
+            
+            
+            
             // Output Gain
             channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
             
             
             auto* rightChannelData = buffer.getWritePointer(1);
-            rightChannelData[sample] = channelData[sample];
+            rightChannelData[sample] = channelData[sample]; // copy audio data to right side channel
         }
 //    }
 }

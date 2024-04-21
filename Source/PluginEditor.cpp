@@ -33,6 +33,7 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     inputGainSlider.setRange(-15.0f, 15.0f);
     inputGainSlider.setValue(0.0f);
     inputGainSlider.addListener (this);
+    inputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "INPUT_GAIN", inputGainSlider);
     
     // Input Gain Label
     addAndMakeVisible (inputGainLabel);
@@ -40,14 +41,6 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     inputGainLabel.attachToComponent (&inputGainSlider, false);
     inputGainLabel.setColour (juce::Label::textColourId, juce::Colours::ghostwhite);
     inputGainLabel.setJustificationType (juce::Justification::centredBottom);
-    
-    // Noise Gate
-//    addAndMakeVisible(sliderThreshold);
-//    sliderThreshold.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-//    sliderThreshold.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 76, 38);
-//    sliderThreshold.setDoubleClickReturnValue(true, 0.0f);
-//    sliderAttachmentThreshold = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "THRESHOLD", sliderThreshold);
-    
     
     
 
@@ -58,6 +51,8 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     outputGainSlider.setRange(-15.0f, 15.0f);
     outputGainSlider.setValue(0.0f);
     outputGainSlider.addListener (this);
+    outputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "OUTPUT_GAIN", outputGainSlider);
+        
     
     // Output Gain Label
     addAndMakeVisible (outputGainLabel);

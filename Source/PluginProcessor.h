@@ -61,6 +61,7 @@ public:
 
     //==============================================================================
     float inputGainFloat{ 0.0f };
+    
     float outputGainFloat{ 0.0f };
     bool usingGate = false;
     

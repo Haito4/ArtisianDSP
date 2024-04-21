@@ -42,6 +42,11 @@ public:
         releaseSlider.setTextValueSuffix(" ms");
         addAndMakeVisible(releaseSlider);
         
+        
+        // APVTS Attachments
+        gateToggle.addListener(this);
+        gateToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_GATE", gateToggle);
+        
         thresholdSlider.addListener(this);
         thresholdAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "THRESHOLD", thresholdSlider);
 
@@ -75,7 +80,7 @@ public:
         if (button == &gateToggle)
         {
             audioProcessor.usingGate = !audioProcessor.usingGate;
-            
+           
             juce::Logger::outputDebugString("usingGate: " + juce::String(audioProcessor.usingGate ? "true" : "false"));
         }
     };
@@ -95,7 +100,7 @@ private:
     juce::Label helloLabel;
     
     juce::TextButton gateToggle;
-    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> gateToggleAttachment;
     
     juce::Slider thresholdSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment;

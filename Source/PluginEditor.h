@@ -40,6 +40,9 @@ public:
     juce::Label inputGainLabel;
     juce::Label outputGainLabel;
     
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainAttachment;
+    
     void sliderValueChanged(juce::Slider* slider) override;
     void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override;
 
