@@ -16,8 +16,17 @@ public:
         helloLabel.setText("Noise Gate", juce::dontSendNotification);
         addAndMakeVisible(helloLabel);
         
-        gateToggle.setButtonText("Gate On/Off");
+//        gateToggle.setButtonText(juce::String(audioProcessor.apvts.getRawParameterValue("USING_GATE") ? "On" : "Off"));
+        
+        
+        
+        
+        bool usingGateValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_GATE"))->get();
+        gateToggleText = usingGateValue ? "On" : "Off";
+        juce::Logger::outputDebugString("gateToggle Initial State: " + gateToggleText);
+        gateToggle.setButtonText(gateToggleText);
         gateToggle.addListener(this);
+        gateToggle.setClickingTogglesState(true);
         addAndMakeVisible(gateToggle);
         
         
@@ -66,12 +75,13 @@ public:
         auto width = bounds.getWidth();
         
         helloLabel.setBounds(getLocalBounds());
-        gateToggle.setBounds(600, 270, 100, 50);
+        gateToggle.setBounds(312, 390, 100, 50);
         
         thresholdSlider.setBounds(width / 2, height / 2, 100, 100);
         attackSlider.setBounds(500, 300, 100, 100);
         
         releaseSlider.setBounds(600, 300, 100, 100);
+        
         
     }
         
@@ -79,9 +89,10 @@ public:
     {
         if (button == &gateToggle)
         {
-            audioProcessor.usingGate = !audioProcessor.usingGate;
-           
-            juce::Logger::outputDebugString("usingGate: " + juce::String(audioProcessor.usingGate ? "true" : "false"));
+            bool usingGateValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_GATE"))->get();
+            gateToggleText = usingGateValue ? "Off" : "On";
+            gateToggle.setButtonText(gateToggleText);
+            juce::Logger::outputDebugString("Gate state: " + gateToggleText);
         }
     };
 
@@ -99,6 +110,8 @@ private:
     
     juce::Label helloLabel;
     
+    
+    juce::String gateToggleText;
     juce::TextButton gateToggle;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> gateToggleAttachment;
     

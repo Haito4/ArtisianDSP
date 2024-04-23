@@ -181,6 +181,11 @@ void ArtisianDSPAudioProcessor::valueTreePropertyChanged(juce::ValueTree &treeWh
         outputGainFloat = *apvts.getRawParameterValue("OUTPUT_GAIN");
     }
     
+    else if (property == juce::Identifier("USING_GATE"))
+    {
+        juce::Logger::outputDebugString("usingGate: " + juce::String(usingGate ? "true" : "false"));
+    }
+    
    
     
     
@@ -197,7 +202,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     if (shouldUpdate)
     {
         // Noise Gate
-//        usingGate = static_cast<bool>(*apvts.getRawParameterValue("USING_GATE"));
+        usingGate = static_cast<bool>(*apvts.getRawParameterValue("USING_GATE"));
+        
         
         thresholdValue = juce::Decibels::decibelsToGain(static_cast<float>(*apvts.getRawParameterValue("THRESHOLD")));
 
