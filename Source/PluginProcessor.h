@@ -85,21 +85,18 @@ private:
     juce::LinearSmoothedValue<float> rmsOutputLevelLeft, rmsOutputLevelRight;
     
     
+    juce::dsp::IIR::Filter<float> highPassFilter;
     //==============================================================================
     
+    // Noise Gate
     float thresholdValue = -20;
-    
     float attackTime = 50 * 0.001;
-    
     float releaseTime = 50 * 0.001;
-    
-    
     
     double attackRate = 0.0;
     double releaseRate = 0.0;
     double averagingBufferDuration = 0.015;
     double averagedValue;
-    
     
     int currentBufferIndex = 0;
     double gateMultiplier = 0;
@@ -107,6 +104,9 @@ private:
     bool isOpen = false;
     std::vector<float> averagingBuffer;
     
-
+    // Tube Screamer
+    float cutoffFrequency;
+    
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
 };

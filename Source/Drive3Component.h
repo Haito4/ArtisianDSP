@@ -1,11 +1,14 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "PluginProcessor.h"
 
-class Drive3Component : public juce::Component
+class Drive3Component : public juce::Component,
+                        public juce::Button::Listener,
+                        public juce::Slider::Listener
 {
 public:
-    Drive3Component()
+    Drive3Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
         //Text
         driveLabel.setFont(20.f);
@@ -20,11 +23,17 @@ public:
         driveKnob.setRange(0.0, 1.0);
         driveKnob.setValue(0.5);
         
+        
         addAndMakeVisible(toneKnob);
-        toneKnob.setSliderStyle(juce::Slider::Rotary);
-        toneKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        toneKnob.setRange(0.0, 1.0);
-        toneKnob.setValue(0.5);
+        toneKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        toneKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        toneKnob.setTextValueSuffix(" Hz");
+        toneKnob.setRange(20.f, 700.f);
+        toneKnob.setValue(20.f);
+        toneKnob.addListener(this);
+        toneAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_TONE", toneKnob);
+        
+        
         
         addAndMakeVisible(volumeKnob);
         volumeKnob.setSliderStyle(juce::Slider::Rotary);
@@ -34,18 +43,7 @@ public:
     }
     
 //    ~Drive3Component();
-
-    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
-    {
-        juce::AudioProcessorValueTreeState::ParameterLayout driveLayout;
-        
-        driveLayout.add(std::make_unique<juce::AudioParameterFloat>("Drive",
-                                                                    "Drive",
-                                                                     juce::NormalisableRange<float>(0.0, 1.0, 0.05, 1.f),
-                                                                       0.0));
-        return driveLayout;
-    }
-
+    
     virtual void resized() override
     {
         driveLabel.setBounds(getLocalBounds());
@@ -56,11 +54,30 @@ public:
         
         volumeKnob.setBounds(450, 270, 100, 100);
     }
+    
+    void buttonClicked(juce::Button* button) override
+    {
+        
+    }
+    
+    
+    void sliderValueChanged(juce::Slider* slider) override
+    {
+        
+    }
 
 private:
-    // Parameters
+    ArtisianDSPAudioProcessor& audioProcessor;
+    
+    
+    // Sliders
     juce::Slider driveKnob;
+    
+    
     juce::Slider toneKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> toneAttachment;
+    
+    
     juce::Slider volumeKnob;
 
     

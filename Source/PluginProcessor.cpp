@@ -47,6 +47,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 100.0f, 50.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 100.0f, 50.0f));
     
+    
+    
+    // Tube Screamer
+    params.add(std::make_unique<juce::AudioParameterFloat>("TS_DRIVE", "Tube Screamer Drive", 0.f, 100.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("TS_TONE", "Tube Screamer Tone", 20.f, 700.f, 20.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("TS_LEVEL", "Tube Screamer Level", 0.f, 100.f, 0.f));
+    
+    
+    
     return params;
 }
 
@@ -126,7 +135,6 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     releaseRate = 1 / (sampleRate * releaseTime);
 
     
-    
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     rmsLevelLeft.reset(sampleRate, 0.5);
@@ -137,8 +145,9 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumOutputChannels();
-    
+    spec.numChannels = getTotalNumInputChannels();
+    highPassFilter.reset();
+    highPassFilter.prepare(spec);
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -152,11 +161,11 @@ bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 {
     if (layouts.getMainInputChannelSet() != juce::AudioChannelSet::mono())
         return false;
-    
+
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
         && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
-    
+
     return true;
 }
 #endif
@@ -203,15 +212,15 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     {
         // Noise Gate
         usingGate = static_cast<bool>(*apvts.getRawParameterValue("USING_GATE"));
-        
-        
         thresholdValue = juce::Decibels::decibelsToGain(static_cast<float>(*apvts.getRawParameterValue("THRESHOLD")));
-
         attackTime = static_cast<float>(*apvts.getRawParameterValue("ATTACK")) * 0.001; // Convert value to seconds
         releaseTime = static_cast<float>(*apvts.getRawParameterValue("RELEASE")) * 0.001;
-
         attackRate = 1 / (getSampleRate() * attackTime);
         releaseRate = 1 / (getSampleRate() * releaseTime);
+        
+        // Overdrive
+        cutoffFrequency = static_cast<float>(*apvts.getRawParameterValue("TS_TONE"));
+        highPassFilter.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), cutoffFrequency);
         
         
         
@@ -249,82 +258,85 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         buffer.clear (i, 0, buffer.getNumSamples());
     
     // Main Processing
-        auto* channelData = buffer.getWritePointer(0);
-        for (int sample = 0; sample < buffer.getNumSamples(); sample++)
-        {
-            // Input Gain
-            channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(inputGainFloat);
+    auto* channelData = buffer.getWritePointer(0);
+    for (int sample = 0; sample < buffer.getNumSamples(); sample++)
+    {
+        // Input Gain
+        channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(inputGainFloat);
 
+        
+        // Noise Gate
+        if (usingGate == true)
+        {
+            auto current = channelData[sample];
             
-            // Noise Gate
-            if (usingGate == true)
+            // Adds the squared value of the current sample to the averaging buffer at the current index
+            averagingBuffer[currentBufferIndex] = current * current;
+            // increment current index while staying within buffer size
+            currentBufferIndex = (currentBufferIndex + 1) % averagingBuffer.size();
+            
+            // Average of the squared values from the averaging buffer for use when comparing to threshold
+            float sumSquaredValues = std::accumulate(averagingBuffer.begin(), averagingBuffer.end(), 0.0f);
+            float averagedValue = sumSquaredValues / static_cast<float>(averagingBuffer.size());
+            
+            if (isOpen == true) // If Gate Open
             {
-                auto current = channelData[sample];
-                
-                // Adds the squared value of the current sample to the averaging buffer at the current index
-                averagingBuffer[currentBufferIndex] = current * current;
-                // increment current index while staying within buffer size
-                currentBufferIndex = (currentBufferIndex + 1) % averagingBuffer.size();
-                
-                // Average of the squared values from the averaging buffer for use when comparing to threshold
-                float sumSquaredValues = std::accumulate(averagingBuffer.begin(), averagingBuffer.end(), 0.0f);
-                float averagedValue = sumSquaredValues / static_cast<float>(averagingBuffer.size());
-                
-                if (isOpen == true) // If Gate Open
+                // Increment by reciprocal of sample rate to track time open
+                openTime += 1 / getSampleRate();
+                gateMultiplier += attackRate;
+                gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier); // clamp value within range of 0 and 1
+                if ((averagedValue < thresholdValue)) // && (openTime > holdTime)
                 {
-                    // Increment by reciprocal of sample rate to track time open
-                    openTime += 1 / getSampleRate();
-                    gateMultiplier += attackRate;
-                    gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier); // clamp value within range of 0 and 1
-                    if ((averagedValue < thresholdValue)) // && (openTime > holdTime)
-                    {
-                        isOpen = false; // Close the Gate
-                        openTime = 0.0;
-                    }
+                    isOpen = false; // Close the Gate
+                    openTime = 0.0;
                 }
-                else // If Gate Closed
+            }
+            else // If Gate Closed
+            {
+                openTime += 1/ getSampleRate();
+                gateMultiplier -= releaseRate;
+                gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier);
+                if ((averagedValue > thresholdValue))
                 {
-                    openTime += 1/ getSampleRate();
-                    gateMultiplier -= releaseRate;
-                    gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier);
-                    if ((averagedValue > thresholdValue))
-                    {
-                        isOpen = true; // Open the Gate
-                        openTime = 0.0;
-                    }
+                    isOpen = true; // Open the Gate
+                    openTime = 0.0;
                 }
-                
-                // Actually apply the changes
-                channelData[sample] *= gateMultiplier;
             }
             
-            // Compressor
-            
-            
-            // Overdrive
-            
-            
-            // Amplifier
-            
-            
-            // Reverb
-            
-            
-            
-            // Impulse Response
-            
-            
-            
-            
-            
-            // Output Gain
-            channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
-            
-            
-            auto* rightChannelData = buffer.getWritePointer(1);
-            rightChannelData[sample] = channelData[sample]; // copy audio data to right side channel
+            // Actually apply the changes
+            channelData[sample] *= gateMultiplier;
         }
-//    }
+        
+        // Compressor
+        
+        
+        // Overdrive
+        
+        channelData[sample] = highPassFilter.processSample(channelData[sample]);
+        
+        
+        // Amplifier
+        
+        
+        // Reverb
+        
+        
+        
+        // Impulse Response
+        
+        
+        
+        
+        
+        // Output Gain
+        channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
+        
+        
+        
+        auto* rightChannelData = buffer.getWritePointer(1);
+        rightChannelData[sample] = channelData[sample]; // copy audio data to right side channel
+    }
+    
 }
 
 
