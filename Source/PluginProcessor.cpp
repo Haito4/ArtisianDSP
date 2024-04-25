@@ -47,14 +47,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 100.0f, 50.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 100.0f, 50.0f));
     
-    
-    
     // Tube Screamer
-    params.add(std::make_unique<juce::AudioParameterFloat>("TS_DRIVE", "Tube Screamer Drive", 0.f, 100.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterBool>("USING_TS", "Using Tube Screamer", false));
+    params.add(std::make_unique<juce::AudioParameterFloat>("TS_DRIVE", "Tube Screamer Drive", 1.f, 500.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("TS_TONE", "Tube Screamer Tone", 20.f, 700.f, 20.f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("TS_LEVEL", "Tube Screamer Level", 0.f, 100.f, 0.f));
-    
-    
+    params.add(std::make_unique<juce::AudioParameterFloat>("TS_LEVEL", "Tube Screamer Level", 0.f, 1.f, 0.5f));
     
     return params;
 }
@@ -219,10 +216,12 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         releaseRate = 1 / (getSampleRate() * releaseTime);
         
         // Overdrive
-        cutoffFrequency = static_cast<float>(*apvts.getRawParameterValue("TS_TONE"));
-        highPassFilter.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), cutoffFrequency);
+        usingTS = static_cast<bool>(*apvts.getRawParameterValue("USING_TS"));
+        tscutoffFrequency = static_cast<float>(*apvts.getRawParameterValue("TS_TONE"));
+        highPassFilter.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), tscutoffFrequency);
         
-        
+        tsDrive = static_cast<float>(*apvts.getRawParameterValue("TS_DRIVE"));
+        tsLevel = static_cast<float>(*apvts.getRawParameterValue("TS_LEVEL"));
         
         shouldUpdate = false;
     }
@@ -311,8 +310,25 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         
         // Overdrive
+        if (usingTS)
+        {
+            // HPF
+            channelData[sample] = highPassFilter.processSample(channelData[sample]);
+            
+            // Distortion
+            if (tsDrive > 1)
+            {
+                float distortedValue = (2.0f / juce::MathConstants<float>::pi) * atan(channelData[sample] * tsDrive);
+                const float minOutput = 0.0f;
+                const float maxOutput = 0.2f;
+                channelData[sample] = juce::jlimit(minOutput, maxOutput, distortedValue);
+            }
+            
+            // Level
+            channelData[sample] *= tsLevel;
+        }
         
-        channelData[sample] = highPassFilter.processSample(channelData[sample]);
+        
         
         
         // Amplifier

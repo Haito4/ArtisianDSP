@@ -105,7 +105,11 @@ private:
     std::vector<float> averagingBuffer;
     
     // Tube Screamer
-    float cutoffFrequency;
+    float tscutoffFrequency;
+    bool usingTS = false;
+    float tsDrive;
+    float tsLevel;
+    
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
