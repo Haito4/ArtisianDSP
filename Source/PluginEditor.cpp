@@ -15,8 +15,8 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
 {
     // Vertical Input & Output Meters
     addAndMakeVisible(verticalInputMeterL);
-    addAndMakeVisible(verticalInputMeterR);
-    addAndMakeVisible(verticalOutputMeterL);
+//    addAndMakeVisible(verticalInputMeterR);
+//    addAndMakeVisible(verticalOutputMeterL);
     addAndMakeVisible(verticalOutputMeterR);
     // Refresh Rate for Meter
     startTimerHz(60);
@@ -80,17 +80,16 @@ void RasterComponent::timerCallback()
 {
     //Input
     verticalInputMeterL.setLevel(audioProcessor.getRmsValue(0));
-    verticalInputMeterR.setLevel(audioProcessor.getRmsValue(1));
+//    verticalInputMeterR.setLevel(audioProcessor.getRmsValue(1));
     verticalInputMeterL.repaint();
-    verticalInputMeterR.repaint();
+//    verticalInputMeterR.repaint();
     
     // Output
-    verticalOutputMeterL.setLevel(audioProcessor.getRmsValue(0));
+//    verticalOutputMeterL.setLevel(audioProcessor.getRmsValue(0));
     verticalOutputMeterR.setLevel(audioProcessor.getRmsValue(1));
-    verticalOutputMeterL.repaint();
+//    verticalOutputMeterL.repaint();
     verticalOutputMeterR.repaint();
 
-    // auto cpu = deviceManager.getCpuUsage() * 100;
 }
 
 //==============================================================================
@@ -114,15 +113,15 @@ void RasterComponent::resized()
     
     multiSceneComponent.setBounds(bounds);
     
-    verticalInputMeterL.setBounds(5, 15, 15, 200);
-    verticalInputMeterR.setBounds(25, 15, 15, 200);
-    verticalOutputMeterL.setBounds(676, 15, 15, 200);
-    verticalOutputMeterR.setBounds(696, 15, 15, 200);
+    verticalInputMeterL.setBounds(15, 15, 20, 205);
+//    verticalInputMeterR.setBounds(25, 15, 15, 200);
+//    verticalOutputMeterL.setBounds(676, 15, 15, 200);
+    verticalOutputMeterR.setBounds(685, 15, 20, 205);
     
     inputGainSlider.setBounds(40, 55, 100, 100);
     outputGainSlider.setBounds(575, 55, 100, 100);
     
-    presetSelector.setBounds(283, 70, 150, 24);
+    presetSelector.setBounds(280, 80, 160, 25);
 }
 
 

@@ -46,13 +46,13 @@ public:
     
     virtual void resized() override
     {
-        driveLabel.setBounds(getLocalBounds());
+        driveLabel.setBounds(290, 350, 140, 50);
         
-        driveKnob.setBounds(270, 270, 100, 100);
+        driveKnob.setBounds(400, 130, 100, 100);
         
-        toneKnob.setBounds(360, 270, 100, 100);
+        toneKnob.setBounds(315, 230, 90, 90);
         
-        volumeKnob.setBounds(450, 270, 100, 100);
+        volumeKnob.setBounds(220, 130, 100, 100);
     }
     
     void buttonClicked(juce::Button* button) override

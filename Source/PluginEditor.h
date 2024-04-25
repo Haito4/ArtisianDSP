@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "MultiSceneComponent.h"
 #include "VerticalMeter.h"
+#include "melatonin_inspector/melatonin_inspector.h"
 
 
 //==============================================================================
@@ -63,6 +64,9 @@ private:
     
     gui::VerticalMeter verticalOutputMeterL, verticalOutputMeterR;
     
+    
+    melatonin::Inspector inspector { *this , false };
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RasterComponent)
 };
@@ -79,6 +83,10 @@ public:
 private:
     static constexpr int originalWidth{ 720 };
     static constexpr int originalHeight{ 540 };
+    
+    
+    
+    
     
     RasterComponent rasterComponent;
     juce::ApplicationProperties applicationProperties;

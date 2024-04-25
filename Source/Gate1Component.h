@@ -18,9 +18,6 @@ public:
         
 //        gateToggle.setButtonText(juce::String(audioProcessor.apvts.getRawParameterValue("USING_GATE") ? "On" : "Off"));
         
-        
-        
-        
         bool usingGateValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_GATE"))->get();
         gateToggleText = usingGateValue ? "On" : "Off";
         juce::Logger::outputDebugString("gateToggle Initial State: " + gateToggleText);
@@ -70,17 +67,14 @@ public:
 
     virtual void resized() override
     {
-        auto bounds = getLocalBounds();
-        auto height = bounds.getHeight();
-        auto width = bounds.getWidth();
         
-        helloLabel.setBounds(getLocalBounds());
-        gateToggle.setBounds(312, 390, 100, 50);
+        helloLabel.setBounds(280, 118, 160, 42);
+        gateToggle.setBounds(335, 400, 50, 50);
         
-        thresholdSlider.setBounds(width / 2, height / 2, 100, 100);
-        attackSlider.setBounds(500, 300, 100, 100);
+        thresholdSlider.setBounds(250, 150, 100, 100);
+        attackSlider.setBounds(370, 150, 100, 100);
         
-        releaseSlider.setBounds(600, 300, 100, 100);
+        releaseSlider.setBounds(370, 270, 100, 100);
         
         
     }
