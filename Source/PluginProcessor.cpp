@@ -47,6 +47,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 1.0f, 100.0f, 50.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 1.0f, 100.0f, 50.0f));
     
+    // Compressor
+    params.add(std::make_unique<juce::AudioParameterBool>("USING_COMP", "Using Compressor", false));
+    params.add(std::make_unique<juce::AudioParameterFloat>("COMP_THRES", "Compressor Threshold", -100.0f, 6.0f, -20.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("COMP_ATTACK", "Compressor Attack", 1.0f, 100.0f, 50.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("COMP_RELEASE", "Compressor Release", 1.0f, 100.0f, 50.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("COMP_RATIO", "Compressor Ratio", 1.0f, 8.0f, 1.0f));
+    
     // Tube Screamer
     params.add(std::make_unique<juce::AudioParameterBool>("USING_TS", "Using Tube Screamer", false));
     params.add(std::make_unique<juce::AudioParameterFloat>("TS_DRIVE", "Tube Screamer Drive", 1.f, 500.f, 1.f));
@@ -125,26 +132,34 @@ void ArtisianDSPAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    // Noise Gate
     int bufferSize = static_cast<int>(0.015 * sampleRate);
     averagingBuffer.resize(bufferSize, 0.0f);
-    
     attackRate = 1 / (sampleRate * attackTime);
     releaseRate = 1 / (sampleRate * releaseTime);
 
-    
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+
+    // RMS
     rmsLevelLeft.reset(sampleRate, 0.5);
     rmsLevelRight.reset(sampleRate, 0.5);
     rmsLevelLeft.setCurrentAndTargetValue(-100.f);
     rmsLevelRight.setCurrentAndTargetValue(-100.f);
     
+    
+    // DSP Initialisation
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumInputChannels();
+        // Tube Screamer
     highPassFilter.reset();
     highPassFilter.prepare(spec);
+        // Compressor
+    comPressor.setThreshold(-20.f);
+    comPressor.setAttack(4.f);
+    comPressor.setRelease(10.f);
+    comPressor.setRatio(100.f);
+    comPressor.prepare(spec);
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -215,6 +230,13 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         attackRate = 1 / (getSampleRate() * attackTime);
         releaseRate = 1 / (getSampleRate() * releaseTime);
         
+        // Compressor
+        usingComp = static_cast<bool>(*apvts.getRawParameterValue("USING_COMP"));
+        comPressor.setThreshold(static_cast<float>(*apvts.getRawParameterValue("COMP_THRES")));
+        comPressor.setAttack(static_cast<float>(*apvts.getRawParameterValue("COMP_ATTACK")));
+        comPressor.setRelease(static_cast<float>(*apvts.getRawParameterValue("COMP_RELEASE")));
+        comPressor.setRatio(static_cast<float>(*apvts.getRawParameterValue("COMP_RATIO")));
+        
         // Overdrive
         usingTS = static_cast<bool>(*apvts.getRawParameterValue("USING_TS"));
         tscutoffFrequency = static_cast<float>(*apvts.getRawParameterValue("TS_TONE"));
@@ -265,7 +287,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
         
         // Noise Gate
-        if (usingGate == true)
+        if (usingGate)
         {
             auto current = channelData[sample];
             
@@ -306,7 +328,12 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             channelData[sample] *= gateMultiplier;
         }
         
+        
         // Compressor
+        if (usingComp)
+        {
+            channelData[sample] = comPressor.processSample(0, channelData[sample]);
+        }
         
         
         // Overdrive
@@ -329,8 +356,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         }
         
         
-        
-        
         // Amplifier
         
         
@@ -339,9 +364,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         
         // Impulse Response
-        
-        
-        
         
         
         // Output Gain

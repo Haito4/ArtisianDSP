@@ -29,8 +29,8 @@ public:
         
         thresholdSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         thresholdSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
-        thresholdSlider.setRange(-100.0, 6.0); // Adjust the range to match your parameter
-        thresholdSlider.setValue(1.0); // Set the initial value
+        thresholdSlider.setRange(-100.0, 6.0);
+        thresholdSlider.setValue(1.0);
         thresholdSlider.setTextValueSuffix(" dB");
         addAndMakeVisible(thresholdSlider);
         

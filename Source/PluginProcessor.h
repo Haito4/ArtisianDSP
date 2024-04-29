@@ -79,13 +79,11 @@ private:
     juce::LinearSmoothedValue<float> rmsLevelLeft, rmsLevelRight;
     
     
-    juce::dsp::NoiseGate<float> noiseGate;
+
     
     
     juce::LinearSmoothedValue<float> rmsOutputLevelLeft, rmsOutputLevelRight;
     
-    
-    juce::dsp::IIR::Filter<float> highPassFilter;
     //==============================================================================
     
     // Noise Gate
@@ -104,7 +102,15 @@ private:
     bool isOpen = false;
     std::vector<float> averagingBuffer;
     
+    // Compressor
+    juce::dsp::Compressor<float> comPressor;
+    bool usingComp = false;
+    float compAttack = 50 * 0.001;
+    float compRelease = 50 * 0.001;
+    int compRatio = 1;
+    
     // Tube Screamer
+    juce::dsp::IIR::Filter<float> highPassFilter;
     float tscutoffFrequency;
     bool usingTS = false;
     float tsDrive;

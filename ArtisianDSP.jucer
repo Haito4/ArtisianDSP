@@ -5,6 +5,8 @@
               pluginFormats="buildStandalone,buildVST3">
   <MAINGROUP id="jQ0XFJ" name="ArtisianDSP2">
     <GROUP id="{1336A030-A105-CEDF-C0E4-DB803E980675}" name="Source">
+      <FILE id="mMRXtm" name="Utils.cpp" compile="1" resource="0" file="Source/Utils.cpp"/>
+      <FILE id="IQiSS6" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
       <GROUP id="{6EE2CD03-7313-1380-10EC-D7A7C997CCB0}" name="Components">
         <FILE id="BWy3Wz" name="AudioProcessorGraph.h" compile="0" resource="0"
               file="Source/AudioProcessorGraph.h"/>

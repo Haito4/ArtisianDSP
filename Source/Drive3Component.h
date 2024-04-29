@@ -103,7 +103,6 @@ private:
     juce::Slider toneKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> toneAttachment;
     
-    
     juce::Slider volumeKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
     

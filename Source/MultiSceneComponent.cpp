@@ -4,7 +4,7 @@
 MultiSceneComponent::MultiSceneComponent(ArtisianDSPAudioProcessor& processor)
     : audioProcessor(processor),
       scene1(std::make_unique<Gate1Component>(processor)),
-      scene2(std::make_unique<Comp2Component>()),
+      scene2(std::make_unique<Comp2Component>(processor)),
       scene3(std::make_unique<Drive3Component>(processor)),
       scene4(std::make_unique<Amp4Component>()),
       scene5(std::make_unique<Reverb5Component>()),
