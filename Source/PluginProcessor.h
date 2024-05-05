@@ -117,6 +117,9 @@ private:
     float tsLevel;
     
     
+    // Reverb
+    juce::dsp::Reverb reVerb;
+    
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
 };

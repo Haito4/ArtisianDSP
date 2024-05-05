@@ -5,7 +5,7 @@
 class Reverb5Component : public juce::Component
 {
 public:
-    Reverb5Component()
+    Reverb5Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
         reverbLabel.setFont(20.f);
         reverbLabel.setJustificationType(juce::Justification::centred);
@@ -19,5 +19,7 @@ public:
         reverbLabel.setBounds(getLocalBounds());
     }
 private:
+    ArtisianDSPAudioProcessor& audioProcessor;
+    
     juce::Label reverbLabel;
 };

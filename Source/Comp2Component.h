@@ -76,21 +76,23 @@ public:
     {
 //        compLabel.setBounds(getLocalBounds());
         
-        compToggle.setBounds(464, 270, 100, 100);
+        compToggle.setBounds(335, 410, 50, 50);
         
-        thresholdKnob.setBounds(400, 130, 100, 100);
+        thresholdKnob.setBounds(315, 140, 90, 90);
         
-        attackKnob.setBounds(315, 230, 90, 90);
+        attackKnob.setBounds(215, 140, 90, 90);
         
-        releaseKnob.setBounds(220, 130, 100, 100);
+        releaseKnob.setBounds(215, 230, 90, 90);
         
-        ratioKnob.setBounds(100, 130, 100, 100);
+        ratioKnob.setBounds(415, 140, 90, 90);
     }
     
     void buttonClicked(juce::Button* button) override
     {
         if (button == &compToggle)
         {
+            // just do an if statement
+            
             usingCompValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_COMP"))->get();
             compToggleText = usingCompValue ? "Off" : "On";
             compToggle.setButtonText(compToggleText);
@@ -123,7 +125,6 @@ private:
     
     juce::Slider ratioKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ratioAttachment;
-    
     
     
     juce::Label compLabel;

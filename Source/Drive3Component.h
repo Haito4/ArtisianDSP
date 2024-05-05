@@ -15,6 +15,17 @@ public:
         driveToggleText = usingDriveValue ? "On" : "Off";
         juce::Logger::outputDebugString("driveToggle Initial State: " + driveToggleText);
         driveToggle.setButtonText(driveToggleText);
+
+//        usingDriveValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_TS"))->get();
+//        if (usingDriveValue)
+//        {
+//            driveToggle.setButtonText("On");
+//        }
+//        else
+//        {
+//            driveToggle.setButtonText("Off");
+//        }
+        
         driveToggle.setClickingTogglesState(true);
         driveToggle.addListener(this);
         driveToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_TS", driveToggle);
@@ -61,19 +72,19 @@ public:
         driveLabel.setBounds(290, 350, 140, 50);
         
         driveKnob.setBounds(400, 130, 100, 100);
-        
         toneKnob.setBounds(315, 230, 90, 90);
-        
         volumeKnob.setBounds(220, 130, 100, 100);
+        driveToggle.setBounds(335, 400, 50, 50);
         
-        driveToggle.setBounds(464, 270, 100, 100);
+        usingDriveValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_TS"))->get();
     }
     
     void buttonClicked(juce::Button* button) override
     {
         if (button == &driveToggle)
         {
-            usingDriveValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_TS"))->get();
+            // just do if statement
+            
             driveToggleText = usingDriveValue ? "Off" : "On";
             driveToggle.setButtonText(driveToggleText);
             juce::Logger::outputDebugString("Overdrive state: " + driveToggleText);

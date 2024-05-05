@@ -5,7 +5,7 @@
 class Impulse6Component : public juce::Component
 {
 public:
-    Impulse6Component()
+    Impulse6Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
         impulseLabel.setFont(20.f);
         impulseLabel.setJustificationType(juce::Justification::centred);
@@ -19,5 +19,7 @@ public:
         impulseLabel.setBounds(getLocalBounds());
     }
 private:
+    ArtisianDSPAudioProcessor& audioProcessor;
+    
     juce::Label impulseLabel;
 };

@@ -60,6 +60,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("TS_TONE", "Tube Screamer Tone", 20.f, 700.f, 20.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("TS_LEVEL", "Tube Screamer Level", 0.f, 1.f, 0.5f));
     
+    // Amplifier
+    params.add(std::make_unique<juce::AudioParameterBool>("USING_AMP", "Using Amplifier", false));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_GAIN", "Amplifier Gain", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_HI", "Amp Highs", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_LEVEL", "Amp Channel Level", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MASTER", "Amp Master Volume", 0.f, 1.f, 0.5f));
+    
+    // Reverb
+    params.add(std::make_unique<juce::AudioParameterBool>("USING_VERB", "Using Reverb", false));
+    
+    // Impulse Response
+    params.add(std::make_unique<juce::AudioParameterBool>("USING_IR", "Using Impulse Response", false));
+    
+    
     return params;
 }
 

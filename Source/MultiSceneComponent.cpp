@@ -6,9 +6,9 @@ MultiSceneComponent::MultiSceneComponent(ArtisianDSPAudioProcessor& processor)
       scene1(std::make_unique<Gate1Component>(processor)),
       scene2(std::make_unique<Comp2Component>(processor)),
       scene3(std::make_unique<Drive3Component>(processor)),
-      scene4(std::make_unique<Amp4Component>()),
-      scene5(std::make_unique<Reverb5Component>()),
-      scene6(std::make_unique<Impulse6Component>())
+      scene4(std::make_unique<Amp4Component>(processor)),
+      scene5(std::make_unique<Reverb5Component>(processor)),
+      scene6(std::make_unique<Impulse6Component>(processor))
 {
     addAndMakeVisible(scene1.get());
     addAndMakeVisible(scene2.get());

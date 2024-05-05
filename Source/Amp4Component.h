@@ -5,7 +5,7 @@
 class Amp4Component : public juce::Component
 {
 public:
-    Amp4Component()
+    Amp4Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
         ampLabel.setFont(20.f);
         ampLabel.setJustificationType(juce::Justification::centred);
@@ -20,5 +20,7 @@ public:
     }
     
 private:
+    ArtisianDSPAudioProcessor& audioProcessor;
+    
     juce::Label ampLabel;
 };
