@@ -5,9 +5,15 @@
               pluginFormats="buildStandalone,buildVST3">
   <MAINGROUP id="jQ0XFJ" name="ArtisianDSP2">
     <GROUP id="{064151A4-02E9-3190-055C-A5DF9304743C}" name="Assets">
-      <FILE id="Mxh9Z3" name="dogreen.png" compile="0" resource="1" file="Assets/Buttons/dogreen.png"/>
-      <FILE id="GvEqst" name="dohover.png" compile="0" resource="1" file="Assets/Buttons/dohover.png"/>
-      <FILE id="FCFLDI" name="dored.png" compile="0" resource="1" file="Assets/Buttons/dored.png"/>
+      <GROUP id="{EED0913A-EF12-2453-8C65-C89545F50DF0}" name="IRs">
+        <FILE id="WlkQ9Z" name="ML Sound Lab's BEST IR IN THE WORLD.wav" compile="0"
+              resource="1" file="Assets/IRs/ML Sound Lab's BEST IR IN THE WORLD.wav"/>
+      </GROUP>
+      <GROUP id="{F2DCE70F-3E28-285C-F19F-7F0BB76BF81C}" name="Buttons">
+        <FILE id="Mxh9Z3" name="dogreen.png" compile="0" resource="1" file="Assets/Buttons/dogreen.png"/>
+        <FILE id="GvEqst" name="dohover.png" compile="0" resource="1" file="Assets/Buttons/dohover.png"/>
+        <FILE id="FCFLDI" name="dored.png" compile="0" resource="1" file="Assets/Buttons/dored.png"/>
+      </GROUP>
     </GROUP>
     <GROUP id="{1336A030-A105-CEDF-C0E4-DB803E980675}" name="Source">
       <FILE id="mMRXtm" name="Utils.cpp" compile="1" resource="0" file="Source/Utils.cpp"/>

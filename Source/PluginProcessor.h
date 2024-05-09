@@ -70,6 +70,10 @@ public:
     juce::AudioProcessorValueTreeState apvts;
     void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyChanged, const juce::Identifier& property) override;
     
+    
+    // Cabinet
+    juce::dsp::Convolution speakerModule;
+    
 private:
     //==============================================================================
     ArtisianDSPAudioProcessor* editor;
@@ -127,6 +131,11 @@ private:
 //    float roomsize;
 //    float damping;
 //    float width;
+    
+    
+    // Cabinet
+    bool usingIR = false;
+    
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)

@@ -15,7 +15,7 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::mono(), true)
+                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
@@ -163,14 +163,16 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     rmsLevelRight.setCurrentAndTargetValue(-100.f);
     
     
-    // DSP Initialisation
+    // Spec Initialisation
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumInputChannels();
+    spec.numChannels = 2;
+    
         // Tube Screamer
     highPassFilter.reset();
     highPassFilter.prepare(spec);
+    
         // Compressor
     comPressor.setThreshold(-20.f);
     comPressor.setAttack(4.f);
@@ -185,6 +187,12 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 //    verbParams.width = width;
 //    reVerber.setParameters(verbParams);
 //    reVerber.prepare(spec);
+    
+        // Impulse Response
+    speakerModule.prepare(spec);
+    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
+                                      BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
+                                      juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -196,11 +204,11 @@ void ArtisianDSPAudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool ArtisianDSPAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    if (layouts.getMainInputChannelSet() != juce::AudioChannelSet::mono())
-        return false;
+//    if (layouts.getMainInputChannelSet() != juce::AudioChannelSet::mono())
+//        return false;
 
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+//        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     return true;
@@ -268,6 +276,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         highPassFilter.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), tscutoffFrequency);
         tsDrive = static_cast<float>(*apvts.getRawParameterValue("TS_DRIVE"));
         tsLevel = static_cast<float>(*apvts.getRawParameterValue("TS_LEVEL"));
+        
+        usingIR = static_cast<bool>(*apvts.getRawParameterValue("USING_IR"));
         
         shouldUpdate = false;
     }
@@ -409,6 +419,11 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         rightChannelData[sample] = channelData[sample]; // copy audio data to right side channel
     }
     
+    juce::dsp::AudioBlock<float> block {buffer};
+    
+    if (usingIR) {
+    speakerModule.process(juce::dsp::ProcessContextReplacing<float>(block));
+    }
 }
 
 
