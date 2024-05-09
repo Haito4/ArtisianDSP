@@ -71,6 +71,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     // Reverb
     params.add(std::make_unique<juce::AudioParameterBool>("USING_VERB", "Using Reverb", false));
+    params.add(std::make_unique<juce::AudioParameterFloat>("VERB_SIZE", "Reverb Size", 0.f, 1.f, 0.5f));
     
     // Impulse Response
     params.add(std::make_unique<juce::AudioParameterBool>("USING_IR", "Using Impulse Response", false));
@@ -176,6 +177,14 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     comPressor.setRelease(10.f);
     comPressor.setRatio(100.f);
     comPressor.prepare(spec);
+    
+        // Reverb
+//    reVerber.setSampleRate(sampleRate);
+//    verbParams.roomSize = roomsize;
+//    verbParams.damping = damping;
+//    verbParams.width = width;
+//    reVerber.setParameters(verbParams);
+//    reVerber.prepare(spec);
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -257,7 +266,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         usingTS = static_cast<bool>(*apvts.getRawParameterValue("USING_TS"));
         tscutoffFrequency = static_cast<float>(*apvts.getRawParameterValue("TS_TONE"));
         highPassFilter.coefficients = juce::dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), tscutoffFrequency);
-        
         tsDrive = static_cast<float>(*apvts.getRawParameterValue("TS_DRIVE"));
         tsLevel = static_cast<float>(*apvts.getRawParameterValue("TS_LEVEL"));
         
@@ -373,10 +381,20 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         
         // Amplifier
+        if (usingAmp)
+        {
+            
+        }
+        
+        
+        
         
         
         // Reverb
-        
+//        if (usingVerb)
+//        {
+//            reVerber.processMono(channelData, 1);
+//        }
         
         
         // Impulse Response

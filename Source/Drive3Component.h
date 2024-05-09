@@ -11,24 +11,14 @@ public:
     Drive3Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
         // Toggle Button
-        addAndMakeVisible(driveToggle);
-        driveToggleText = usingDriveValue ? "On" : "Off";
-        juce::Logger::outputDebugString("driveToggle Initial State: " + driveToggleText);
-        driveToggle.setButtonText(driveToggleText);
-
-//        usingDriveValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_TS"))->get();
-//        if (usingDriveValue)
-//        {
-//            driveToggle.setButtonText("On");
-//        }
-//        else
-//        {
-//            driveToggle.setButtonText("Off");
-//        }
+        addAndMakeVisible(driveToggleImage);
+        driveToggleImage.addListener(this);
+        driveToggleImage.setImages(false, true, true, juce::ImageCache::getFromMemory(BinaryData::dogreen_png, BinaryData::dogreen_pngSize), 0.5f, juce::Colours::green,
+                                                      juce::ImageCache::getFromMemory(BinaryData::dohover_png, BinaryData::dohover_pngSize), 0.5f, juce::Colours::blue,
+                                                      juce::ImageCache::getFromMemory(BinaryData::dored_png, BinaryData::dored_pngSize), 0.5f, juce::Colours::red);
+        driveToggleImage.setClickingTogglesState(true);
+        driveToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_TS", driveToggleImage);
         
-        driveToggle.setClickingTogglesState(true);
-        driveToggle.addListener(this);
-        driveToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_TS", driveToggle);
         
         // Text
         driveLabel.setFont(20.f);
@@ -40,7 +30,6 @@ public:
         addAndMakeVisible(driveKnob);
         driveKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
         driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
-//        driveKnob.setTextValueSuffix(" %");
         driveKnob.setRange(0.1f, 200.f);
         driveKnob.setValue(0.5);
         driveKnob.addListener(this);
@@ -74,21 +63,13 @@ public:
         driveKnob.setBounds(400, 130, 100, 100);
         toneKnob.setBounds(315, 230, 90, 90);
         volumeKnob.setBounds(220, 130, 100, 100);
-        driveToggle.setBounds(335, 400, 50, 50);
         
-        usingDriveValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_TS"))->get();
+        driveToggleImage.setBounds(335, 450, 50, 50);
     }
     
     void buttonClicked(juce::Button* button) override
     {
-        if (button == &driveToggle)
-        {
-            // just do if statement
-            
-            driveToggleText = usingDriveValue ? "Off" : "On";
-            driveToggle.setButtonText(driveToggleText);
-            juce::Logger::outputDebugString("Overdrive state: " + driveToggleText);
-        }
+        
     }
     
     
@@ -102,11 +83,9 @@ private:
     
     
     // Buttons, Sliders
-    
-    juce::String driveToggleText;
-    juce::TextButton driveToggle;
+    juce::ImageButton driveToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> driveToggleAttachment;
-    bool usingDriveValue { dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_TS"))->get() };
+    
     
     juce::Slider driveKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;

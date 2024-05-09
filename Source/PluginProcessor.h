@@ -116,9 +116,17 @@ private:
     float tsDrive;
     float tsLevel;
     
+    // Amp
+    bool usingAmp = false;
+    
     
     // Reverb
-    juce::dsp::Reverb reVerb;
+//    juce::Reverb reVerber;
+//    juce::Reverb::Parameters verbParams;
+//    bool usingVerb;
+//    float roomsize;
+//    float damping;
+//    float width;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
