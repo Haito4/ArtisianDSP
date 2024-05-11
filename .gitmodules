@@ -1,3 +1,6 @@
 [submodule "Modules/melatonin_inspector"]
 	path = Modules/melatonin_inspector
 	url = https://github.com/sudara/melatonin_inspector.git
+[submodule "Modules/viatordsp"]
+	path = Modules/viatordsp
+	url = https://github.com/landonviator/viatordsp.git
