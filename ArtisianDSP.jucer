@@ -65,6 +65,7 @@
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="melatonin_inspector" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="viator_modules" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
@@ -88,6 +89,7 @@
         <MODULEPATH id="juce_gui_basics" path="../../../Fork Source/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../Fork Source/JUCE/modules"/>
         <MODULEPATH id="melatonin_inspector" path="Modules"/>
+        <MODULEPATH id="viator_modules" path="Modules/viatordsp"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>

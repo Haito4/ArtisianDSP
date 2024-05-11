@@ -122,6 +122,9 @@ private:
     
     // Amp
     bool usingAmp = false;
+//    viator_dsp::Tube<float> tubeDistortion;
+    
+    
     
     
     // Reverb
@@ -135,7 +138,7 @@ private:
     
     // Cabinet
     bool usingIR = false;
-    
+    juce::dsp::Gain<float> speakerCompensate;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)

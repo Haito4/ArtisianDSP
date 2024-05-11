@@ -62,7 +62,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     // Amplifier
     params.add(std::make_unique<juce::AudioParameterBool>("USING_AMP", "Using Amplifier", false));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_GAIN", "Amplifier Gain", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_DRIVE", "Amplifier Gain", 0.f, 100.f, 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 1.f, 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 1.f, 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_HI", "Amp Highs", 0.f, 1.f, 0.5f));
@@ -180,6 +180,11 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     comPressor.setRatio(100.f);
     comPressor.prepare(spec);
     
+        // Amplifier
+//    tubeDistortion.setDrive(0.5);
+//    tubeDistortion.prepare(spec);
+    
+    
         // Reverb
 //    reVerber.setSampleRate(sampleRate);
 //    verbParams.roomSize = roomsize;
@@ -193,6 +198,9 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
                                       BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
                                       juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
+    speakerCompensate.prepare(spec);
+    speakerCompensate.setRampDurationSeconds(0.02);
+    speakerCompensate.setGainDecibels(6.0);
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -277,6 +285,12 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         tsDrive = static_cast<float>(*apvts.getRawParameterValue("TS_DRIVE"));
         tsLevel = static_cast<float>(*apvts.getRawParameterValue("TS_LEVEL"));
         
+        // Amp
+        usingAmp = static_cast<bool>(*apvts.getRawParameterValue("USING_AMP"));
+//        tubeDistortion.setDrive(static_cast<float>(*apvts.getRawParameterValue("AMP_DRIVE")));
+        
+        
+        // IR
         usingIR = static_cast<bool>(*apvts.getRawParameterValue("USING_IR"));
         
         shouldUpdate = false;
@@ -394,6 +408,10 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         if (usingAmp)
         {
             
+            
+            
+//            tubeDistortion.processSample(channelData[sample], 0);
+            
         }
         
         
@@ -405,9 +423,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 //        {
 //            reVerber.processMono(channelData, 1);
 //        }
-        
-        
-        // Impulse Response
         
         
         // Output Gain
@@ -423,6 +438,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     
     if (usingIR) {
     speakerModule.process(juce::dsp::ProcessContextReplacing<float>(block));
+    speakerCompensate.process(juce::dsp::ProcessContextReplacing<float>(block)); // boost by 6dB
     }
 }
 
