@@ -63,9 +63,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     // Amplifier
     params.add(std::make_unique<juce::AudioParameterBool>("USING_AMP", "Using Amplifier", false));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_DRIVE", "Amplifier Gain", 0.f, 100.f, 0.5f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 1.f, 0.5f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 1.f, 0.5f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_HI", "Amp Highs", 0.f, 1.f, 0.5f));
+    
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 2.f, 1.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 2.f, 1.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_HI", "Amp Highs", 0.f, 2.f, 1.f));
+    
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_LEVEL", "Amp Channel Level", 0.f, 1.f, 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MASTER", "Amp Master Volume", 0.f, 1.f, 0.5f));
     
@@ -181,8 +183,20 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     comPressor.prepare(spec);
     
         // Amplifier
-//    tubeDistortion.setDrive(0.5);
-//    tubeDistortion.prepare(spec);
+    bass = juce::jlimit(0.01f, 2.0f, bass);
+    mids = juce::jlimit(0.01f, 2.0f, mids);
+    treble = juce::jlimit(0.01f, 2.0f, treble);
+    
+    lowPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 100.f, 0.6f, bass);
+    midPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 500.0f, 0.9f, mids);
+    highPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 5000.0f, 0.6f, treble);
+    
+    lowPeak.reset();
+    midPeak.reset();
+    highPeak.reset();
+    lowPeak.prepare(spec);
+    midPeak.prepare(spec);
+    highPeak.prepare(spec);
     
     
         // Reverb
@@ -201,6 +215,9 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     speakerCompensate.prepare(spec);
     speakerCompensate.setRampDurationSeconds(0.02);
     speakerCompensate.setGainDecibels(6.0);
+    
+    
+
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -248,9 +265,6 @@ void ArtisianDSPAudioProcessor::valueTreePropertyChanged(juce::ValueTree &treeWh
         juce::Logger::outputDebugString("usingGate: " + juce::String(usingGate ? "true" : "false"));
     }
     
-   
-    
-    
     
     shouldUpdate = true;
 }
@@ -287,16 +301,22 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         // Amp
         usingAmp = static_cast<bool>(*apvts.getRawParameterValue("USING_AMP"));
-//        tubeDistortion.setDrive(static_cast<float>(*apvts.getRawParameterValue("AMP_DRIVE")));
+
+        bass = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_BASS")->load());
+        mids = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_MIDS")->load());
+        treble = juce::jlimit(0.01f, 2.0f,apvts.getRawParameterValue("AMP_HI")->load());
+        
+        lowPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 100.f, 0.6f, bass);
+        midPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 500.0f, 0.9f, mids);
+        highPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 5000.0f, 0.6f, treble);
         
         
         // IR
         usingIR = static_cast<bool>(*apvts.getRawParameterValue("USING_IR"));
         
         shouldUpdate = false;
+        
     }
-    
-    
     
     //==============================================================================
     // RMS Level for input meter
@@ -320,7 +340,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             rmsLevelRight.setCurrentAndTargetValue(value);
     }
     //==============================================================================
-    
 
     // Clears any output channels that didn't contain input data
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
@@ -338,7 +357,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         if (usingGate)
         {
             auto current = channelData[sample];
-            
             // Adds the squared value of the current sample to the averaging buffer at the current index
             averagingBuffer[currentBufferIndex] = current * current;
             // increment current index while staying within buffer size
@@ -371,9 +389,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
                     openTime = 0.0;
                 }
             }
-            
-            // Actually apply the changes
-            channelData[sample] *= gateMultiplier;
+            channelData[sample] *= gateMultiplier; // apply the changes
         }
         
         
@@ -407,15 +423,10 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // Amplifier
         if (usingAmp)
         {
-            
-            
-            
-//            tubeDistortion.processSample(channelData[sample], 0);
-            
+            channelData[sample] = lowPeak.processSample(channelData[sample]);
+            channelData[sample] = midPeak.processSample(channelData[sample]);
+            channelData[sample] = highPeak.processSample(channelData[sample]);
         }
-        
-        
-        
         
         
         // Reverb
@@ -429,19 +440,19 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
         
         
-        
         auto* rightChannelData = buffer.getWritePointer(1);
         rightChannelData[sample] = channelData[sample]; // copy audio data to right side channel
     }
     
+    
     juce::dsp::AudioBlock<float> block {buffer};
     
     if (usingIR) {
-    speakerModule.process(juce::dsp::ProcessContextReplacing<float>(block));
-    speakerCompensate.process(juce::dsp::ProcessContextReplacing<float>(block)); // boost by 6dB
+        speakerModule.process(juce::dsp::ProcessContextReplacing<float>(block));
+        speakerCompensate.process(juce::dsp::ProcessContextReplacing<float>(block)); // boost by 6dB
     }
+    
 }
-
 
 
 

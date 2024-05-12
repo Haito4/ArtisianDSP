@@ -23,15 +23,35 @@ public:
         ampToggleImage.setClickingTogglesState(true);
         ampToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_AMP", ampToggleImage);
         
-        // Drive
-        addAndMakeVisible(driveKnob);
-        driveKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
-        driveKnob.setRange(0.0f, 100.f);
-        driveKnob.setValue(0.5);
-        driveKnob.addListener(this);
-        driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_DRIVE", driveKnob);
+        // Bass
+        addAndMakeVisible(bassKnob);
+        bassKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        bassKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        bassKnob.setTextValueSuffix(" Base");
+        bassKnob.setRange(0.f, 2.f);
+        bassKnob.setValue(0.f);
+        bassKnob.addListener(this);
+        bassAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_BASS", bassKnob);
         
+        // Mids
+        addAndMakeVisible(midsKnob);
+        midsKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        midsKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        midsKnob.setTextValueSuffix(" Mids");
+        midsKnob.setRange(0.f, 2.f);
+        midsKnob.setValue(1.f);
+        midsKnob.addListener(this);
+        midsAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_MIDS", midsKnob);
+        
+        // Treble
+        addAndMakeVisible(trebleKnob);
+        trebleKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        trebleKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        trebleKnob.setTextValueSuffix(" treble");
+        trebleKnob.setRange(0.f, 2.f);
+        trebleKnob.setValue(0.f);
+        trebleKnob.addListener(this);
+        trebleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_HI", trebleKnob);
         
         
     }
@@ -44,7 +64,11 @@ public:
         
         ampToggleImage.setBounds(335, 450, 50, 50);
         
-        driveKnob.setBounds(400, 130, 100, 100);
+        bassKnob.setBounds(100, 130, 100, 100);
+        
+        midsKnob.setBounds(250, 130, 100, 100);
+        
+        trebleKnob.setBounds(400, 130, 100, 100);
     }
     
     void buttonClicked(juce::Button* button) override
@@ -63,8 +87,16 @@ private:
     juce::ImageButton ampToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> ampToggleAttachment;
     
-    juce::Slider driveKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
+    juce::Slider bassKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bassAttachment;
+    
+    juce::Slider midsKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> midsAttachment;
+    
+    juce::Slider trebleKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trebleAttachment;
+    
+    
     
     juce::Label ampLabel;
 };

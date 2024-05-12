@@ -71,6 +71,8 @@ public:
     void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyChanged, const juce::Identifier& property) override;
     
     
+    
+    
     // Cabinet
     juce::dsp::Convolution speakerModule;
     
@@ -122,7 +124,17 @@ private:
     
     // Amp
     bool usingAmp = false;
-//    viator_dsp::Tube<float> tubeDistortion;
+    float treble = 1;
+    float mids = 1;
+    float bass = 1;
+    
+
+    
+    juce::dsp::IIR::Filter<float> lowPeak;
+    juce::dsp::IIR::Filter<float> midPeak;
+    juce::dsp::IIR::Filter<float> highPeak;
+    
+    
     
     
     
@@ -139,6 +151,8 @@ private:
     // Cabinet
     bool usingIR = false;
     juce::dsp::Gain<float> speakerCompensate;
+    
+    
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
