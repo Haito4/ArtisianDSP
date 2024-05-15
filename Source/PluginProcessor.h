@@ -70,11 +70,14 @@ public:
     juce::AudioProcessorValueTreeState apvts;
     void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyChanged, const juce::Identifier& property) override;
     
-    
+    juce::ValueTree variableTree;
     
     
     // Cabinet
     juce::dsp::Convolution speakerModule;
+    
+    juce::File root, savedFile;
+    
     
 private:
     //==============================================================================

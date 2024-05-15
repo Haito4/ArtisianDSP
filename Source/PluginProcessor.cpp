@@ -24,6 +24,22 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
 {
     apvts.state.addListener(this);
     
+    variableTree = {
+        
+        "Variables", {},
+        {
+            { "Group", {{ "name", "IR Vars" }},
+                {
+                    { "Parameter", {{ "id", "file1" }, { "value", "/" }}},
+                    { "Parameter", {{ "id", "root" }, { "value", "/" }}},
+                }
+            }
+        }
+    };
+    
+    
+    
+    
     isOpen = true;
     
     double sampleRate = getSampleRate();
@@ -62,7 +78,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     // Amplifier
     params.add(std::make_unique<juce::AudioParameterBool>("USING_AMP", "Using Amplifier", false));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_DRIVE", "Amplifier Gain", 0.f, 100.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_GAIN", "Amplifier Gain", 0.f, 100.f, 0.5f));
     
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 2.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 2.f, 1.f));
@@ -208,10 +224,16 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 //    reVerber.prepare(spec);
     
         // Impulse Response
-    speakerModule.prepare(spec);
-    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
-                                      BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
-                                      juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
+//    speakerModule.reset();
+//    if (savedFile.existsAsFile())
+//    {
+//        
+//    }
+    
+    
+//    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
+//                                      BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
+//                                      juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
     speakerCompensate.prepare(spec);
     speakerCompensate.setRampDurationSeconds(0.02);
     speakerCompensate.setGainDecibels(6.0);
@@ -475,11 +497,15 @@ juce::AudioProcessorEditor* ArtisianDSPAudioProcessor::createEditor()
 //==============================================================================
 void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    
-    
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    
+    
+    apvts.state.appendChild(variableTree, nullptr);
+    juce::MemoryOutputStream stream(destData, false);
+    apvts.state.writeToStream(stream);
+    
     
 }
 
@@ -488,6 +514,21 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
+    auto tree = juce::ValueTree::readFromData(data, size_t(sizeInBytes));
+    variableTree = tree.getChildWithName("Variables");
+
+    if (tree.isValid())
+    {
+        apvts.state = tree;
+        
+        savedFile = juce::File(variableTree.getProperty("file1"));
+        root = juce::File(variableTree.getProperty("root"));
+        
+        speakerModule.loadImpulseResponse(savedFile,
+                                          juce::dsp::Convolution::Stereo::yes,
+                                          juce::dsp::Convolution::Trim::yes, 0);
+        
+    }
 }
 
 float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const
