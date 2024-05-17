@@ -127,6 +127,9 @@ private:
     
     // Amp
     bool usingAmp = false;
+    
+    float ampOD;
+    
     float treble = 1;
     float mids = 1;
     float bass = 1;
@@ -138,6 +141,7 @@ private:
     juce::dsp::IIR::Filter<float> highPeak;
     
     
+    juce::dsp::WaveShaper<float> ampWaveshaper;
     
     
     

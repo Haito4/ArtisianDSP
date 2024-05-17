@@ -8,11 +8,14 @@ class Impulse6Component : public juce::Component,
 public:
     Impulse6Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
+        // Label
         impulseLabel.setFont(20.f);
         impulseLabel.setJustificationType(juce::Justification::centred);
         impulseLabel.setText("Impulse Response", juce::dontSendNotification);
         addAndMakeVisible(impulseLabel);
         
+        
+        // Bypass Switch
         addAndMakeVisible(irToggleImage);
         irToggleImage.addListener(this);
         irToggleImage.setImages(false, true, true, juce::ImageCache::getFromMemory(BinaryData::dogreen_png, BinaryData::dogreen_pngSize), 0.5f, juce::Colours::green,
@@ -23,7 +26,6 @@ public:
         
         
         // Ir Selector
-        
         addAndMakeVisible(loadBtn);
         loadBtn.setButtonText("Load IR");
         loadBtn.onClick = [this]()
@@ -51,9 +53,9 @@ public:
                     audioProcessor.root = result.getParentDirectory().getFullPathName();
                     
                     
-                    
-//                    audioProcessor.speakerModule.reset();
-                    audioProcessor.speakerModule.loadImpulseResponse(result, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
+                    audioProcessor.speakerModule.loadImpulseResponse(result, // apply to ir loader
+                                                                     juce::dsp::Convolution::Stereo::yes,
+                                                                     juce::dsp::Convolution::Trim::yes, 0);
                     irName.setText(result.getFileName(), juce::dontSendNotification);
                 }
             });
@@ -61,8 +63,7 @@ public:
         
         addAndMakeVisible(irName);
         
-        
-        
+
         
     }
 //    ~Impulse6Component();
@@ -70,7 +71,6 @@ public:
     virtual void resized() override
     {
         impulseLabel.setBounds(290, 150, 140, 50);
-        
         
         loadBtn.setBounds(335, 325, 100, 50);
         irName.setBounds(335, 375, 100, 50);

@@ -79,6 +79,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     // Amplifier
     params.add(std::make_unique<juce::AudioParameterBool>("USING_AMP", "Using Amplifier", false));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_GAIN", "Amplifier Gain", 0.f, 100.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_DRIVE", "Amplifier Drive", 0.f, 1.f, 0.5f));
+    
     
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 2.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 2.f, 1.f));
@@ -215,6 +217,8 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     highPeak.prepare(spec);
     
     
+    
+    
         // Reverb
 //    reVerber.setSampleRate(sampleRate);
 //    verbParams.roomSize = roomsize;
@@ -224,12 +228,7 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 //    reVerber.prepare(spec);
     
         // Impulse Response
-//    speakerModule.reset();
-//    if (savedFile.existsAsFile())
-//    {
-//        
-//    }
-    
+    speakerModule.prepare(spec);
     
 //    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
 //                                      BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
@@ -323,6 +322,9 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         // Amp
         usingAmp = static_cast<bool>(*apvts.getRawParameterValue("USING_AMP"));
+        
+        ampOD = static_cast<bool>(*apvts.getRawParameterValue("AMP_DRIVE"));
+//        ampOD = juce::jlimit(0.001f, 1.0f, ampOD);
 
         bass = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_BASS")->load());
         mids = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_MIDS")->load());
@@ -445,6 +447,19 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // Amplifier
         if (usingAmp)
         {
+//            float output = (3 + ampOD) * channelData[sample] * 20 / (std::abs(channelData[sample] * ampOD) + 1);
+            
+            
+            float output = (3 + ampOD) * channelData[sample] / (std::abs(channelData[sample] * ampOD) + 1); // soft clipping
+            
+            
+            
+            output = juce::jlimit(-1.0f, 1.0f, output);
+            
+            channelData[sample] = juce::jlimit(0.0f, 0.2f, output);
+            
+            
+            
             channelData[sample] = lowPeak.processSample(channelData[sample]);
             channelData[sample] = midPeak.processSample(channelData[sample]);
             channelData[sample] = highPeak.processSample(channelData[sample]);

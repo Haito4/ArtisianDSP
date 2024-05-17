@@ -23,6 +23,17 @@ public:
         ampToggleImage.setClickingTogglesState(true);
         ampToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_AMP", ampToggleImage);
         
+        // Overdrive
+        addAndMakeVisible(driveKnob);
+        driveKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        driveKnob.setTextValueSuffix(" Drive");
+        driveKnob.setRange(0.f, 1.f);
+        driveKnob.setValue(0.f);
+        driveKnob.addListener(this);
+        driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_DRIVE", driveKnob);
+        
+        
         // Bass
         addAndMakeVisible(bassKnob);
         bassKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -64,6 +75,8 @@ public:
         
         ampToggleImage.setBounds(335, 450, 50, 50);
         
+        driveKnob.setBounds(100, 300, 100, 100);
+        
         bassKnob.setBounds(100, 130, 100, 100);
         
         midsKnob.setBounds(250, 130, 100, 100);
@@ -86,6 +99,11 @@ private:
     
     juce::ImageButton ampToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> ampToggleAttachment;
+    
+    
+    juce::Slider driveKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
+    
     
     juce::Slider bassKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bassAttachment;
