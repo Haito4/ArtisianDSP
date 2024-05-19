@@ -38,7 +38,6 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     // Input Gain Label
     addAndMakeVisible (inputGainLabel);
     inputGainLabel.setText ("Input", juce::dontSendNotification);
-    inputGainLabel.attachToComponent (&inputGainSlider, false);
     inputGainLabel.setColour (juce::Label::textColourId, juce::Colours::ghostwhite);
     inputGainLabel.setJustificationType (juce::Justification::centredBottom);
     
@@ -57,7 +56,6 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     // Output Gain Label
     addAndMakeVisible (outputGainLabel);
     outputGainLabel.setText ("Output", juce::dontSendNotification);
-    outputGainLabel.attachToComponent (&outputGainSlider, false);
     outputGainLabel.setColour (juce::Label::textColourId, juce::Colours::ghostwhite);
     outputGainLabel.setJustificationType (juce::Justification::centredBottom);
     
@@ -120,6 +118,10 @@ void RasterComponent::resized()
     
     inputGainSlider.setBounds(40, 55, 100, 100);
     outputGainSlider.setBounds(575, 55, 100, 100);
+    inputGainLabel.setBounds(40, 159, 100, 25);
+    outputGainLabel.setBounds(575, 159, 100, 25);
+    
+    
     
     presetSelector.setBounds(280, 80, 160, 25);
 }

@@ -91,12 +91,7 @@ public:
     {
         if (button == &compToggle)
         {
-            // just do an if statement
             
-            usingCompValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_COMP"))->get();
-            compToggleText = usingCompValue ? "Off" : "On";
-            compToggle.setButtonText(compToggleText);
-            juce::Logger::outputDebugString("Comp state: " + compToggleText);
         }
     }
     

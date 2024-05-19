@@ -78,16 +78,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     // Amplifier
     params.add(std::make_unique<juce::AudioParameterBool>("USING_AMP", "Using Amplifier", false));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_GAIN", "Amplifier Gain", 0.f, 100.f, 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_DRIVE", "Amplifier Drive", 0.f, 1.f, 0.5f));
-    
     
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 2.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 2.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_HI", "Amp Highs", 0.f, 2.f, 1.f));
     
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_LEVEL", "Amp Channel Level", 0.f, 1.f, 0.5f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MASTER", "Amp Master Volume", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MASTER", "Amp Master Volume", 0.f, 2.f, 1.f));
     
     // Reverb
     params.add(std::make_unique<juce::AudioParameterBool>("USING_VERB", "Using Reverb", false));
@@ -323,8 +320,11 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // Amp
         usingAmp = static_cast<bool>(*apvts.getRawParameterValue("USING_AMP"));
         
-        ampOD = static_cast<bool>(*apvts.getRawParameterValue("AMP_DRIVE"));
+        
+        ampOD = static_cast<float>(*apvts.getRawParameterValue("AMP_DRIVE"));
 //        ampOD = juce::jlimit(0.001f, 1.0f, ampOD);
+        masterVol = static_cast<float>(*apvts.getRawParameterValue("AMP_MASTER"));
+        
 
         bass = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_BASS")->load());
         mids = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_MIDS")->load());
@@ -447,22 +447,18 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // Amplifier
         if (usingAmp)
         {
-//            float output = (3 + ampOD) * channelData[sample] * 20 / (std::abs(channelData[sample] * ampOD) + 1);
             
-            
-            float output = (3 + ampOD) * channelData[sample] / (std::abs(channelData[sample] * ampOD) + 1); // soft clipping
-            
-            
-            
-            output = juce::jlimit(-1.0f, 1.0f, output);
-            
-            channelData[sample] = juce::jlimit(0.0f, 0.2f, output);
-            
-            
+            float output = (3 + (ampOD * 250)) * channelData[sample] / (std::abs(channelData[sample] * (ampOD * 250)) + 1); // soft clipping
+            channelData[sample] = juce::jlimit(-1.0f, 1.0f, output);
             
             channelData[sample] = lowPeak.processSample(channelData[sample]);
             channelData[sample] = midPeak.processSample(channelData[sample]);
             channelData[sample] = highPeak.processSample(channelData[sample]);
+            
+            channelData[sample] = channelData[sample] * masterVol;
+            
+            
+            channelData[sample] = juce::jlimit(0.0f, 0.45f, channelData[sample]);
         }
         
         
@@ -529,21 +525,21 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     
-    auto tree = juce::ValueTree::readFromData(data, size_t(sizeInBytes));
-    variableTree = tree.getChildWithName("Variables");
-
-    if (tree.isValid())
-    {
-        apvts.state = tree;
-        
-        savedFile = juce::File(variableTree.getProperty("file1"));
-        root = juce::File(variableTree.getProperty("root"));
-        
-        speakerModule.loadImpulseResponse(savedFile,
-                                          juce::dsp::Convolution::Stereo::yes,
-                                          juce::dsp::Convolution::Trim::yes, 0);
-        
-    }
+//    auto tree = juce::ValueTree::readFromData(data, size_t(sizeInBytes));
+//    variableTree = tree.getChildWithName("Variables");
+//
+//    if (tree.isValid())
+//    {
+//        apvts.state = tree;
+//        
+//        savedFile = juce::File(variableTree.getProperty("file1"));
+//        root = juce::File(variableTree.getProperty("root"));
+//        
+//        speakerModule.loadImpulseResponse(savedFile,
+//                                          juce::dsp::Convolution::Stereo::yes,
+//                                          juce::dsp::Convolution::Trim::yes, 0);
+//        
+//    }
 }
 
 float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const

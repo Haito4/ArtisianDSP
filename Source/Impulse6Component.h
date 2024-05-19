@@ -62,8 +62,8 @@ public:
         };
         
         addAndMakeVisible(irName);
+        irName.setJustificationType(juce::Justification::horizontallyCentred);
         
-
         
     }
 //    ~Impulse6Component();
@@ -72,10 +72,10 @@ public:
     {
         impulseLabel.setBounds(290, 150, 140, 50);
         
-        loadBtn.setBounds(335, 325, 100, 50);
-        irName.setBounds(335, 375, 100, 50);
+        loadBtn.setBounds(310, 270, 100, 50);
+        irName.setBounds(260, 340, 200, 50);
         
-        irToggleImage.setBounds(335, 450, 50, 50);
+        irToggleImage.setBounds(335, 405, 50, 50);
     }
     
     void buttonClicked(juce::Button* button) override

@@ -73,6 +73,12 @@ public:
     juce::ValueTree variableTree;
     
     
+    // Amp
+    
+    
+    
+    
+    
     // Cabinet
     juce::dsp::Convolution speakerModule;
     
@@ -129,6 +135,15 @@ private:
     bool usingAmp = false;
     
     float ampOD;
+    float ampGain;
+    float masterVol = 1;
+    
+    
+    
+    
+    
+    
+    
     
     float treble = 1;
     float mids = 1;

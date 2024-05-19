@@ -59,12 +59,12 @@ void MultiSceneComponent::resized()
     scene5->setBounds(getLocalBounds());
     scene6->setBounds(getLocalBounds());
 
-    sceneButton1.setBounds(100, 10, 65, 30);
-    sceneButton2.setBounds(190, 10, 65, 30);
-    sceneButton3.setBounds(280, 10, 65, 30);
-    sceneButton4.setBounds(370, 10, 65, 30);
-    sceneButton5.setBounds(460, 10, 65, 30);
-    sceneButton6.setBounds(550, 10, 65, 30);
+    sceneButton1.setBounds(110, 10, 80, 50);
+    sceneButton2.setBounds(194, 10, 80, 50);
+    sceneButton3.setBounds(278, 10, 80, 50);
+    sceneButton4.setBounds(362, 10, 80, 50);
+    sceneButton5.setBounds(446, 10, 80, 50);
+    sceneButton6.setBounds(530, 10, 80, 50);
 }
 
 void MultiSceneComponent::showScene(int sceneIndex)
