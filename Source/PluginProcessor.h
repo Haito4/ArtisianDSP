@@ -134,14 +134,23 @@ private:
     // Amp
     bool usingAmp = false;
     
+    juce::dsp::Gain<float> ampInputGain;
+    juce::dsp::WaveShaper<float> waveshaper;
+    
+    juce::dsp::IIR::Filter<float> tight;
+    float tightEnabled;
+    
+    
+    juce::dsp::LadderFilter<float> resonanceFilter;
+    
+    float presenceEQ;
+    juce::dsp::IIR::Filter<float> presenceFilter;
+    
+    
+    
     float ampOD;
     float ampGain;
     float masterVol = 1;
-    
-    
-    
-    
-    
     
     
     
@@ -156,8 +165,7 @@ private:
     juce::dsp::IIR::Filter<float> highPeak;
     
     
-    juce::dsp::WaveShaper<float> ampWaveshaper;
-    
+    juce::dsp::Gain<float> ampOutputGain;
     
     
     
@@ -179,3 +187,5 @@ private:
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
 };
+
+

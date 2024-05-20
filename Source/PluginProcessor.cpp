@@ -78,6 +78,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     // Amplifier
     params.add(std::make_unique<juce::AudioParameterBool>("USING_AMP", "Using Amplifier", false));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_INPUTGAIN", "Amplifier Input Gain", 0.f, 40.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterBool>("AMP_TIGHT", "Amp Tight", false));
+    
+    
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_PRESENCE", "Amplifier Presence", 0.5f, 1.5f, 1.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_RESONANCE", "Amplifier Resonance", 1.f, 10.f, 5.f));
+    
+    
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_DRIVE", "Amplifier Drive", 0.f, 1.f, 0.5f));
     
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 2.f, 1.f));
@@ -85,6 +93,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_HI", "Amp Highs", 0.f, 2.f, 1.f));
     
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MASTER", "Amp Master Volume", 0.f, 2.f, 1.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_OUTPUTGAIN", "Amplifier Output Gain", -10.f, 10.f, 0.f));
     
     // Reverb
     params.add(std::make_unique<juce::AudioParameterBool>("USING_VERB", "Using Reverb", false));
@@ -198,6 +207,30 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     comPressor.prepare(spec);
     
         // Amplifier
+    ampInputGain.prepare(spec);
+    
+    waveshaper.functionToUse = [] (float x) {
+        float a, x2, y;
+        x = x * 0.25f;
+        a = std::abs (x);
+        x2 = x * x;
+        y = 1 - 1 / (1 + a + x2 + 0.66422417311781f * x2 * a + 0.36483285408241f * x2 * x2);
+        return (x >= 0) ? y : -y;
+    };
+    
+    
+    tight.prepare(spec);
+    
+    
+    resonanceFilter.prepare(spec);
+    resonanceFilter.setMode(juce::dsp::LadderFilterMode::LPF12);
+    resonanceFilter.setResonance(0.2f);
+    resonanceFilter.setDrive(1.0f);
+    
+    presenceFilter.prepare(spec);
+    
+    
+    
     bass = juce::jlimit(0.01f, 2.0f, bass);
     mids = juce::jlimit(0.01f, 2.0f, mids);
     treble = juce::jlimit(0.01f, 2.0f, treble);
@@ -213,7 +246,7 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     midPeak.prepare(spec);
     highPeak.prepare(spec);
     
-    
+    ampOutputGain.prepare(spec);
     
     
         // Reverb
@@ -236,6 +269,7 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     
     
 
+    shouldUpdate = true;
 }
 
 void ArtisianDSPAudioProcessor::releaseResources()
@@ -320,10 +354,26 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // Amp
         usingAmp = static_cast<bool>(*apvts.getRawParameterValue("USING_AMP"));
         
+        ampInputGain.setGainDecibels(*apvts.getRawParameterValue("AMP_INPUTGAIN"));
+        ampOutputGain.setGainDecibels(*apvts.getRawParameterValue("AMP_OUTPUTGAIN"));
         
         ampOD = static_cast<float>(*apvts.getRawParameterValue("AMP_DRIVE"));
 //        ampOD = juce::jlimit(0.001f, 1.0f, ampOD);
-        masterVol = static_cast<float>(*apvts.getRawParameterValue("AMP_MASTER"));
+        
+        
+        tight = juce::dsp::IIR::Coefficients<float>::makeLowShelf(getSampleRate(), 400.0f, 0.4f, 0.4f);
+        tightEnabled = static_cast<bool>(*apvts.getRawParameterValue("AMP_TIGHT"));
+        
+        
+        resonanceFilter.setCutoffFrequencyHz(*apvts.getRawParameterValue("AMP_RESONANCE") * 1000.0f);
+        
+        
+        presenceEQ = *apvts.getRawParameterValue("AMP_PRESENCE");
+        float centerFrequency = 3000.0f + presenceEQ * 500.0f;
+        float qFactor = 0.6f + presenceEQ * 0.05f;
+        centerFrequency = juce::jlimit (1000.0f, 6000.0f, centerFrequency);
+        qFactor = juce::jlimit (0.1f, 1.0f, qFactor);
+        presenceFilter = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), centerFrequency, qFactor, presenceEQ);
         
 
         bass = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_BASS")->load());
@@ -334,6 +384,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         midPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 500.0f, 0.9f, mids);
         highPeak.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), 5000.0f, 0.6f, treble);
         
+        masterVol = static_cast<float>(*apvts.getRawParameterValue("AMP_MASTER"));
         
         // IR
         usingIR = static_cast<bool>(*apvts.getRawParameterValue("USING_IR"));
@@ -447,18 +498,38 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // Amplifier
         if (usingAmp)
         {
+            // Resonance
+//            channelData[sample] = resonanceFilter.processSample(channelData[sample], 0);
             
-            float output = (3 + (ampOD * 250)) * channelData[sample] / (std::abs(channelData[sample] * (ampOD * 250)) + 1); // soft clipping
-            channelData[sample] = juce::jlimit(-1.0f, 1.0f, output);
+            channelData[sample] = tight.processSample(channelData[sample]);
             
+            
+            // Preamp
+            channelData[sample] = ampInputGain.processSample(channelData[sample]);
+            channelData[sample] = waveshaper.processSample(channelData[sample]);
+//            float output = (3 + (ampOD * 250)) * channelData[sample] / (std::abs(channelData[sample] * (ampOD * 250)) + 1); // soft clipping
+//            channelData[sample] = juce::jlimit(-1.0f, 1.0f, output);
+            
+
+            if (tightEnabled)
+            {
+            }
+            
+            // Prescence
+            channelData[sample] = presenceFilter.processSample(channelData[sample]);
+            
+            
+            // Equaliser
             channelData[sample] = lowPeak.processSample(channelData[sample]);
             channelData[sample] = midPeak.processSample(channelData[sample]);
             channelData[sample] = highPeak.processSample(channelData[sample]);
             
+            
+            channelData[sample] = ampOutputGain.processSample(channelData[sample]);
+            
             channelData[sample] = channelData[sample] * masterVol;
             
-            
-            channelData[sample] = juce::jlimit(0.0f, 0.45f, channelData[sample]);
+            channelData[sample] = juce::jlimit(0.0f, 0.35f, channelData[sample]);
         }
         
         

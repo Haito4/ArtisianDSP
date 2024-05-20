@@ -23,6 +23,23 @@ public:
         ampToggleImage.setClickingTogglesState(true);
         ampToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_AMP", ampToggleImage);
         
+    
+        
+        
+        // Input Gain
+        addAndMakeVisible(inputGainKnob);
+        inputGainKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        inputGainKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        inputGainKnob.setTextValueSuffix(" Gain");
+        inputGainKnob.setRange(0.f, 40.f);
+        inputGainKnob.setValue(0.f);
+        inputGainKnob.addListener(this);
+        inputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_INPUTGAIN", inputGainKnob);
+        
+        addAndMakeVisible(inputGainLabel);
+        inputGainLabel.setText ("Input Gain", juce::dontSendNotification);
+        inputGainLabel.attachToComponent(&inputGainKnob, false);
+        
         
         
         
@@ -37,8 +54,51 @@ public:
         driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_DRIVE", driveKnob);
         
         addAndMakeVisible(driveLabel);
-        driveLabel.setText ("Gain", juce::dontSendNotification);
+        driveLabel.setText ("Drive", juce::dontSendNotification);
         driveLabel.attachToComponent(&driveKnob, false);
+        
+        
+        // Tight
+        addAndMakeVisible(tightToggleImage);
+        tightToggleImage.addListener(this);
+        tightToggleImage.setImages(false, true, true, juce::ImageCache::getFromMemory(BinaryData::dogreen_png, BinaryData::dogreen_pngSize), 0.5f, juce::Colours::green,
+                                                      juce::ImageCache::getFromMemory(BinaryData::dohover_png, BinaryData::dohover_pngSize), 0.5f, juce::Colours::blue,
+                                                      juce::ImageCache::getFromMemory(BinaryData::dored_png, BinaryData::dored_pngSize), 0.5f, juce::Colours::red);
+        tightToggleImage.setClickingTogglesState(true);
+        tightToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "AMP_TIGHT", tightToggleImage);
+        
+        
+        // Resonance
+        addAndMakeVisible(resonanceKnob);
+        resonanceKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        resonanceKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        resonanceKnob.setTextValueSuffix(" Resonance");
+        resonanceKnob.setRange(1.f, 10.f);
+        resonanceKnob.setValue(5.f);
+        resonanceKnob.addListener(this);
+        resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_RESONANCE", resonanceKnob);
+        
+        addAndMakeVisible(resonanceLabel);
+        resonanceLabel.setText ("Resonance", juce::dontSendNotification);
+        resonanceLabel.attachToComponent(&resonanceKnob, false);
+        
+        
+        // Presence
+        addAndMakeVisible(presenceKnob);
+        presenceKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        presenceKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        presenceKnob.setTextValueSuffix(" Prescence");
+        presenceKnob.setRange(0.5f, 1.5f);
+        presenceKnob.setValue(1.f);
+        presenceKnob.addListener(this);
+        presenceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_PRESENCE", presenceKnob);
+        
+        addAndMakeVisible(presenceLabel);
+        presenceLabel.setText ("Presence", juce::dontSendNotification);
+        presenceLabel.attachToComponent(&presenceKnob, false);
+        
+        
+        
         
         
         // Bass
@@ -98,6 +158,22 @@ public:
         masterLabel.setText ("Master Vol", juce::dontSendNotification);
         masterLabel.attachToComponent(&masterKnob, false);
         
+        
+        // Output Gain
+        addAndMakeVisible(outputGainKnob);
+        outputGainKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+        outputGainKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        outputGainKnob.setTextValueSuffix(" Gain");
+        outputGainKnob.setRange(-10.f, 10.f);
+        outputGainKnob.setValue(0.f);
+        outputGainKnob.addListener(this);
+        outputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_OUTPUTGAIN", outputGainKnob);
+        
+        addAndMakeVisible(outputGainLabel);
+        outputGainLabel.setText ("Output Gain", juce::dontSendNotification);
+        outputGainLabel.attachToComponent(&outputGainKnob, false);
+        
+        
     }
 //    ~Amp4Component();
     
@@ -107,14 +183,24 @@ public:
         ampLabel.setBounds(290, 102, 190, 50);
         
         ampToggleImage.setBounds(640, 305, 50, 50);
+        tightToggleImage.setBounds(640, 250, 50, 50);
         
-        driveKnob.setBounds(102, 280, 100, 100);
+        
+        inputGainKnob.setBounds(102, 280, 100, 100);
+        
+//        driveKnob.setBounds(102, 280, 100, 100);
+        
+        
+        resonanceKnob.setBounds(206, 180, 100, 100);
+        presenceKnob.setBounds(310, 180, 100, 100);
+        
         
         bassKnob.setBounds(206, 280, 100, 100);
         midsKnob.setBounds(310, 280, 100, 100);
         trebleKnob.setBounds(414, 280, 100, 100);
         
         masterKnob.setBounds(518, 280, 100, 100);
+        outputGainKnob.setBounds(518, 180, 100, 100);
     }
     
     void buttonClicked(juce::Button* button) override
@@ -133,14 +219,26 @@ private:
     juce::ImageButton ampToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> ampToggleAttachment;
     
+    juce::ImageButton tightToggleImage;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> tightToggleAttachment;
     
     
-    juce::Slider masterKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterAttachment;
+    //-------
     
+    juce::Slider inputGainKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainAttachment;
     
     juce::Slider driveKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
+    
+    //-------
+    
+    juce::Slider presenceKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> presenceAttachment;
+    
+    juce::Slider resonanceKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> resonanceAttachment;
+    
     
     juce::Slider bassKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bassAttachment;
@@ -151,14 +249,17 @@ private:
     juce::Slider trebleKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trebleAttachment;
     
-    juce::Slider resonanceKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> resonanceAttachment;
     
-    juce::Slider presenceKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> presenceAttachment;
+    //-------
+    
+    juce::Slider masterKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterAttachment;
+    
+    juce::Slider outputGainKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainAttachment;
     
     
-    juce::Label driveLabel, bassLabel, midsLabel, trebleLabel, masterLabel;
+    juce::Label inputGainLabel, driveLabel, resonanceLabel, presenceLabel, bassLabel, midsLabel, trebleLabel, masterLabel, outputGainLabel;
     
     
     juce::Label ampLabel;
