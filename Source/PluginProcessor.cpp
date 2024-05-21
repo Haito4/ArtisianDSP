@@ -97,7 +97,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     // Reverb
     params.add(std::make_unique<juce::AudioParameterBool>("USING_VERB", "Using Reverb", false));
-    params.add(std::make_unique<juce::AudioParameterFloat>("VERB_SIZE", "Reverb Size", 0.f, 1.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("VERB_SIZE", "Reverb Size", juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("VERB_DAMPING", "Reverb Damping", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("VERB_WIDTH", "Reverb Width", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("VERB_DRYWET", "Reverb Dry/Wet", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
+
+
+
+
+
     
     // Impulse Response
     params.add(std::make_unique<juce::AudioParameterBool>("USING_IR", "Using Impulse Response", false));
@@ -195,18 +203,24 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 2;
     
-        // Tube Screamer
+    //-----------------------------------------------------------------
+    
+    // Tube Screamer
     highPassFilter.reset();
     highPassFilter.prepare(spec);
     
-        // Compressor
+    //-----------------------------------------------------------------
+    
+    // Compressor
     comPressor.setThreshold(-20.f);
     comPressor.setAttack(4.f);
     comPressor.setRelease(10.f);
     comPressor.setRatio(100.f);
     comPressor.prepare(spec);
     
-        // Amplifier
+    //-----------------------------------------------------------------
+    
+    // Amplifier
     ampInputGain.prepare(spec);
     
     waveshaper.functionToUse = [] (float x) {
@@ -221,15 +235,12 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     
     tight.prepare(spec);
     
-    
     resonanceFilter.prepare(spec);
-    resonanceFilter.setMode(juce::dsp::LadderFilterMode::LPF12);
-    resonanceFilter.setResonance(0.2f);
-    resonanceFilter.setDrive(1.0f);
-    
+//    resonanceFilter.setMode(juce::dsp::LadderFilterMode::LPF12);
+//    resonanceFilter.setResonance(0.2f);
+//    resonanceFilter.setDrive(1.0f);
+//
     presenceFilter.prepare(spec);
-    
-    
     
     bass = juce::jlimit(0.01f, 2.0f, bass);
     mids = juce::jlimit(0.01f, 2.0f, mids);
@@ -248,16 +259,9 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     
     ampOutputGain.prepare(spec);
     
+    //-----------------------------------------------------------------
     
-        // Reverb
-//    reVerber.setSampleRate(sampleRate);
-//    verbParams.roomSize = roomsize;
-//    verbParams.damping = damping;
-//    verbParams.width = width;
-//    reVerber.setParameters(verbParams);
-//    reVerber.prepare(spec);
-    
-        // Impulse Response
+    // Impulse Response
     speakerModule.prepare(spec);
     
 //    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
@@ -267,6 +271,22 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     speakerCompensate.setRampDurationSeconds(0.02);
     speakerCompensate.setGainDecibels(6.0);
     
+    //-----------------------------------------------------------------
+    
+    // Reverb
+    juce::dsp::ProcessSpec spec2;
+    spec2.sampleRate = sampleRate;
+    spec2.maximumBlockSize = samplesPerBlock;
+    spec2.numChannels = 1;
+
+    verbL.prepare(spec2);
+    verbR.prepare(spec2);
+    
+    verbParams.roomSize = roomsize;
+    verbParams.damping = damping;
+    verbParams.width = width;
+    
+    //-----------------------------------------------------------------
     
 
     shouldUpdate = true;
@@ -390,7 +410,22 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         usingIR = static_cast<bool>(*apvts.getRawParameterValue("USING_IR"));
         
         shouldUpdate = false;
+
+
+        // Reverb
+        usingVerb = static_cast<bool>(*apvts.getRawParameterValue("USING_VERB"));
         
+        
+        verbParams.roomSize = *apvts.getRawParameterValue ("VERB_SIZE");
+        verbParams.damping = *apvts.getRawParameterValue ("VERB_DAMPING");
+        verbParams.width = *apvts.getRawParameterValue ("VERB_WIDTH");
+        verbParams.wetLevel = *apvts.getRawParameterValue ("VERB_DRYWET");
+        verbParams.dryLevel = 1.0f - *apvts.getRawParameterValue ("VERB_DRYWET");
+//        verbParams.freezeMode = *apvts.getRawParameterValue ("Freeze");
+
+        verbL.setParameters(verbParams);
+        verbR.setParameters(verbParams);
+
     }
     
     //==============================================================================
@@ -533,11 +568,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         }
         
         
-        // Reverb
-//        if (usingVerb)
-//        {
-//            reVerber.processMono(channelData, 1);
-//        }
+        
+       
         
         
         // Output Gain
@@ -549,13 +581,31 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     }
     
     
-    juce::dsp::AudioBlock<float> block {buffer};
+    // Reverb
+    if (usingVerb)
+    {
+        juce::dsp::AudioBlock<float> block2 (buffer);
+        auto leftBlock = block2.getSingleChannelBlock (0);
+        auto rightBlock = block2.getSingleChannelBlock (1);
+        
+        juce::dsp::ProcessContextReplacing<float> leftContext (leftBlock);
+        juce::dsp::ProcessContextReplacing<float> rightContext (rightBlock);
+        
+        verbL.process(leftContext);
+        verbR.process(rightContext);
+    }
+    
+    
     
     if (usingIR) {
+        juce::dsp::AudioBlock<float> block {buffer};
         speakerModule.process(juce::dsp::ProcessContextReplacing<float>(block));
         speakerCompensate.process(juce::dsp::ProcessContextReplacing<float>(block)); // boost by 6dB
     }
+
+
     
+
 }
 
 
@@ -602,14 +652,14 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
 //    if (tree.isValid())
 //    {
 //        apvts.state = tree;
-//        
+//
 //        savedFile = juce::File(variableTree.getProperty("file1"));
 //        root = juce::File(variableTree.getProperty("root"));
-//        
+//
 //        speakerModule.loadImpulseResponse(savedFile,
 //                                          juce::dsp::Convolution::Stereo::yes,
 //                                          juce::dsp::Convolution::Trim::yes, 0);
-//        
+//
 //    }
 }
 

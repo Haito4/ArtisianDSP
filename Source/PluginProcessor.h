@@ -170,12 +170,13 @@ private:
     
     
     // Reverb
-//    juce::Reverb reVerber;
-//    juce::Reverb::Parameters verbParams;
-//    bool usingVerb;
-//    float roomsize;
-//    float damping;
-//    float width;
+   juce::dsp::Reverb verbL, verbR;
+   juce::dsp::Reverb::Parameters verbParams;
+   
+   bool usingVerb;
+   float roomsize;
+   float damping;
+   float width;
     
     
     // Cabinet
