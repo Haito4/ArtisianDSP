@@ -69,6 +69,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("COMP_ATTACK", "Compressor Attack", 1.0f, 100.0f, 50.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("COMP_RELEASE", "Compressor Release", 1.0f, 100.0f, 50.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("COMP_RATIO", "Compressor Ratio", 1.0f, 8.0f, 1.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("COMP_LEVEL", "Compressor Level", -20.f, 10.f, 0.f));
     
     // Tube Screamer
     params.add(std::make_unique<juce::AudioParameterBool>("USING_TS", "Using Tube Screamer", false));
@@ -109,7 +110,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     // Impulse Response
     params.add(std::make_unique<juce::AudioParameterBool>("USING_IR", "Using Impulse Response", false));
-    
+    params.add(std::make_unique<juce::AudioParameterFloat>("IR_VOLUME", "IR Volume", 0.f, 2.f, 1.f));
     
     return params;
 }
@@ -217,6 +218,9 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     comPressor.setRelease(10.f);
     comPressor.setRatio(100.f);
     comPressor.prepare(spec);
+    
+    compressorLevel.prepare(spec);
+    speakerCompensate.setGainDecibels(0.0);
     
     //-----------------------------------------------------------------
     
@@ -363,6 +367,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         comPressor.setAttack(static_cast<float>(*apvts.getRawParameterValue("COMP_ATTACK")));
         comPressor.setRelease(static_cast<float>(*apvts.getRawParameterValue("COMP_RELEASE")));
         comPressor.setRatio(static_cast<float>(*apvts.getRawParameterValue("COMP_RATIO")));
+        compressorLevel.setGainDecibels(*apvts.getRawParameterValue("COMP_LEVEL"));
         
         // Overdrive
         usingTS = static_cast<bool>(*apvts.getRawParameterValue("USING_TS"));
@@ -421,7 +426,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         verbParams.width = *apvts.getRawParameterValue ("VERB_WIDTH");
         verbParams.wetLevel = *apvts.getRawParameterValue ("VERB_DRYWET");
         verbParams.dryLevel = 1.0f - *apvts.getRawParameterValue ("VERB_DRYWET");
-//        verbParams.freezeMode = *apvts.getRawParameterValue ("Freeze");
+
 
         verbL.setParameters(verbParams);
         verbR.setParameters(verbParams);
@@ -507,6 +512,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         if (usingComp)
         {
             channelData[sample] = comPressor.processSample(0, channelData[sample]);
+            channelData[sample] = compressorLevel.processSample(channelData[sample]);
         }
         
         

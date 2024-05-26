@@ -64,6 +64,17 @@ public:
         ratioKnob.addListener(this);
         ratioAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_RATIO", ratioKnob);
         
+        // Level
+        addAndMakeVisible(levelKnob);
+        levelKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        levelKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        levelKnob.setRange(-20.f, 10.f);
+        levelKnob.setValue(0.f);
+        levelKnob.setTextValueSuffix(" dB");
+        
+        levelKnob.addListener(this);
+        levelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_LEVEL", levelKnob);
+        
         
         compLabel.setFont(20.f);
         compLabel.setJustificationType(juce::Justification::centred);
@@ -85,6 +96,8 @@ public:
         releaseKnob.setBounds(215, 230, 90, 90);
         
         ratioKnob.setBounds(415, 140, 90, 90);
+        
+        levelKnob.setBounds(415, 230, 90, 90);
     }
     
     void buttonClicked(juce::Button* button) override
@@ -120,6 +133,9 @@ private:
     
     juce::Slider ratioKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ratioAttachment;
+    
+    juce::Slider levelKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> levelAttachment;
     
     
     juce::Label compLabel;

@@ -13,6 +13,10 @@
         <FILE id="Mxh9Z3" name="dogreen.png" compile="0" resource="1" file="Assets/Buttons/dogreen.png"/>
         <FILE id="GvEqst" name="dohover.png" compile="0" resource="1" file="Assets/Buttons/dohover.png"/>
         <FILE id="FCFLDI" name="dored.png" compile="0" resource="1" file="Assets/Buttons/dored.png"/>
+        <FILE id="bYrtrt" name="fsdown.png" compile="0" resource="1" file="Assets/Buttons/fsdown.png"/>
+        <FILE id="oBHPHp" name="fsup.png" compile="0" resource="1" file="Assets/Buttons/fsup.png"/>
+        <FILE id="rQhGMn" name="psdown.png" compile="0" resource="1" file="Assets/Buttons/psdown.png"/>
+        <FILE id="ZFISYw" name="psup.png" compile="0" resource="1" file="Assets/Buttons/psup.png"/>
       </GROUP>
     </GROUP>
     <GROUP id="{1336A030-A105-CEDF-C0E4-DB803E980675}" name="Source">
@@ -21,6 +25,7 @@
       <GROUP id="{6EE2CD03-7313-1380-10EC-D7A7C997CCB0}" name="Components">
         <FILE id="BWy3Wz" name="AudioProcessorGraph.h" compile="0" resource="0"
               file="Source/AudioProcessorGraph.h"/>
+        <FILE id="YWLx5u" name="Jb_knobs.h" compile="0" resource="0" file="Source/Jb_knobs.h"/>
         <FILE id="hL4TWG" name="VerticalMeter.h" compile="0" resource="0" file="Source/VerticalMeter.h"/>
       </GROUP>
       <GROUP id="{DE184668-32B0-421B-F6F5-8A7FCF554DF2}" name="MultiScene">

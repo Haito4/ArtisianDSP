@@ -123,6 +123,7 @@ private:
     float compAttack = 50 * 0.001;
     float compRelease = 50 * 0.001;
     int compRatio = 1;
+    juce::dsp::Gain<float> compressorLevel;
     
     // Tube Screamer
     juce::dsp::IIR::Filter<float> highPassFilter;

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Jb_knobs.h"
 
 class Impulse6Component : public juce::Component,
-                          public juce::Button::Listener
+                          public juce::Button::Listener,
+                          public juce::Slider::Listener
 {
 public:
     Impulse6Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
@@ -65,6 +67,14 @@ public:
         irName.setJustificationType(juce::Justification::horizontallyCentred);
         
         
+        addAndMakeVisible(jbSlider);
+//        jbSlider.setText("VOLUME", juce::dontSendNotification);
+//        volLabel.setJustificationType(juce::Justification::centred);
+        jbSlider.setLookAndFeel(&afxLookAndFeel);
+        jbSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+        jbSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, jbSlider.getTextBoxHeight());
+        volAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "IR_VOLUME", jbSlider);
+        
     }
 //    ~Impulse6Component();
     
@@ -76,14 +86,23 @@ public:
         irName.setBounds(260, 340, 200, 50);
         
         irToggleImage.setBounds(335, 405, 50, 50);
+        
+//        jbSlider.setBounds(405, 405, 100, 100);
     }
     
     void buttonClicked(juce::Button* button) override
     {
+        
+    }
     
+    virtual void sliderValueChanged (juce::Slider* slider) override
+    {
+        
     }
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
+    
+    AfxLookAndFeel afxLookAndFeel;
     
     
     juce::ImageButton irToggleImage;
@@ -97,4 +116,9 @@ private:
     
     
     juce::Label impulseLabel;
+    
+    
+    
+    juce::Slider jbSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volAttachment;
 };
