@@ -10,15 +10,17 @@ class Comp2Component : public juce::Component,
 public:
     Comp2Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
-        // Toggle Button
-        addAndMakeVisible(compToggle);
-        compToggleText = usingCompValue ? "On" : "Off";
-        juce::Logger::outputDebugString("compToggle Initial State: " + compToggleText);
-        compToggle.setButtonText(compToggleText);
-        compToggle.setClickingTogglesState(true);
+        // Bypass Switch
+        addAndMakeVisible(compToggleImage);
+        compToggleImage.addListener(this);
+        compToggleImage.setImages(false, true, true,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsup_png, BinaryData::fsup_pngSize), 1.0f, juce::Colours::transparentBlack,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsup_png, BinaryData::fsup_pngSize), 1.0f, juce::Colours::transparentBlack,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsdown_png, BinaryData::fsdown_pngSize), 1.0f, juce::Colours::transparentBlack);
+
+        compToggleImage.setClickingTogglesState(true);
+        compToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_COMP", compToggleImage);
         
-        compToggle.addListener(this);
-        compToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_COMP", compToggle);
         
         // Threshold
         addAndMakeVisible(thresholdKnob);
@@ -87,7 +89,7 @@ public:
     {
 //        compLabel.setBounds(getLocalBounds());
         
-        compToggle.setBounds(335, 410, 50, 50);
+        compToggleImage.setBounds(335, 410, 91, 91);
         
         thresholdKnob.setBounds(315, 140, 90, 90);
         
@@ -102,24 +104,18 @@ public:
     
     void buttonClicked(juce::Button* button) override
     {
-        if (button == &compToggle)
-        {
-            
-        }
     }
     
     virtual void sliderValueChanged (juce::Slider* slider) override
     {
-        
     }
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     
-    // Toggle
-    juce::String compToggleText;
-    juce::TextButton compToggle;
+    // Bypass
+    juce::ImageButton compToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> compToggleAttachment;
-    bool usingCompValue { dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_COMP"))->get() };
+    
     
     // Sliders
     juce::Slider thresholdKnob;

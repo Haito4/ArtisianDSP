@@ -570,7 +570,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             
             channelData[sample] = channelData[sample] * masterVol;
             
-            channelData[sample] = juce::jlimit(0.0f, 0.35f, channelData[sample]);
+            channelData[sample] = juce::jlimit(0.0f, 0.35f * masterVol, channelData[sample]);
         }
         
         

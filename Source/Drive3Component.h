@@ -13,9 +13,10 @@ public:
         // Toggle Button
         addAndMakeVisible(driveToggleImage);
         driveToggleImage.addListener(this);
-        driveToggleImage.setImages(false, true, true, juce::ImageCache::getFromMemory(BinaryData::dogreen_png, BinaryData::dogreen_pngSize), 0.5f, juce::Colours::green,
-                                                      juce::ImageCache::getFromMemory(BinaryData::dohover_png, BinaryData::dohover_pngSize), 0.5f, juce::Colours::blue,
-                                                      juce::ImageCache::getFromMemory(BinaryData::dored_png, BinaryData::dored_pngSize), 0.5f, juce::Colours::red);
+        driveToggleImage.setImages(false, true, true,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsup_png, BinaryData::fsup_pngSize), 1.0f, juce::Colours::transparentBlack,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsup_png, BinaryData::fsup_pngSize), 1.0f, juce::Colours::transparentBlack,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsdown_png, BinaryData::fsdown_pngSize), 1.0f, juce::Colours::transparentBlack);
         driveToggleImage.setClickingTogglesState(true);
         driveToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_TS", driveToggleImage);
         
@@ -64,7 +65,7 @@ public:
         toneKnob.setBounds(315, 230, 90, 90);
         volumeKnob.setBounds(220, 130, 100, 100);
         
-        driveToggleImage.setBounds(335, 450, 50, 50);
+        driveToggleImage.setBounds(326, 421, 100, 100);
     }
     
     void buttonClicked(juce::Button* button) override

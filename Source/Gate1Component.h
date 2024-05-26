@@ -11,14 +11,16 @@ public:
     Gate1Component(ArtisianDSPAudioProcessor& processor)
      : audioProcessor(processor)
     {
-        // Gate On/Off Switch
-        gateToggleText = usingGateValue ? "On" : "Off";
-        juce::Logger::outputDebugString("gateToggle Initial State: " + gateToggleText);
-        gateToggle.setButtonText(gateToggleText);
-        gateToggle.setClickingTogglesState(true);
-        addAndMakeVisible(gateToggle);
-        gateToggle.addListener(this);
-        gateToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_GATE", gateToggle);
+        // Bypass Switch
+        addAndMakeVisible(gateToggleImage);
+        gateToggleImage.addListener(this);
+        gateToggleImage.setImages(false, true, true,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsup_png, BinaryData::fsup_pngSize), 1.0f, juce::Colours::transparentBlack,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsup_png, BinaryData::fsup_pngSize), 1.0f, juce::Colours::transparentBlack,
+                                 juce::ImageCache::getFromMemory(BinaryData::fsdown_png, BinaryData::fsdown_pngSize), 1.0f, juce::Colours::transparentBlack);
+
+        gateToggleImage.setClickingTogglesState(true);
+        gateToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_GATE", gateToggleImage);
         
         
         helloLabel.setFont(20.0f);
@@ -67,7 +69,7 @@ public:
     {
         
         helloLabel.setBounds(280, 118, 160, 42);
-        gateToggle.setBounds(335, 400, 50, 50);
+        gateToggleImage.setBounds(332, 420, 100, 100);
         
         thresholdSlider.setBounds(250, 150, 100, 100);
         attackSlider.setBounds(370, 150, 100, 100);
@@ -77,21 +79,12 @@ public:
         
     void buttonClicked(juce::Button* button) override
     {
-        if (button == &gateToggle)
-        {
-            usingGateValue = dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_GATE"))->get();
-            gateToggleText = usingGateValue ? "Off" : "On";
-            gateToggle.setButtonText(gateToggleText);
-            juce::Logger::outputDebugString("Gate state: " + gateToggleText);
-        }
+        
     };
 
     void sliderValueChanged(juce::Slider* slider) override
     {
-        if (slider == &thresholdSlider)
-        {
-//            juce::Logger::outputDebugString(apvts.getRawParameterValue("THRESHOLD"));
-        }
+    
     }
     
 private:
@@ -101,10 +94,9 @@ private:
     juce::Label helloLabel;
     
     
-    juce::String gateToggleText;
-    juce::TextButton gateToggle;
+    // Bypass
+    juce::ImageButton gateToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> gateToggleAttachment;
-    bool usingGateValue { dynamic_cast<juce::AudioParameterBool*>(audioProcessor.apvts.getParameter("USING_GATE"))->get() };
     
     
     
