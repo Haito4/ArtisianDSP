@@ -37,8 +37,9 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
         }
     };
     
-    
-    
+    apvts.state.setProperty(Service::PresetManager::presetNameProperty, "", nullptr);
+    apvts.state.setProperty("version", ProjectInfo::versionString, nullptr);
+    presetManager = std::make_unique<Service::PresetManager>(apvts);
     
     isOpen = true;
     
@@ -102,10 +103,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("VERB_DAMPING", "Reverb Damping", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("VERB_WIDTH", "Reverb Width", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("VERB_DRYWET", "Reverb Dry/Wet", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
-
-
-
-
 
     
     // Impulse Response
@@ -640,10 +637,12 @@ void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // as intermediaries to make it easy to save and load complex data.
     
     
-    apvts.state.appendChild(variableTree, nullptr);
-    juce::MemoryOutputStream stream(destData, false);
-    apvts.state.writeToStream(stream);
+//    apvts.state.appendChild(variableTree, nullptr);
+//    juce::MemoryOutputStream stream(destData, false);
+//    apvts.state.writeToStream(stream);
     
+    const auto state = apvts.copyState();
+    const auto xml(state.createXml());
     
 }
 
@@ -667,6 +666,15 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
 //                                          juce::dsp::Convolution::Trim::yes, 0);
 //
 //    }
+    
+    
+    const auto xmlState = getXmlFromBinary(data, sizeInBytes);
+    if (xmlState == nullptr)
+        return;
+    const auto newTree = juce::ValueTree::fromXml(*xmlState);
+    apvts.replaceState(newTree);
+    
+    
 }
 
 float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const

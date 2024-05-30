@@ -11,8 +11,10 @@
 
 
 //==============================================================================
-RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p), multiSceneComponent(p)
+RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p),
+                                                                 multiSceneComponent(p), presetPanel(audioProcessor.getPresetManager())
 {
+    
     // Vertical Input & Output Meters
     addAndMakeVisible(verticalInputMeterL);
 //    addAndMakeVisible(verticalInputMeterR);
@@ -20,6 +22,9 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     addAndMakeVisible(verticalOutputMeterR);
     // Refresh Rate for Meter
     startTimerHz(60);
+    
+    
+    
     
     
     // MultiScene Elements
@@ -68,6 +73,11 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     presetSelector.addItem("Preset 2", 2);
     presetSelector.addItem("Preset 3", 3);
     presetSelector.setSelectedId(2); // Default value
+    
+    
+    // Preset Management
+    addAndMakeVisible(presetPanel);
+    presetPanel.toFront(true);
 }
 
 RasterComponent::~RasterComponent()
@@ -103,11 +113,11 @@ void RasterComponent::paint (juce::Graphics& g)
 
 void RasterComponent::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
     auto bounds = getLocalBounds();
     
     sliderThreshold.setBounds(100, 100, 20, 20);
+    
+
     
     multiSceneComponent.setBounds(bounds);
     
@@ -122,8 +132,10 @@ void RasterComponent::resized()
     outputGainLabel.setBounds(575, 159, 100, 25);
     
     
+//    presetSelector.setBounds(280, 80, 160, 25);
+    presetPanel.setBounds(156, 72, 415, 41);
     
-    presetSelector.setBounds(280, 80, 160, 25);
+    
 }
 
 

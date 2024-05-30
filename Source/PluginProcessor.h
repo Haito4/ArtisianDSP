@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "PresetManager.h"
 
 
 //==============================================================================
@@ -58,6 +59,8 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     float getRmsValue(const int channel) const;
+    
+    Service::PresetManager& getPresetManager() { return *presetManager; }
 
     //==============================================================================
     float inputGainFloat{ 0.0f };
@@ -71,12 +74,6 @@ public:
     void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyChanged, const juce::Identifier& property) override;
     
     juce::ValueTree variableTree;
-    
-    
-    // Amp
-    
-    
-    
     
     
     // Cabinet
@@ -93,11 +90,10 @@ private:
     
     juce::LinearSmoothedValue<float> rmsLevelLeft, rmsLevelRight;
     
-    
-
-    
-    
     juce::LinearSmoothedValue<float> rmsOutputLevelLeft, rmsOutputLevelRight;
+    
+    
+    std::unique_ptr<Service::PresetManager> presetManager;
     
     //==============================================================================
     

@@ -13,6 +13,7 @@
 #include "MultiSceneComponent.h"
 #include "VerticalMeter.h"
 #include "melatonin_inspector/melatonin_inspector.h"
+#include "PresetPanel.h"
 
 
 //==============================================================================
@@ -48,10 +49,8 @@ public:
     void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     ArtisianDSPAudioProcessor& audioProcessor;
-    
+    Gui::PresetPanel presetPanel;
     
     MultiSceneComponent multiSceneComponent;
     
