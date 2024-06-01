@@ -39,7 +39,7 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
     
     apvts.state.setProperty(Service::PresetManager::presetNameProperty, "", nullptr);
     apvts.state.setProperty("version", ProjectInfo::versionString, nullptr);
-    presetManager = std::make_unique<Service::PresetManager>(apvts);
+    presetManager = std::make_unique<Service::PresetManager>(apvts, *this);
     
 //    apvts.state.setProperty("IRPath", "", nullptr);
 //    apvts.state.setProperty("IRName", "", nullptr);
@@ -273,6 +273,14 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 //    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
 //                                      BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
 //                                      juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
+    
+    if(lastIrPath != "null")
+    {
+        speakerModule.loadImpulseResponse(juce::File(lastIrPath),
+                                          juce::dsp::Convolution::Stereo::yes,
+                                          juce::dsp::Convolution::Trim::yes, 0);
+//        irLoaded = true;
+    }
     speakerCompensate.prepare(spec);
     speakerCompensate.setRampDurationSeconds(0.02);
     speakerCompensate.setGainDecibels(6.0);
@@ -416,8 +424,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // IR
         usingIR = static_cast<bool>(*apvts.getRawParameterValue("USING_IR"));
         
-        shouldUpdate = false;
-
 
         // Reverb
         usingVerb = static_cast<bool>(*apvts.getRawParameterValue("USING_VERB"));
@@ -433,7 +439,19 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         verbL.setParameters(verbParams);
         verbR.setParameters(verbParams);
 
+        
+        DBG("Check: " + lastIrPath);
+        shouldUpdate = false;
     }
+    if (shouldLoadIr)
+    {
+        
+        speakerModule.loadImpulseResponse(juce::File(lastIrPath.toStdString()),
+                                          juce::dsp::Convolution::Stereo::yes,
+                                          juce::dsp::Convolution::Trim::yes, 0);
+        shouldLoadIr = false;
+    }
+        
     
     //==============================================================================
     // RMS Level for input meter
@@ -604,7 +622,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     }
     
     
-    
     if (usingIR) {
         juce::dsp::AudioBlock<float> block {buffer};
         speakerModule.process(juce::dsp::ProcessContextReplacing<float>(block));
@@ -646,8 +663,28 @@ void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     
     
     
+    
     const auto state = apvts.copyState();
     const auto xml(state.createXml());
+//
+//    xml->addTextElement("IRPath");
+//    xml->addTextElement("IRName");
+//    xml->setAttribute("IRPath2", lastIrPath);
+//    xml->setAttribute("IRName4", lastIrName);
+
+    
+    
+    
+    DBG("100 " + lastIrPath);
+    DBG("200: " + lastIrName);
+    
+//    auto irPathElement = xml->createNewChildElement("IRPath");
+//    irPathElement->addTextElement(lastIrPath);
+//
+//    auto irNameElement = xml->createNewChildElement("IRName");
+//    irNameElement->addTextElement(lastIrName);
+    
+    
     copyXmlToBinary(*xml, destData);
 }
 
@@ -679,6 +716,45 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     
     const auto newTree = juce::ValueTree::fromXml(*xmlState);
     apvts.replaceState(newTree);
+    
+    shouldUpdate = true;
+    
+//    try
+//    {
+//        lastIrPath = xmlState->getStringAttribute("IRPath");
+//        lastIrName = xmlState->getStringAttribute("IRName");
+//
+//
+//        DBG("1 " + lastIrPath);
+//        DBG("2: " + lastIrName);
+//
+//
+//        if(lastIrName != "null")
+//        {
+//            juce::File fileCheck{lastIrPath.toStdString()};
+//            if(!fileCheck.exists())
+//            {
+//                lastIrName = "IR File Missing!";
+//                irFound = false;
+//            }
+//            else
+//                irFound = true;
+//        }
+//    }
+//    catch(const std::exception& e)
+//    {
+//        lastIrPath = "null";
+//        lastIrName = "";
+//        irFound = false;
+//    }
+//
+//
+//    if(lastIrPath != "null")
+//    {
+//        speakerModule.loadImpulseResponse(juce::File(lastIrPath),
+//                                          juce::dsp::Convolution::Stereo::yes,
+//                                          juce::dsp::Convolution::Trim::yes, 0);
+//    }
 }
 
 float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const

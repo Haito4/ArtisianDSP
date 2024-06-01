@@ -2,6 +2,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+class ArtisianDSPAudioProcessor;
+
 namespace Service
 {
     class PresetManager : juce::ValueTree::Listener
@@ -11,7 +13,7 @@ namespace Service
         static const juce::String extension;
         static const juce::String presetNameProperty;
         
-        PresetManager(juce::AudioProcessorValueTreeState&);
+        PresetManager(juce::AudioProcessorValueTreeState&, ArtisianDSPAudioProcessor&);
         
         void savePreset(const juce::String& presetName);
         void deletePreset(const juce::String& presetName);
@@ -21,10 +23,13 @@ namespace Service
         juce::StringArray getAllPresets() const;
         juce::String getCurrentPreset() const;
         
+        
     private:
         void valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged) override;
         
         juce::AudioProcessorValueTreeState& valueTreeState;
+        ArtisianDSPAudioProcessor& audioProcessor;
+        
         juce::Value currentPreset;
     };
 }

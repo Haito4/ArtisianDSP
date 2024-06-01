@@ -76,6 +76,8 @@ public:
     
     bool shouldUpdate = true;
     
+    bool shouldLoadIr = false;
+    
     
     
    
@@ -86,6 +88,10 @@ public:
     
     juce::File root, savedFile;
     
+    
+    juce::String lastIrName = "null";
+    juce::String lastIrPath = "null";
+    bool irFound;
     
 private:
     //==============================================================================

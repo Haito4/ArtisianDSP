@@ -5,11 +5,16 @@
 
 class Impulse6Component : public juce::Component,
                           public juce::Button::Listener,
-                          public juce::Slider::Listener
+                          public juce::Slider::Listener,
+                          public juce::ValueTree::Listener,
+                          public juce::Timer
 {
 public:
     Impulse6Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
+        audioProcessor.apvts.state.addListener(this);
+        
+        
         // Label
         impulseLabel.setFont(20.f);
         impulseLabel.setJustificationType(juce::Justification::centred);
@@ -59,6 +64,17 @@ public:
                                                                      juce::dsp::Convolution::Stereo::yes,
                                                                      juce::dsp::Convolution::Trim::yes, 0);
                     irName.setText(result.getFileName(), juce::dontSendNotification);
+                    
+                    
+                    audioProcessor.lastIrPath = result.getFullPathName();
+                    audioProcessor.lastIrName = result.getFileName();
+                    
+                    DBG("Current IR: " + audioProcessor.lastIrName);
+                    DBG("Current IR Path: " + audioProcessor.lastIrPath);
+                    
+                    
+//                    audioProcessor.apvts.state.setProperty("IRPath", result.getFullPathName(), nullptr);
+//                    audioProcessor.apvts.state.setProperty("IRName", result.getFileName(), nullptr);
                 }
             });
         };
@@ -76,7 +92,11 @@ public:
         volAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "IR_VOLUME", jbSlider);
         
     }
-//    ~Impulse6Component();
+    
+    ~Impulse6Component()
+    {
+        audioProcessor.apvts.state.removeListener(this);
+    }
     
     virtual void resized() override
     {
@@ -99,6 +119,23 @@ public:
     {
         
     }
+    
+    void valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged) override
+    {
+        DBG("Setting Impulse Preset Values..");
+        
+        
+        irName.setText(audioProcessor.lastIrPath, juce::dontSendNotification);
+        
+        
+        audioProcessor.shouldUpdate = true;
+    }
+    
+    void timerCallback() override
+    {
+        
+    }
+    
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     

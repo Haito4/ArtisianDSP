@@ -1,4 +1,5 @@
 #include "PresetManager.h"
+#include "PluginProcessor.h"
 
 namespace Service
 {
@@ -10,7 +11,8 @@ namespace Service
     const juce::String PresetManager::extension{ "preset" };
     const juce::String PresetManager::presetNameProperty{ "presetName" };
 
-    PresetManager::PresetManager(juce::AudioProcessorValueTreeState& apvts) : valueTreeState(apvts)
+    PresetManager::PresetManager(juce::AudioProcessorValueTreeState& apvts, ArtisianDSPAudioProcessor& p) : valueTreeState(apvts),
+                                                                                                            audioProcessor(p)
     {
         // Create a default Preset Directory, if it doesn't exist
         if (!defaultDirectory.exists())
@@ -34,6 +36,8 @@ namespace Service
 
         currentPreset.setValue(presetName);
         const auto xml = valueTreeState.copyState().createXml();
+        xml->setAttribute("IRPath", audioProcessor.lastIrPath);
+        xml->setAttribute("IRName", audioProcessor.lastIrName);
         const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
         if (!xml->writeTo(presetFile))
         {
@@ -80,6 +84,27 @@ namespace Service
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
 
         valueTreeState.replaceState(valueTreeToLoad);
+        
+        std::unique_ptr<juce::XmlElement> rootElement = xmlDocument.getDocumentElement();
+        audioProcessor.lastIrPath = rootElement->getStringAttribute("IRPath").toStdString();
+        audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
+        
+        DBG(audioProcessor.lastIrPath);
+        DBG(audioProcessor.lastIrName);
+        
+        // Check if the new file is valid before loading
+        if (juce::File(audioProcessor.lastIrPath).existsAsFile())
+        {
+            audioProcessor.shouldLoadIr = true;
+            DBG("IR to be loaded: " + audioProcessor.lastIrPath);
+        }
+        else
+        {
+            DBG("Invalid IR directory!");
+            audioProcessor.shouldLoadIr = false;
+        }
+        
+        
         currentPreset.setValue(presetName);
 
     }
@@ -126,5 +151,7 @@ namespace Service
     void PresetManager::valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged)
     {
         currentPreset.referTo(treeWhichHasBeenChanged.getPropertyAsValue(presetNameProperty, nullptr));
+        
+//        DBG("Workey????");
     }
 }
