@@ -41,6 +41,10 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
     apvts.state.setProperty("version", ProjectInfo::versionString, nullptr);
     presetManager = std::make_unique<Service::PresetManager>(apvts);
     
+//    apvts.state.setProperty("IRPath", "", nullptr);
+//    apvts.state.setProperty("IRName", "", nullptr);
+    
+    
     isOpen = true;
     
     double sampleRate = getSampleRate();
@@ -108,6 +112,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     // Impulse Response
     params.add(std::make_unique<juce::AudioParameterBool>("USING_IR", "Using Impulse Response", false));
     params.add(std::make_unique<juce::AudioParameterFloat>("IR_VOLUME", "IR Volume", 0.f, 2.f, 1.f));
+    
     
     return params;
 }
@@ -607,8 +612,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     }
 
 
-    
-
 }
 
 
@@ -641,9 +644,11 @@ void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData
 //    juce::MemoryOutputStream stream(destData, false);
 //    apvts.state.writeToStream(stream);
     
+    
+    
     const auto state = apvts.copyState();
     const auto xml(state.createXml());
-    
+    copyXmlToBinary(*xml, destData);
 }
 
 void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -671,10 +676,9 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     const auto xmlState = getXmlFromBinary(data, sizeInBytes);
     if (xmlState == nullptr)
         return;
+    
     const auto newTree = juce::ValueTree::fromXml(*xmlState);
     apvts.replaceState(newTree);
-    
-    
 }
 
 float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const

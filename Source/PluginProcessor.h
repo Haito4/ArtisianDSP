@@ -58,6 +58,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
+    juce::AudioProcessorValueTreeState apvts;
+    void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyChanged, const juce::Identifier& property) override;
+    
+    juce::ValueTree variableTree;
+    
+    
     float getRmsValue(const int channel) const;
     
     Service::PresetManager& getPresetManager() { return *presetManager; }
@@ -70,10 +76,9 @@ public:
     
     bool shouldUpdate = true;
     
-    juce::AudioProcessorValueTreeState apvts;
-    void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyChanged, const juce::Identifier& property) override;
     
-    juce::ValueTree variableTree;
+    
+   
     
     
     // Cabinet

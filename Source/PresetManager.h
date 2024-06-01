@@ -4,7 +4,7 @@
 
 namespace Service
 {
-    class PresetManager
+    class PresetManager : juce::ValueTree::Listener
     {
     public:
         static const juce::File defaultDirectory;
@@ -22,9 +22,9 @@ namespace Service
         juce::String getCurrentPreset() const;
         
     private:
-//        void valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged) override;
+        void valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged) override;
         
         juce::AudioProcessorValueTreeState& valueTreeState;
-        juce::String currentPreset;
+        juce::Value currentPreset;
     };
 }
