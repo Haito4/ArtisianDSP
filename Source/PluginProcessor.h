@@ -63,6 +63,8 @@ public:
     
     juce::ValueTree variableTree;
     
+    juce::ValueTree variableTree2{ "irUpdates" };
+    
     
     float getRmsValue(const int channel) const;
     
@@ -93,6 +95,7 @@ public:
     juce::String lastIrPath = "null";
     bool irFound;
     
+    
 private:
     //==============================================================================
     ArtisianDSPAudioProcessor* editor;
@@ -105,6 +108,10 @@ private:
     
     
     std::unique_ptr<Service::PresetManager> presetManager;
+    
+    
+    juce::ListenerList<Listener> listeners;
+    
     
     //==============================================================================
     

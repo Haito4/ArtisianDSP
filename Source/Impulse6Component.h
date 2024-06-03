@@ -14,6 +14,7 @@ public:
     {
         audioProcessor.apvts.state.addListener(this);
         
+        audioProcessor.variableTree2.addListener(this);
         
         // Label
         impulseLabel.setFont(20.f);
@@ -69,6 +70,7 @@ public:
                     audioProcessor.lastIrPath = result.getFullPathName();
                     audioProcessor.lastIrName = result.getFileName();
                     
+                    
                     DBG("Current IR: " + audioProcessor.lastIrName);
                     DBG("Current IR Path: " + audioProcessor.lastIrPath);
                     
@@ -96,6 +98,8 @@ public:
     ~Impulse6Component()
     {
         audioProcessor.apvts.state.removeListener(this);
+        
+        audioProcessor.variableTree2.removeListener(this);
     }
     
     virtual void resized() override
@@ -125,7 +129,7 @@ public:
         DBG("Setting Impulse Preset Values..");
         
         
-        irName.setText(audioProcessor.lastIrPath, juce::dontSendNotification);
+//        irName.setText(audioProcessor.lastIrPath, juce::dontSendNotification);
         
         
         audioProcessor.shouldUpdate = true;
@@ -135,6 +139,19 @@ public:
     {
         
     }
+    
+    
+    void valueTreePropertyChanged(juce::ValueTree& tree, const juce::Identifier& property) override
+    {
+        if (property == juce::Identifier("NEW_IRNAME"))
+        {
+            auto newIRName = tree.getProperty(property).toString();
+            irName.setText(newIRName, juce::dontSendNotification);
+        }
+    }
+    
+    
+    
     
 private:
     ArtisianDSPAudioProcessor& audioProcessor;

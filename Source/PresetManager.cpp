@@ -89,10 +89,12 @@ namespace Service
         audioProcessor.lastIrPath = rootElement->getStringAttribute("IRPath").toStdString();
         audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
         
+        audioProcessor.variableTree2.setProperty("NEW_IRNAME", audioProcessor.lastIrName, nullptr); // Update to notify GUI label to change
+        
         DBG(audioProcessor.lastIrPath);
         DBG(audioProcessor.lastIrName);
         
-        // Check if the new file is valid before loading
+        // Check if the new IR file is valid before loading
         if (juce::File(audioProcessor.lastIrPath).existsAsFile())
         {
             audioProcessor.shouldLoadIr = true;
