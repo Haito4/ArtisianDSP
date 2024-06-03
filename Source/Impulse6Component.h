@@ -93,6 +93,57 @@ public:
         jbSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, jbSlider.getTextBoxHeight());
         volAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "IR_VOLUME", jbSlider);
         
+        
+        
+        // Button to Fix IR locations from broken presets
+        addAndMakeVisible(fixButton);
+        fixButton.setButtonText("Fix");
+        fixButton.setVisible(false);
+        fixButton.onClick = [this]()
+        {
+            altFileChooser = std::make_unique<juce::FileChooser>("Locate Missing IR File",
+                                                              audioProcessor.root,
+                                                              "*");
+            
+            const auto fileChooserFlags = juce::FileBrowserComponent::openMode |
+                                          juce::FileBrowserComponent::canSelectFiles |
+                                          juce::FileBrowserComponent::canSelectDirectories;
+            altFileChooser->launchAsync(fileChooserFlags, [this](const juce::FileChooser& chooser)
+            {
+                juce::File result (chooser.getResult());
+                
+                if (result.getFileExtension() == ".wav")
+                {
+                    audioProcessor.savedFile = result;
+                    audioProcessor.variableTree.setProperty("file1",
+                                                            result.getFullPathName(),
+                                                            nullptr);
+                    audioProcessor.variableTree.setProperty("root",
+                                                            result.getParentDirectory().getFullPathName(),
+                                                            nullptr);
+                    audioProcessor.root = result.getParentDirectory().getFullPathName();
+                    
+                    
+                    audioProcessor.speakerModule.loadImpulseResponse(result, // apply to ir loader
+                                                                     juce::dsp::Convolution::Stereo::yes,
+                                                                     juce::dsp::Convolution::Trim::yes, 0);
+                    irName.setText(result.getFileName(), juce::dontSendNotification);
+                    
+                    
+                    audioProcessor.lastIrPath = result.getFullPathName();
+                    audioProcessor.lastIrName = result.getFileName();
+                    
+                    
+                    DBG("Current IR (fixed): " + audioProcessor.lastIrName);
+                    DBG("Current IR Path (fixed): " + audioProcessor.lastIrPath);
+                    
+                    fixButton.setVisible(false); // hide after successfully chosen file
+                    audioProcessor.validIrLoaded = true;
+                    DBG("true!!!!!");
+                }
+            });
+        };
+        
     }
     
     ~Impulse6Component()
@@ -111,6 +162,8 @@ public:
         
         irToggleImage.setBounds(335, 405, 50, 50);
         
+        fixButton.setBounds(310, 470, 100, 50);
+        
 //        jbSlider.setBounds(405, 405, 100, 100);
     }
     
@@ -126,11 +179,7 @@ public:
     
     void valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged) override
     {
-        DBG("Setting Impulse Preset Values..");
-        
-        
-//        irName.setText(audioProcessor.lastIrPath, juce::dontSendNotification);
-        
+//        DBG("Setting Impulse Preset Values..");
         
         audioProcessor.shouldUpdate = true;
     }
@@ -143,10 +192,22 @@ public:
     
     void valueTreePropertyChanged(juce::ValueTree& tree, const juce::Identifier& property) override
     {
+        
         if (property == juce::Identifier("NEW_IRNAME"))
         {
-            auto newIRName = tree.getProperty(property).toString();
-            irName.setText(newIRName, juce::dontSendNotification);
+            DBG("passed identifier");
+            
+            if (audioProcessor.validIrLoaded == false)
+            {
+                fixButton.setVisible(true); // show button to locate missing ir
+                irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+            }
+            else
+            {
+                auto newIRName = tree.getProperty(property).toString();
+                irName.setText(newIRName, juce::dontSendNotification);
+                fixButton.setVisible(false);
+            }
         }
     }
     
@@ -166,8 +227,11 @@ private:
     
     juce::TextButton loadBtn;
     std::unique_ptr<juce::FileChooser> fileChooser;
+    std::unique_ptr<juce::FileChooser> altFileChooser;
     juce::Label irName;
     
+    
+    juce::TextButton fixButton;
     
     juce::Label impulseLabel;
     

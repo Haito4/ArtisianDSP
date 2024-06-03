@@ -89,7 +89,7 @@ namespace Service
         audioProcessor.lastIrPath = rootElement->getStringAttribute("IRPath").toStdString();
         audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
         
-        audioProcessor.variableTree2.setProperty("NEW_IRNAME", audioProcessor.lastIrName, nullptr); // Update to notify GUI label to change
+        
         
         DBG(audioProcessor.lastIrPath);
         DBG(audioProcessor.lastIrName);
@@ -97,13 +97,27 @@ namespace Service
         // Check if the new IR file is valid before loading
         if (juce::File(audioProcessor.lastIrPath).existsAsFile())
         {
+            audioProcessor.validIrLoaded = true;
             audioProcessor.shouldLoadIr = true;
             DBG("IR to be loaded: " + audioProcessor.lastIrPath);
+            audioProcessor.variableTree2.setProperty("NEW_IRNAME", audioProcessor.lastIrName, nullptr); // Update to notify GUI label to change
         }
         else
         {
+            audioProcessor.validIrLoaded = false;
             DBG("Invalid IR directory!");
             audioProcessor.shouldLoadIr = false;
+            
+            if (aCounter == false){
+                DBG("false");
+                audioProcessor.variableTree2.setProperty("NEW_IRNAME", "null_ir0", nullptr);
+                aCounter = true;
+            }
+            else {
+                audioProcessor.variableTree2.setProperty("NEW_IRNAME", "null_ir1", nullptr);
+                aCounter = false;
+                DBG("true");
+            }
         }
         
         

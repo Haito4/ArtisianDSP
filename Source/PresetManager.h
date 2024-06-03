@@ -25,6 +25,8 @@ namespace Service
         
         
     private:
+        bool aCounter = false;
+        
         void valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged) override;
         
         juce::AudioProcessorValueTreeState& valueTreeState;

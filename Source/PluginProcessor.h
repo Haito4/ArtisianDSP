@@ -94,6 +94,8 @@ public:
     juce::String lastIrName = "null";
     juce::String lastIrPath = "null";
     bool irFound;
+    bool validIrLoaded = false;
+    
     
     
 private:
