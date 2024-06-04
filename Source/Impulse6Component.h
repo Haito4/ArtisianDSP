@@ -199,6 +199,15 @@ public:
         loadBtn.setBounds(310, 270, 100, 50);
         irName.setBounds(260, 340, 200, 50);
         
+        if (audioProcessor.validIrLoaded == false) // If the initally loaded Ir is invalid
+        {
+            irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+        }
+        else
+        {
+            irName.setText(audioProcessor.lastIrName, juce::dontSendNotification);
+        }
+        
         irToggleImage.setBounds(335, 405, 50, 50);
         
         fixButton.setBounds(310, 470, 100, 50);
