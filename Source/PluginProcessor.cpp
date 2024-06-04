@@ -451,6 +451,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         speakerModule.loadImpulseResponse(juce::File(lastIrPath.toStdString()),
                                           juce::dsp::Convolution::Stereo::yes,
                                           juce::dsp::Convolution::Trim::yes, 0);
+        DBG("ir should be loaded");
         shouldLoadIr = false;
     }
         
@@ -658,34 +659,11 @@ void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     
-    
-//    apvts.state.appendChild(variableTree, nullptr);
-//    juce::MemoryOutputStream stream(destData, false);
-//    apvts.state.writeToStream(stream);
-    
-    
-    
-    
     const auto state = apvts.copyState();
     const auto xml(state.createXml());
-//
-//    xml->addTextElement("IRPath");
-//    xml->addTextElement("IRName");
-//    xml->setAttribute("IRPath2", lastIrPath);
-//    xml->setAttribute("IRName4", lastIrName);
 
-    
-    
-    
     DBG("100 " + lastIrPath);
     DBG("200: " + lastIrName);
-    
-//    auto irPathElement = xml->createNewChildElement("IRPath");
-//    irPathElement->addTextElement(lastIrPath);
-//
-//    auto irNameElement = xml->createNewChildElement("IRName");
-//    irNameElement->addTextElement(lastIrName);
-    
     
     copyXmlToBinary(*xml, destData);
 }
@@ -694,23 +672,6 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-    
-//    auto tree = juce::ValueTree::readFromData(data, size_t(sizeInBytes));
-//    variableTree = tree.getChildWithName("Variables");
-//
-//    if (tree.isValid())
-//    {
-//        apvts.state = tree;
-//
-//        savedFile = juce::File(variableTree.getProperty("file1"));
-//        root = juce::File(variableTree.getProperty("root"));
-//
-//        speakerModule.loadImpulseResponse(savedFile,
-//                                          juce::dsp::Convolution::Stereo::yes,
-//                                          juce::dsp::Convolution::Trim::yes, 0);
-//
-//    }
-    
     
     const auto xmlState = getXmlFromBinary(data, sizeInBytes);
     if (xmlState == nullptr)
@@ -721,42 +682,39 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     
     shouldUpdate = true;
     
-//    try
-//    {
-//        lastIrPath = xmlState->getStringAttribute("IRPath");
-//        lastIrName = xmlState->getStringAttribute("IRName");
-//
-//
-//        DBG("1 " + lastIrPath);
-//        DBG("2: " + lastIrName);
-//
-//
-//        if(lastIrName != "null")
-//        {
-//            juce::File fileCheck{lastIrPath.toStdString()};
-//            if(!fileCheck.exists())
-//            {
-//                lastIrName = "IR File Missing!";
-//                irFound = false;
-//            }
-//            else
-//                irFound = true;
-//        }
-//    }
-//    catch(const std::exception& e)
-//    {
-//        lastIrPath = "null";
-//        lastIrName = "";
-//        irFound = false;
-//    }
-//
-//
-//    if(lastIrPath != "null")
-//    {
-//        speakerModule.loadImpulseResponse(juce::File(lastIrPath),
-//                                          juce::dsp::Convolution::Stereo::yes,
-//                                          juce::dsp::Convolution::Trim::yes, 0);
-//    }
+    // Ir loading from preset
+    presetManager->getCurrentPresetIr();
+    
+    DBG("1 " + lastIrPath);
+    DBG("2: " + lastIrName);
+    
+    if (juce::File(lastIrPath).existsAsFile())
+    {
+        validIrLoaded = true;
+        shouldLoadIr = true;
+        DBG("Loading initial ir from preset!");
+
+    }
+    else
+    {
+        validIrLoaded = false;
+        shouldLoadIr = false;
+        DBG("Invalid initial IR");
+        
+        if (switchEnator == false){
+            DBG("false");
+            variableTree2.setProperty("NEW_IRNAME", "null_ir0", nullptr);
+            switchEnator = true;
+        }
+        else {
+            variableTree2.setProperty("NEW_IRNAME", "null_ir1", nullptr);
+            switchEnator = false;
+            DBG("true");
+        }
+        
+        
+        
+    }
 }
 
 float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const

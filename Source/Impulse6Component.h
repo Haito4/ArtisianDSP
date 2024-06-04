@@ -85,6 +85,7 @@ public:
         irName.setJustificationType(juce::Justification::horizontallyCentred);
         
         
+        
         addAndMakeVisible(jbSlider);
 //        jbSlider.setText("VOLUME", juce::dontSendNotification);
 //        volLabel.setJustificationType(juce::Justification::centred);
@@ -98,7 +99,17 @@ public:
         // Button to Fix IR locations from broken presets
         addAndMakeVisible(fixButton);
         fixButton.setButtonText("Fix");
-        fixButton.setVisible(false);
+        if (audioProcessor.validIrLoaded == false) // If the initally loaded Ir is invalid
+        {
+            fixButton.setVisible(true);
+            irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+        }
+        else
+        {
+            fixButton.setVisible(false);
+        }
+        
+        
         fixButton.onClick = [this]()
         {
             altFileChooser = std::make_unique<juce::FileChooser>("Locate Missing IR File",

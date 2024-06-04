@@ -22,6 +22,8 @@ namespace Service
         int loadPreviousPreset();
         juce::StringArray getAllPresets() const;
         juce::String getCurrentPreset() const;
+        juce::File getCurrentPresetPath() const;
+        void getCurrentPresetIr();
         
         
     private:

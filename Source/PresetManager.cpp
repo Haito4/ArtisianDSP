@@ -167,6 +167,25 @@ namespace Service
         return currentPreset.toString();
     }
 
+    juce::File PresetManager::getCurrentPresetPath() const
+    {
+        return defaultDirectory.getChildFile(currentPreset.toString() + "." + extension);
+    }
+
+    void PresetManager::getCurrentPresetIr()
+    {
+        
+        const auto presetFile = defaultDirectory.getChildFile(currentPreset.toString() + "." + extension);
+        juce::XmlDocument xmlDocument{ presetFile };
+        const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
+        
+        
+        std::unique_ptr<juce::XmlElement> rootElement = xmlDocument.getDocumentElement();
+        audioProcessor.lastIrPath = rootElement->getStringAttribute("IRPath").toStdString();
+        audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
+//        audioProcessor.presetName = presetFile.getFullPathName();
+    }
+
     void PresetManager::valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged)
     {
         currentPreset.referTo(treeWhichHasBeenChanged.getPropertyAsValue(presetNameProperty, nullptr));

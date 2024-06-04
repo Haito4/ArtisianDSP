@@ -200,8 +200,7 @@ private:
     bool usingIR = false;
     juce::dsp::Gain<float> speakerCompensate;
     
-    
-    
+    bool switchEnator = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)
 };
