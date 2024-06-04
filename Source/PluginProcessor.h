@@ -90,12 +90,12 @@ public:
     
     juce::File root, savedFile;
     
-    
+    // Preset Stuff
     juce::String lastIrName = "null";
     juce::String lastIrPath = "null";
     bool irFound;
     bool validIrLoaded = false;
-    
+    juce::String presetName;
     
     
 private:

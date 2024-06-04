@@ -35,8 +35,8 @@ namespace Service
             return;
 
         currentPreset.setValue(presetName);
-        const auto xml = valueTreeState.copyState().createXml();
-        xml->setAttribute("IRPath", audioProcessor.lastIrPath);
+        const auto xml = valueTreeState.copyState().createXml(); // For parameters
+        xml->setAttribute("IRPath", audioProcessor.lastIrPath); // for selected ir
         xml->setAttribute("IRName", audioProcessor.lastIrName);
         const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
         if (!xml->writeTo(presetFile))
@@ -44,6 +44,7 @@ namespace Service
             DBG("Could not create preset file: " + presetFile.getFullPathName());
             jassertfalse;
         }
+        
     }
 
     void PresetManager::deletePreset(const juce::String& presetName)
@@ -90,9 +91,11 @@ namespace Service
         audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
         
         
-        
         DBG(audioProcessor.lastIrPath);
         DBG(audioProcessor.lastIrName);
+        
+        audioProcessor.presetName = presetFile.getFullPathName(); // Update for impulse component to parse xml file
+        
         
         // Check if the new IR file is valid before loading
         if (juce::File(audioProcessor.lastIrPath).existsAsFile())

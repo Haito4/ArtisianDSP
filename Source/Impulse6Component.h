@@ -137,9 +137,37 @@ public:
                     DBG("Current IR (fixed): " + audioProcessor.lastIrName);
                     DBG("Current IR Path (fixed): " + audioProcessor.lastIrPath);
                     
-                    fixButton.setVisible(false); // hide after successfully chosen file
+                    
+                    
+                    // Update Current XML to new IR values
+                    const auto presetFile = juce::File(audioProcessor.presetName);
+                    
+                    DBG("Updating preset file: " + presetFile.getFullPathName());
+                    if (presetFile.existsAsFile())
+                    {
+                        std::unique_ptr<juce::XmlElement> xml = juce::XmlDocument::parse(presetFile);
+                        
+                        if (xml != nullptr)
+                        {
+                            DBG("opened xml");
+                            xml->setAttribute("IRPath", audioProcessor.lastIrPath);
+                            xml->setAttribute("IRName", audioProcessor.lastIrName);
+                            
+                            DBG("new attributes set!");
+                            if (!xml->writeTo(presetFile))
+                            {
+                                DBG("Could not update preset file: " + presetFile.getFullPathName());
+                            }
+                        }
+                        else
+                        {
+                            DBG("failed to open xml");
+                        }
+                    }
+                    
+                    fixButton.setVisible(false); // hide button after successfully chosen file
                     audioProcessor.validIrLoaded = true;
-                    DBG("true!!!!!");
+                    DBG("ir fix finished!!!!!");
                 }
             });
         };
