@@ -454,13 +454,16 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         shouldUpdate = false;
     }
+    
+    
     if (shouldLoadIr)
     {
-        
         if (isIrBinary)
         {
             loadBinaryIr(currentBinaryIrId);
             DBG("ir should be loaded (binary)");
+            
+            isIrBinary = false;
             
         }
         else

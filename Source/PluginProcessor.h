@@ -108,6 +108,7 @@ public:
     int currentBinaryIrId;
     
     
+    
 private:
     //==============================================================================
     ArtisianDSPAudioProcessor* editor;

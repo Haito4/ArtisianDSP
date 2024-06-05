@@ -208,6 +208,8 @@ public:
     
     virtual void resized() override
     {
+        DBG("RESIZED IS RUN JSUT NOW");
+        
         impulseLabel.setBounds(290, 150, 140, 50);
         
         loadBtn.setBounds(488, 244, 130, 45);
@@ -292,7 +294,7 @@ public:
                     
                     auto newIRName = audioProcessor.lastIrName;
                     irName.setText(newIRName.toStdString(), juce::dontSendNotification);
-                    irName.getText();
+                    DBG("Newly set text:::: " + irName.getText());
                     fixButton.setVisible(false);
                     binaryIrChooser.setSelectedId(0);
                 }
@@ -308,11 +310,21 @@ public:
         {
             int selectedId = binaryIrChooser.getSelectedId();
             audioProcessor.currentBinaryIrId = selectedId;
-            audioProcessor.loadBinaryIr(selectedId);
-            audioProcessor.currentBinaryIrName = audioProcessor.getBinaryIrName(selectedId);
             
-            audioProcessor.isIrBinary = true;
-            irName.setText("", juce::dontSendNotification);
+            if (selectedId != 0)
+            {
+                audioProcessor.loadBinaryIr(selectedId);
+                audioProcessor.currentBinaryIrName = audioProcessor.getBinaryIrName(selectedId);
+                audioProcessor.isIrBinary = true;
+                irName.setText("", juce::dontSendNotification);
+            }
+            else
+            {
+                audioProcessor.isIrBinary = false;
+            }
+            
+            
+            
         }
     }
     
