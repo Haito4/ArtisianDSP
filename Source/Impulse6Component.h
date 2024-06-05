@@ -213,7 +213,7 @@ public:
         impulseLabel.setBounds(290, 150, 140, 50);
         
         loadBtn.setBounds(488, 244, 130, 45);
-        irName.setBounds(260, 383, 200, 50);
+        irName.setBounds(260, 320, 200, 50);
         
         
         if (audioProcessor.isIrBinary)
@@ -235,7 +235,7 @@ public:
         
         irToggleImage.setBounds(335, 435, 50, 50);
         
-        fixButton.setBounds(310, 470, 100, 50);
+        fixButton.setBounds(310, 370, 100, 50);
         
         binaryIrChooser.setBounds(100, 230, 200, 25);
         
@@ -278,7 +278,7 @@ public:
                 
                 irName.setText("", juce::dontSendNotification);
                 binaryIrChooser.setSelectedId(audioProcessor.currentBinaryIrId);
-                
+                fixButton.setVisible(false);
             }
             else
             {
@@ -322,9 +322,6 @@ public:
             {
                 audioProcessor.isIrBinary = false;
             }
-            
-            
-            
         }
     }
     
