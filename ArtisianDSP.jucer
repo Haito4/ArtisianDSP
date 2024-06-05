@@ -6,8 +6,25 @@
   <MAINGROUP id="jQ0XFJ" name="ArtisianDSP2">
     <GROUP id="{064151A4-02E9-3190-055C-A5DF9304743C}" name="Assets">
       <GROUP id="{EED0913A-EF12-2453-8C65-C89545F50DF0}" name="IRs">
+        <FILE id="M3reEs" name="Catch 33.wav" compile="0" resource="1" file="Assets/IRs/Catch 33.wav"/>
+        <FILE id="KqUqsP" name="Chaosphere.wav" compile="0" resource="1" file="Assets/IRs/Chaosphere.wav"/>
+        <FILE id="ASZqY8" name="Contradictions Collapse.wav" compile="0" resource="1"
+              file="Assets/IRs/Contradictions Collapse.wav"/>
+        <FILE id="USvZr4" name="Destroy Erase Improve.wav" compile="0" resource="1"
+              file="Assets/IRs/Destroy Erase Improve.wav"/>
+        <FILE id="Chy6Zp" name="I.wav" compile="0" resource="1" file="Assets/IRs/I.wav"/>
+        <FILE id="d6bCX9" name="Immutable Blend.wav" compile="0" resource="1"
+              file="Assets/IRs/Immutable Blend.wav"/>
+        <FILE id="r0X03I" name="Koloss.wav" compile="0" resource="1" file="Assets/IRs/Koloss.wav"/>
         <FILE id="WlkQ9Z" name="ML Sound Lab's BEST IR IN THE WORLD.wav" compile="0"
               resource="1" file="Assets/IRs/ML Sound Lab's BEST IR IN THE WORLD.wav"/>
+        <FILE id="oxjNeH" name="Nothing 2006.wav" compile="0" resource="1"
+              file="Assets/IRs/Nothing 2006.wav"/>
+        <FILE id="eNhUDj" name="Nothing.wav" compile="0" resource="1" file="Assets/IRs/Nothing.wav"/>
+        <FILE id="TjTO9r" name="obZen.wav" compile="0" resource="1" file="Assets/IRs/obZen.wav"/>
+        <FILE id="b4H79N" name="Pitch Black.wav" compile="0" resource="1" file="Assets/IRs/Pitch Black.wav"/>
+        <FILE id="dLJk22" name="The Violent Sleep of Reason.wav" compile="0"
+              resource="1" file="Assets/IRs/The Violent Sleep of Reason.wav"/>
       </GROUP>
       <GROUP id="{F2DCE70F-3E28-285C-F19F-7F0BB76BF81C}" name="Buttons">
         <FILE id="Mxh9Z3" name="dogreen.png" compile="0" resource="1" file="Assets/Buttons/dogreen.png"/>

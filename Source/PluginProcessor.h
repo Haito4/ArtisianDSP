@@ -98,6 +98,16 @@ public:
     juce::String presetName;
     
     
+    
+    void loadBinaryIr(int impulseId);
+    juce::String getBinaryIrName(int impulseId);
+    
+    
+    bool isIrBinary = false;
+    juce::String currentBinaryIrName;
+    int currentBinaryIrId;
+    
+    
 private:
     //==============================================================================
     ArtisianDSPAudioProcessor* editor;

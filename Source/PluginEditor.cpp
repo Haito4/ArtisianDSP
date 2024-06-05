@@ -68,11 +68,7 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     addAndMakeVisible(presetSelector);
     presetSelector.addListener(this);
     
-    // Make a for loop that reads preset folder
-    presetSelector.addItem("Preset 1", 1);
-    presetSelector.addItem("Preset 2", 2);
-    presetSelector.addItem("Preset 3", 3);
-    presetSelector.setSelectedId(2); // Default value
+    
     
     
     // Preset Management
@@ -229,9 +225,5 @@ void RasterComponent::comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged)
 {
     if (comboBoxThatHasChanged == &presetSelector)
     {
-        int selectedId = presetSelector.getSelectedId();
-        juce::String selectedText = presetSelector.getItemText(selectedId - 1);
-        juce::Logger::outputDebugString("Selected: " + selectedText);
-        
     }
 }

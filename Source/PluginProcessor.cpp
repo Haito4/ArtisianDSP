@@ -275,14 +275,23 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 //    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
 //                                      BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
 //                                      juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
+//    bestIrInTheWorld.append(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
+//                            BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize);
+//    catch33;
+//    chaosphere;
+//    cCollapse;
+//    destroyEraseImprove;
+//    eyeIr;
+//    immutable;
+//    koloss;
+//    nothing;
+//    nothingRR;
+//    obZen;
+//    pitchBlack;
+//    tVSoR;
     
-    if(lastIrPath != "null")
-    {
-        speakerModule.loadImpulseResponse(juce::File(lastIrPath),
-                                          juce::dsp::Convolution::Stereo::yes,
-                                          juce::dsp::Convolution::Trim::yes, 0);
-//        irLoaded = true;
-    }
+    
+    
     speakerCompensate.prepare(spec);
     speakerCompensate.setRampDurationSeconds(0.02);
     speakerCompensate.setGainDecibels(6.0);
@@ -353,12 +362,13 @@ void ArtisianDSPAudioProcessor::valueTreePropertyChanged(juce::ValueTree &treeWh
         juce::Logger::outputDebugString("usingGate: " + juce::String(usingGate ? "true" : "false"));
     }
     
-    
     shouldUpdate = true;
 }
 
 void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    
+    
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -442,16 +452,25 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         verbR.setParameters(verbParams);
 
         
-        DBG("Check: " + lastIrPath);
         shouldUpdate = false;
     }
     if (shouldLoadIr)
     {
         
-        speakerModule.loadImpulseResponse(juce::File(lastIrPath.toStdString()),
-                                          juce::dsp::Convolution::Stereo::yes,
-                                          juce::dsp::Convolution::Trim::yes, 0);
-        DBG("ir should be loaded");
+        if (isIrBinary)
+        {
+            loadBinaryIr(currentBinaryIrId);
+            DBG("ir should be loaded (binary)");
+            
+        }
+        else
+        {
+            speakerModule.loadImpulseResponse(juce::File(lastIrPath.toStdString()),
+                                              juce::dsp::Convolution::Stereo::yes,
+                                              juce::dsp::Convolution::Trim::yes, 0);
+            DBG("ir should be loaded (file)");
+        }
+        
         shouldLoadIr = false;
     }
         
@@ -662,8 +681,7 @@ void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     const auto state = apvts.copyState();
     const auto xml(state.createXml());
 
-    DBG("100 " + lastIrPath);
-    DBG("200: " + lastIrName);
+    DBG("Getting state information...");
     
     copyXmlToBinary(*xml, destData);
 }
@@ -672,6 +690,8 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    DBG("Setting State information...");
+    
     
     const auto xmlState = getXmlFromBinary(data, sizeInBytes);
     if (xmlState == nullptr)
@@ -683,39 +703,194 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     shouldUpdate = true;
     
     // Ir loading from preset
-    presetManager->getCurrentPresetIr();
+    presetManager->getCurrentPresetIrType();
     
-    DBG("1 " + lastIrPath);
-    DBG("2: " + lastIrName);
+    DBG("ir path type gotten");
     
-    if (juce::File(lastIrPath).existsAsFile())
+    
+    if (isIrBinary)
     {
-        validIrLoaded = true;
+        presetManager->getCurrentPresetIrId();
         shouldLoadIr = true;
-        DBG("Loading initial ir from preset!");
-
+        validIrLoaded = true;
+        DBG("Loading initial IR from Binary Data");
     }
     else
     {
-        validIrLoaded = false;
-        shouldLoadIr = false;
-        DBG("Invalid initial IR");
+        presetManager->getCurrentPresetIr();
         
-        if (switchEnator == false){
-            DBG("false");
-            variableTree2.setProperty("NEW_IRNAME", "null_ir0", nullptr);
-            switchEnator = true;
+        if (juce::File(lastIrPath).existsAsFile())
+        {
+            validIrLoaded = true;
+            shouldLoadIr = true;
+            DBG("Loading initial ir from preset");
+
         }
-        else {
-            variableTree2.setProperty("NEW_IRNAME", "null_ir1", nullptr);
-            switchEnator = false;
-            DBG("true");
+        else
+        {
+            validIrLoaded = false;
+            shouldLoadIr = false;
+            DBG("Invalid initial IR");
+            
+            
         }
-        
-        
-        
     }
+    
+    
 }
+
+
+
+
+void loadBinaryIr(int impulseId)
+{
+    
+}
+
+
+void ArtisianDSPAudioProcessor::loadBinaryIr(int impulseId)
+{
+    juce::MemoryBlock irMemoryBlock;
+    const char* data = nullptr;
+    size_t dataSize = 0;
+
+    switch (impulseId)
+    {
+        case 1:
+            data = BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav;
+            dataSize = BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize;
+            break;
+        case 2:
+            data = BinaryData::Contradictions_Collapse_wav;
+            dataSize = BinaryData::Contradictions_Collapse_wavSize;
+            break;
+        case 3:
+            data = BinaryData::Destroy_Erase_Improve_wav;
+            dataSize = BinaryData::Destroy_Erase_Improve_wavSize;
+            break;
+        case 4:
+            data = BinaryData::Chaosphere_wav;
+            dataSize = BinaryData::Chaosphere_wavSize;
+            break;
+        case 5:
+            data = BinaryData::Nothing_wav;
+            dataSize = BinaryData::Nothing_wavSize;
+            break;
+        case 6:
+            data = BinaryData::Nothing_2006_wav;
+            dataSize = BinaryData::Nothing_2006_wavSize;
+            break;
+        case 7:
+            data = BinaryData::I_wav;
+            dataSize = BinaryData::I_wavSize;
+            break;
+        case 8:
+            data = BinaryData::Catch_33_wav;
+            dataSize = BinaryData::Catch_33_wavSize;
+            break;
+        case 9:
+            data = BinaryData::obZen_wav;
+            dataSize = BinaryData::obZen_wavSize;
+            break;
+        case 10:
+            data = BinaryData::Koloss_wav;
+            dataSize = BinaryData::Koloss_wavSize;
+            break;
+        case 11:
+            data = BinaryData::Pitch_Black_wav;
+            dataSize = BinaryData::Pitch_Black_wavSize;
+            break;
+        case 12:
+            data = BinaryData::The_Violent_Sleep_of_Reason_wav;
+            dataSize = BinaryData::The_Violent_Sleep_of_Reason_wavSize;
+            break;
+        case 13:
+            data = BinaryData::Immutable_Blend_wav;
+            dataSize = BinaryData::Immutable_Blend_wavSize;
+            break;
+        default:
+            DBG("Unknown selection (while loading)");
+            return;
+    }
+    speakerModule.loadImpulseResponse(data,
+                                      dataSize,
+                                      juce::dsp::Convolution::Stereo::yes,
+                                      juce::dsp::Convolution::Trim::yes, 0);
+
+    DBG("Loaded IR: " + juce::String(impulseId));
+}
+
+
+juce::String ArtisianDSPAudioProcessor::getBinaryIrName(int impulseId)
+{
+    juce::MemoryBlock irMemoryBlock;
+    const char* data = nullptr;
+    size_t dataSize = 0;
+
+    switch (impulseId)
+    {
+        case 1:
+            data = BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav;
+            dataSize = BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize;
+            break;
+        case 2:
+            data = BinaryData::Contradictions_Collapse_wav;
+            dataSize = BinaryData::Contradictions_Collapse_wavSize;
+            break;
+        case 3:
+            data = BinaryData::Destroy_Erase_Improve_wav;
+            dataSize = BinaryData::Destroy_Erase_Improve_wavSize;
+            break;
+        case 4:
+            data = BinaryData::Chaosphere_wav;
+            dataSize = BinaryData::Chaosphere_wavSize;
+            break;
+        case 5:
+            data = BinaryData::Nothing_wav;
+            dataSize = BinaryData::Nothing_wavSize;
+            break;
+        case 6:
+            data = BinaryData::Nothing_2006_wav;
+            dataSize = BinaryData::Nothing_2006_wavSize;
+            break;
+        case 7:
+            data = BinaryData::I_wav;
+            dataSize = BinaryData::I_wavSize;
+            break;
+        case 8:
+            data = BinaryData::Catch_33_wav;
+            dataSize = BinaryData::Catch_33_wavSize;
+            break;
+        case 9:
+            data = BinaryData::obZen_wav;
+            dataSize = BinaryData::obZen_wavSize;
+            break;
+        case 10:
+            data = BinaryData::Koloss_wav;
+            dataSize = BinaryData::Koloss_wavSize;
+            break;
+        case 11:
+            data = BinaryData::Pitch_Black_wav;
+            dataSize = BinaryData::Pitch_Black_wavSize;
+            break;
+        case 12:
+            data = BinaryData::The_Violent_Sleep_of_Reason_wav;
+            dataSize = BinaryData::The_Violent_Sleep_of_Reason_wavSize;
+            break;
+        case 13:
+            data = BinaryData::Immutable_Blend_wav;
+            dataSize = BinaryData::Immutable_Blend_wavSize;
+            break;
+        default:
+            DBG("Unknown selection 2");
+            return "null";
+            
+            
+    }
+    return data;
+}
+
+
 
 float ArtisianDSPAudioProcessor::getRmsValue(const int channel) const
 {

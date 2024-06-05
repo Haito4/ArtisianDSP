@@ -36,8 +36,27 @@ namespace Service
 
         currentPreset.setValue(presetName);
         const auto xml = valueTreeState.copyState().createXml(); // For parameters
-        xml->setAttribute("IRPath", audioProcessor.lastIrPath); // for selected ir
-        xml->setAttribute("IRName", audioProcessor.lastIrName);
+        
+        
+        if (!audioProcessor.isIrBinary)
+        {
+            DBG("Saving File-based IR");
+            
+            xml->setAttribute("usingBinaryIR", "false");
+            xml->setAttribute("IRPath", audioProcessor.lastIrPath); // for selected ir
+            xml->setAttribute("IRName", audioProcessor.lastIrName);
+        }
+        else
+        {
+            DBG("Saving IR from binary data");
+            xml->setAttribute("usingBinaryIR", "true");
+            xml->setAttribute("BinaryIrId", audioProcessor.currentBinaryIrId);
+            
+        }
+        
+        
+        
+        
         const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
         if (!xml->writeTo(presetFile))
         {
@@ -87,45 +106,94 @@ namespace Service
         valueTreeState.replaceState(valueTreeToLoad);
         
         std::unique_ptr<juce::XmlElement> rootElement = xmlDocument.getDocumentElement();
-        audioProcessor.lastIrPath = rootElement->getStringAttribute("IRPath").toStdString();
-        audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
         
-        
-        DBG(audioProcessor.lastIrPath);
-        DBG(audioProcessor.lastIrName);
         
         audioProcessor.presetName = presetFile.getFullPathName(); // Update for impulse component to parse xml file
         
         
         // Check if the new IR file is valid before loading
-        if (juce::File(audioProcessor.lastIrPath).existsAsFile())
+        juce::String isBinaryAttributeIr = rootElement->getStringAttribute("usingBinaryIR");
+        
+        DBG("Attribute for IR: " + isBinaryAttributeIr);
+        
+        if (isBinaryAttributeIr == "true")
         {
-            audioProcessor.validIrLoaded = true;
+            DBG("got through true");
+            
+            
+            audioProcessor.isIrBinary = true;
             audioProcessor.shouldLoadIr = true;
-            DBG("IR to be loaded: " + audioProcessor.lastIrPath);
-            audioProcessor.variableTree2.setProperty("NEW_IRNAME", audioProcessor.lastIrName, nullptr); // Update to notify GUI label to change
-        }
-        else
-        {
-            audioProcessor.validIrLoaded = false;
-            DBG("Invalid IR directory!");
-            audioProcessor.shouldLoadIr = false;
+            
+            audioProcessor.currentBinaryIrId = rootElement->getStringAttribute("BinaryIrId").getIntValue();
             
             if (aCounter == false){
-                DBG("false");
-                audioProcessor.variableTree2.setProperty("NEW_IRNAME", "null_ir0", nullptr);
+                audioProcessor.variableTree2.setProperty("NEW_IRNAME", "binary_ir0", nullptr);
                 aCounter = true;
             }
             else {
-                audioProcessor.variableTree2.setProperty("NEW_IRNAME", "null_ir1", nullptr);
+                audioProcessor.variableTree2.setProperty("NEW_IRNAME", "binary_ir1", nullptr);
                 aCounter = false;
-                DBG("true");
             }
+            
+            
+        }
+        else
+        {
+            DBG("got through false");
+            
+            
+            audioProcessor.lastIrPath = rootElement->getStringAttribute("IRPath").toStdString();
+            audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
+            
+            DBG(audioProcessor.lastIrPath);
+            DBG(audioProcessor.lastIrName);
+            
+            if (juce::File(audioProcessor.lastIrPath).existsAsFile())
+            {
+                audioProcessor.isIrBinary = false;
+                audioProcessor.validIrLoaded = true;
+                audioProcessor.shouldLoadIr = true;
+                
+                if (audioProcessor.isIrBinary)
+                    DBG("BinaryIR presetmanager atm: true");
+                else
+                    DBG("BinaryIR presetmanager atm: false");
+                
+                
+                DBG("IR to be loaded: " + audioProcessor.lastIrPath);
+                audioProcessor.variableTree2.setProperty("NEW_IRNAME", audioProcessor.lastIrName, nullptr); // Update to notify GUI label to change
+                
+            }
+            else
+            {
+                audioProcessor.validIrLoaded = false;
+                audioProcessor.shouldLoadIr = false;
+                DBG("Invalid IR directory!");
+                
+                
+                if (aCounter == false){
+                    DBG("false");
+                    audioProcessor.variableTree2.setProperty("NEW_IRNAME", "null_ir0", nullptr);
+                    aCounter = true;
+                }
+                else {
+                    audioProcessor.variableTree2.setProperty("NEW_IRNAME", "null_ir1", nullptr);
+                    aCounter = false;
+                    DBG("true");
+                }
+            }
+            
+            if (audioProcessor.isIrBinary)
+                DBG("BinaryIR atm: true");
+            else
+                DBG("BinaryIR atm: false");
         }
         
         
+        
+        
+        
         currentPreset.setValue(presetName);
-
     }
 
     int PresetManager::loadNextPreset()
@@ -183,13 +251,40 @@ namespace Service
         std::unique_ptr<juce::XmlElement> rootElement = xmlDocument.getDocumentElement();
         audioProcessor.lastIrPath = rootElement->getStringAttribute("IRPath").toStdString();
         audioProcessor.lastIrName = rootElement->getStringAttribute("IRName").toStdString();
-//        audioProcessor.presetName = presetFile.getFullPathName();
+    }
+
+    void PresetManager::getCurrentPresetIrType()
+    {
+        
+        const auto presetFile = defaultDirectory.getChildFile(currentPreset.toString() + "." + extension);
+        juce::XmlDocument xmlDocument{ presetFile };
+        const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
+        
+        
+        std::unique_ptr<juce::XmlElement> rootElement = xmlDocument.getDocumentElement();
+        
+        auto value = rootElement->getStringAttribute("usingBinaryIR").toStdString();
+        if (value == "true")
+            audioProcessor.isIrBinary = true;
+        else
+            audioProcessor.isIrBinary = false;
+    }
+
+    void PresetManager::getCurrentPresetIrId()
+    {
+        const auto presetFile = defaultDirectory.getChildFile(currentPreset.toString() + "." + extension);
+        juce::XmlDocument xmlDocument{ presetFile };
+        const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
+        
+        std::unique_ptr<juce::XmlElement> rootElement = xmlDocument.getDocumentElement();
+        
+        auto newIdValue = rootElement->getStringAttribute("BinaryIrId").getIntValue();
+        audioProcessor.currentBinaryIrId = newIdValue;
     }
 
     void PresetManager::valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged)
     {
         currentPreset.referTo(treeWhichHasBeenChanged.getPropertyAsValue(presetNameProperty, nullptr));
         
-//        DBG("Workey????");
     }
 }

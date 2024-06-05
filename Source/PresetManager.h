@@ -24,6 +24,8 @@ namespace Service
         juce::String getCurrentPreset() const;
         juce::File getCurrentPresetPath() const;
         void getCurrentPresetIr();
+        void getCurrentPresetIrType();
+        void getCurrentPresetIrId();
         
         
     private:

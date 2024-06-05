@@ -6,6 +6,7 @@
 class Impulse6Component : public juce::Component,
                           public juce::Button::Listener,
                           public juce::Slider::Listener,
+                          public juce::ComboBox::Listener,
                           public juce::ValueTree::Listener,
                           public juce::Timer
 {
@@ -32,8 +33,29 @@ public:
         irToggleImage.setClickingTogglesState(true);
         irToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_IR", irToggleImage);
         
+        // Ir Selector (from binary data)
+        addAndMakeVisible(binaryIrChooser);
+        binaryIrChooser.addListener(this);
         
-        // Ir Selector
+        // Available Binary IRs
+        binaryIrChooser.addItem("ML Sound Lab - Best IR in The World", 1);
+        binaryIrChooser.addItem("Contradictions Collapse", 2);
+        binaryIrChooser.addItem("Destroy Erase Improve", 3);
+        binaryIrChooser.addItem("Chaosphere", 4);
+        binaryIrChooser.addItem("Nothing", 5);
+        binaryIrChooser.addItem("Nothing (Rerelease)", 6);
+        binaryIrChooser.addItem("I", 7);
+        binaryIrChooser.addItem("Catch 33", 8);
+        binaryIrChooser.addItem("obZen", 9);
+        binaryIrChooser.addItem("Koloss", 10);
+        binaryIrChooser.addItem("Pitch Black", 11);
+        binaryIrChooser.addItem("The Violent Sleep of Reason", 12);
+        binaryIrChooser.addItem("Immutable", 13);
+        
+//        binaryIrChooser.setSelectedId(1); // Default value
+        
+        
+        // Ir Selector (from file)
         addAndMakeVisible(loadBtn);
         loadBtn.setButtonText("Load IR");
         loadBtn.onClick = [this]()
@@ -85,14 +107,6 @@ public:
         irName.setJustificationType(juce::Justification::horizontallyCentred);
         
         
-        
-        addAndMakeVisible(jbSlider);
-//        jbSlider.setText("VOLUME", juce::dontSendNotification);
-//        volLabel.setJustificationType(juce::Justification::centred);
-        jbSlider.setLookAndFeel(&afxLookAndFeel);
-        jbSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        jbSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, jbSlider.getTextBoxHeight());
-        volAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "IR_VOLUME", jbSlider);
         
         
         
@@ -150,7 +164,7 @@ public:
                     
                     
                     
-                    // Update Current XML to new IR values
+                    // Update Current XML to new IR setting
                     const auto presetFile = juce::File(audioProcessor.presetName);
                     
                     DBG("Updating preset file: " + presetFile.getFullPathName());
@@ -196,23 +210,33 @@ public:
     {
         impulseLabel.setBounds(290, 150, 140, 50);
         
-        loadBtn.setBounds(310, 270, 100, 50);
-        irName.setBounds(260, 340, 200, 50);
+        loadBtn.setBounds(488, 244, 130, 45);
+        irName.setBounds(260, 383, 200, 50);
         
-        if (audioProcessor.validIrLoaded == false) // If the initally loaded Ir is invalid
+        
+        if (audioProcessor.isIrBinary)
         {
-            irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+            irName.setText("", juce::dontSendNotification);
+            binaryIrChooser.setSelectedId(audioProcessor.currentBinaryIrId);
         }
         else
         {
-            irName.setText(audioProcessor.lastIrName, juce::dontSendNotification);
+            if (audioProcessor.validIrLoaded == false) // If the initally loaded Ir is invalid
+            {
+                irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+            }
+            else
+            {
+                irName.setText(audioProcessor.lastIrName, juce::dontSendNotification);
+            }
         }
         
-        irToggleImage.setBounds(335, 405, 50, 50);
+        irToggleImage.setBounds(335, 435, 50, 50);
         
         fixButton.setBounds(310, 470, 100, 50);
         
-//        jbSlider.setBounds(405, 405, 100, 100);
+        binaryIrChooser.setBounds(100, 230, 200, 25);
+        
     }
     
     void buttonClicked(juce::Button* button) override
@@ -245,20 +269,52 @@ public:
         {
             DBG("passed identifier");
             
-            if (audioProcessor.validIrLoaded == false)
+            
+            if (audioProcessor.isIrBinary)
             {
-                fixButton.setVisible(true); // show button to locate missing ir
-                irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+                DBG("gui got to binary");
+                
+                irName.setText("", juce::dontSendNotification);
+                binaryIrChooser.setSelectedId(audioProcessor.currentBinaryIrId);
+                
             }
             else
             {
-                auto newIRName = tree.getProperty(property).toString();
-                irName.setText(newIRName, juce::dontSendNotification);
-                fixButton.setVisible(false);
+                if (audioProcessor.validIrLoaded == false)
+                {
+                    fixButton.setVisible(true); // show button to locate missing ir
+                    irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+                }
+                else
+                {
+                    DBG("setting ir name based on file" + audioProcessor.lastIrName);
+                    audioProcessor.isIrBinary = false;
+                    
+                    auto newIRName = audioProcessor.lastIrName;
+                    irName.setText(newIRName.toStdString(), juce::dontSendNotification);
+                    irName.getText();
+                    fixButton.setVisible(false);
+                    binaryIrChooser.setSelectedId(0);
+                }
             }
         }
     }
     
+    
+    
+    void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override
+    {
+        if (comboBoxThatHasChanged == &binaryIrChooser)
+        {
+            int selectedId = binaryIrChooser.getSelectedId();
+            audioProcessor.currentBinaryIrId = selectedId;
+            audioProcessor.loadBinaryIr(selectedId);
+            audioProcessor.currentBinaryIrName = audioProcessor.getBinaryIrName(selectedId);
+            
+            audioProcessor.isIrBinary = true;
+            irName.setText("", juce::dontSendNotification);
+        }
+    }
     
     
     
@@ -284,7 +340,6 @@ private:
     juce::Label impulseLabel;
     
     
+    juce::ComboBox binaryIrChooser;
     
-    juce::Slider jbSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volAttachment;
 };
