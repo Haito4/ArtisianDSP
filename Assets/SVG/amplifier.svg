@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_3" data-name="Layer 3" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 868.27 540">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke: #333;
+        stroke-width: 8px;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        fill: none;
+      }
+
+      .cls-5 {
+        fill: #333;
+        stroke: #1a1a1a;
+        stroke-width: 17px;
+      }
+
+      .cls-6 {
+        fill: #cbcbcb;
+        font-family: Arial-BoldMT, Arial;
+        font-size: 52.09px;
+        font-weight: 700;
+        isolation: isolate;
+      }
+
+      .cls-2, .cls-7 {
+        stroke-width: 0px;
+      }
+
+      .cls-8 {
+        fill: #000;
+        stroke: #666;
+        stroke-width: 3px;
+      }
+
+      .cls-7 {
+        fill: url(#hexPattern);
+      }
+
+      .cls-3 {
+        stroke-width: 19px;
+      }
+
+      .cls-3, .cls-4 {
+        stroke: #000;
+      }
+
+      .cls-4, .cls-9 {
+        stroke-width: 2px;
+      }
+
+      .cls-9 {
+        fill: #dcdcdc;
+        stroke: #bababa;
+      }
+    </style>
+    <pattern id="hexPattern" x="0" y="0" width="20" height="17.32" patternTransform="translate(157.24 440) rotate(90) scale(1 -1)" patternUnits="userSpaceOnUse" viewBox="0 0 20 17.32">
+      <g>
+        <rect class="cls-2" width="20" height="17.32"/>
+        <polygon class="cls-4" points="10 17.32 20 12.32 20 2.32 10 -2.68 0 2.32 0 12.32 10 17.32"/>
+      </g>
+    </pattern>
+  </defs>
+  <g>
+    <path id="Handle" class="cls-1" d="M361.32,250.75c44.5-7.21,89-7.21,133.5,0"/>
+    <path id="handlebaseL" class="cls-8" d="M322.38,243h33.37c3.07,0,5.56,1.16,5.56,2.58v10.33c0,1.43-2.49,2.58-5.56,2.58h-33.37c-3.07,0-5.56-1.16-5.56-2.58v-10.33c0-1.43,2.49-2.58,5.56-2.58Z"/>
+    <path id="handlebaseR" class="cls-8" d="M500.38,243h33.37c3.07,0,5.56,1.16,5.56,2.58v10.33c0,1.43-2.49,2.58-5.56,2.58h-33.37c-3.07,0-5.56-1.16-5.56-2.58v-10.33c0-1.43,2.49-2.58,5.56-2.58Z"/>
+  </g>
+  <path id="Base" class="cls-5" d="M93.44,262h663.76c7.8,0,14.12,5.29,14.12,11.81v200.84c0,6.52-6.32,11.81-14.12,11.81H93.44c-7.8,0-14.12-5.29-14.12-11.81v-200.84c0-6.52,6.32-11.81,14.12-11.81Z"/>
+  <path id="Hexagonal_Grill" data-name="Hexagonal Grill" class="cls-7" d="M94.37,270h662.9c3.89,0,7.05,4.24,7.05,9.47v123.07c0,5.23-3.16,9.47-7.05,9.47H94.37c-3.89,0-7.05-4.24-7.05-9.47v-123.07c0-5.23,3.16-9.47,7.05-9.47Z"/>
+  <path id="Light_Grey" data-name="Light Grey" class="cls-9" d="M96.32,414.77h658c3.87,0,7,3.43,7,7.65v45.92c0,4.23-3.13,7.65-7,7.65H96.32c-3.87,0-7-3.43-7-7.65v-45.92c0-4.23,3.13-7.65,7-7.65Z"/>
+  <g id="Corners">
+    <path id="Corners-2" data-name="Corners" class="cls-3" d="M79.82,315v-39.53c0-7.44,6.3-13.47,14.08-13.47h38.92"/>
+    <path id="Corners-3" data-name="Corners" class="cls-3" d="M132.82,486.74h-38.92c-7.77,0-14.08-6.65-14.08-14.86v-38.14"/>
+    <path id="Corners-4" data-name="Corners" class="cls-3" d="M770.82,433.62v38.14c0,8.21-6.71,14.86-14.98,14.86h-38.52"/>
+    <path id="Corners-5" data-name="Corners" class="cls-3" d="M717.32,261.81h42.85c5.88,0,10.65,4.9,10.65,10.94v42.06"/>
+  </g>
+  <text class="cls-6" transform="translate(348.1 352.65)"><tspan x="0" y="0">5150ti</tspan></text>
+</svg>

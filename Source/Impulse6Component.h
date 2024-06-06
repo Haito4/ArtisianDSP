@@ -208,8 +208,6 @@ public:
     
     virtual void resized() override
     {
-        DBG("RESIZED IS RUN JSUT NOW");
-        
         impulseLabel.setBounds(290, 150, 140, 50);
         
         loadBtn.setBounds(488, 244, 130, 45);

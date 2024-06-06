@@ -22,10 +22,10 @@ public:
         
         
         // Text
-        driveLabel.setFont(20.f);
-        driveLabel.setJustificationType(juce::Justification::centred);
-        driveLabel.setText("Overdrive", juce::dontSendNotification);
-        addAndMakeVisible(driveLabel);
+        driveSceneLabel.setFont(20.f);
+        driveSceneLabel.setJustificationType(juce::Justification::centred);
+        driveSceneLabel.setText("Overdrive", juce::dontSendNotification);
+        addAndMakeVisible(driveSceneLabel);
         
         // Knobs
         addAndMakeVisible(driveKnob);
@@ -33,6 +33,10 @@ public:
         driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
         driveKnob.setRange(0.1f, 200.f);
         driveKnob.setValue(0.5);
+        
+        driveLabel.setText ("Drive", juce::NotificationType::dontSendNotification);
+        driveLabel.attachToComponent (&driveKnob, false);
+        
         driveKnob.addListener(this);
         driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_DRIVE", driveKnob);
         
@@ -42,6 +46,10 @@ public:
         toneKnob.setTextValueSuffix(" Hz");
         toneKnob.setRange(20.f, 700.f);
         toneKnob.setValue(20.f);
+        
+        toneLabel.setText ("Tone", juce::NotificationType::dontSendNotification);
+        toneLabel.attachToComponent (&toneKnob, false);
+        
         toneKnob.addListener(this);
         toneAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_TONE", toneKnob);
         
@@ -51,6 +59,10 @@ public:
         volumeKnob.setTextValueSuffix(" %");
         volumeKnob.setRange(0.f, 1.f);
         volumeKnob.setValue(1.f);
+        
+        volumeLabel.setText ("Level", juce::NotificationType::dontSendNotification);
+        volumeLabel.attachToComponent (&volumeKnob, false);
+        
         driveKnob.addListener(this);
         volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_LEVEL", volumeKnob);
     }
@@ -59,7 +71,7 @@ public:
     
     virtual void resized() override
     {
-        driveLabel.setBounds(290, 350, 140, 50);
+        driveSceneLabel.setBounds(290, 350, 140, 50);
         
         driveKnob.setBounds(400, 130, 100, 100);
         toneKnob.setBounds(315, 230, 90, 90);
@@ -88,18 +100,17 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> driveToggleAttachment;
     
     
-    juce::Slider driveKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
-    
-    juce::Slider toneKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> toneAttachment;
-    
-    juce::Slider volumeKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeAttachment;
-    
+    juce::Slider driveKnob,
+                 toneKnob,
+                 volumeKnob;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment,
+                                                                          toneAttachment,
+                                                                          volumeAttachment;
+    juce::Label driveLabel,
+                toneLabel,
+                volumeLabel;
     
     // GUI
-    juce::Label driveLabel;
+    juce::Label driveSceneLabel;
 
- 
 };

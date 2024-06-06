@@ -35,6 +35,8 @@ public:
         thresholdSlider.setValue(1.0);
         thresholdSlider.setTextValueSuffix(" dB");
         addAndMakeVisible(thresholdSlider);
+        thresholdLabel.setText ("Threshold", juce::NotificationType::dontSendNotification);
+        thresholdLabel.attachToComponent (&thresholdSlider, false);
         
         attackSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         attackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
@@ -42,6 +44,8 @@ public:
         attackSlider.setValue(50.0);
         attackSlider.setTextValueSuffix(" ms");
         addAndMakeVisible(attackSlider);
+        attackLabel.setText ("Attack", juce::NotificationType::dontSendNotification);
+        attackLabel.attachToComponent (&attackSlider, false);
         
         releaseSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
@@ -49,6 +53,8 @@ public:
         releaseSlider.setValue(50.0);
         releaseSlider.setTextValueSuffix(" ms");
         addAndMakeVisible(releaseSlider);
+        releaseLabel.setText ("Release", juce::NotificationType::dontSendNotification);
+        releaseLabel.attachToComponent (&releaseSlider, false);
         
         
         // APVTS Attachments
@@ -68,7 +74,7 @@ public:
     virtual void resized() override
     {
         
-        helloLabel.setBounds(280, 118, 160, 42);
+        helloLabel.setBounds(280, 380, 160, 42);
         gateToggleImage.setBounds(332, 420, 100, 100);
         
         thresholdSlider.setBounds(250, 150, 100, 100);
@@ -90,24 +96,18 @@ public:
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     
-    
     juce::Label helloLabel;
     
-    
-    // Bypass
     juce::ImageButton gateToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> gateToggleAttachment;
     
-    
-    
-    juce::Slider thresholdSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment;
-    
-    
-    juce::Slider attackSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
-    
-    juce::Slider releaseSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
-    
+    juce::Slider thresholdSlider,
+                 attackSlider,
+                 releaseSlider;
+    juce::Label thresholdLabel,
+                attackLabel,
+                releaseLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment,
+                                                                          attackAttachment,
+                                                                          releaseAttachment;
 };

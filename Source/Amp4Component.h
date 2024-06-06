@@ -15,6 +15,9 @@ public:
         ampLabel.setText("Amplifier", juce::dontSendNotification);
         addAndMakeVisible(ampLabel);
         
+        ampSvg = juce::Drawable::createFromImageData(BinaryData::amplifier_svg, BinaryData::amplifier_svgSize);
+        addAndMakeVisible(ampSvg.get());
+        
         // Bypass
         addAndMakeVisible(ampToggleImage);
         ampToggleImage.addListener(this);
@@ -197,28 +200,34 @@ public:
     
     virtual void resized() override
     {
+        ampSvg->setBounds(5, 245, 710, 260);
+        
+        
         
         ampLabel.setBounds(290, 102, 190, 50);
         
-        ampToggleImage.setBounds(640, 305, 50, 50);
-        tightToggleImage.setBounds(640, 250, 50, 50);
+        ampToggleImage.setBounds(645, 418, 50, 61);
+//        tightToggleImage.setBounds(640, 250, 50, 50);
         
         
-        inputGainKnob.setBounds(102, 280, 100, 100);
+        inputGainKnob.setBounds(55, 420, 80, 80);
         
 //        driveKnob.setBounds(102, 280, 100, 100);
         
         
-        resonanceKnob.setBounds(206, 180, 100, 100);
-        presenceKnob.setBounds(310, 180, 100, 100);
+//        resonanceKnob.setBounds(206, 180, 80, 80);
         
         
-        bassKnob.setBounds(206, 280, 100, 100);
-        midsKnob.setBounds(310, 280, 100, 100);
-        trebleKnob.setBounds(414, 280, 100, 100);
         
-        masterKnob.setBounds(518, 280, 100, 100);
-        outputGainKnob.setBounds(518, 180, 100, 100);
+        bassKnob.setBounds(155, 420, 80, 80);
+        midsKnob.setBounds(235, 420, 80, 80);
+        trebleKnob.setBounds(315, 420, 80, 80);
+        
+        presenceKnob.setBounds(415, 420, 80, 80);
+        
+        outputGainKnob.setBounds(495, 420, 80, 80);
+        
+        masterKnob.setBounds(575, 420, 80, 80);
     }
     
     void buttonClicked(juce::Button* button) override
@@ -234,6 +243,15 @@ public:
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     AfxLookAndFeel afxLookAndFeel;
+    
+    
+//    juce::Image ampSVG = BinaryData::amplifier_svg;
+    std::unique_ptr<juce::Drawable> ampSvg;
+    
+    
+    
+    
+    juce::Image ampSVG = juce::ImageCache::getFromMemory(BinaryData::amplifier_svg, BinaryData::amplifier_svgSize);
     
     juce::ImageButton ampToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> ampToggleAttachment;

@@ -30,6 +30,9 @@ public:
         thresholdKnob.setValue(1.0);
         thresholdKnob.setTextValueSuffix(" dB");
         
+        thresholdLabel.setText ("Threshold", juce::NotificationType::dontSendNotification);
+        thresholdLabel.attachToComponent (&thresholdKnob, false);
+        
         thresholdKnob.addListener(this);
         thresholdAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_THRES", thresholdKnob);
         
@@ -40,6 +43,8 @@ public:
         attackKnob.setRange(1.0, 100.0);
         attackKnob.setValue(50.0);
         attackKnob.setTextValueSuffix(" ms");
+        attackLabel.setText ("Attack", juce::NotificationType::dontSendNotification);
+        attackLabel.attachToComponent (&attackKnob, false);
         
         attackKnob.addListener(this);
         attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_ATTACK", attackKnob);
@@ -52,6 +57,9 @@ public:
         releaseKnob.setValue(50.0);
         releaseKnob.setTextValueSuffix(" ms");
         
+        releaseLabel.setText ("Release", juce::NotificationType::dontSendNotification);
+        releaseLabel.attachToComponent (&releaseKnob, false);
+        
         releaseKnob.addListener(this);
         releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_RELEASE", releaseKnob);
         
@@ -63,6 +71,9 @@ public:
         ratioKnob.setValue(1.0);
         ratioKnob.setTextValueSuffix(": 1");
         
+        ratioLabel.setText ("Ratio", juce::NotificationType::dontSendNotification);
+        ratioLabel.attachToComponent (&ratioKnob, false);
+        
         ratioKnob.addListener(this);
         ratioAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_RATIO", ratioKnob);
         
@@ -73,6 +84,9 @@ public:
         levelKnob.setRange(-20.f, 10.f);
         levelKnob.setValue(0.f);
         levelKnob.setTextValueSuffix(" dB");
+        
+        levelLabel.setText ("Level", juce::NotificationType::dontSendNotification);
+        levelLabel.attachToComponent (&levelKnob, false);
         
         levelKnob.addListener(this);
         levelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_LEVEL", levelKnob);
@@ -95,11 +109,11 @@ public:
         
         attackKnob.setBounds(215, 140, 90, 90);
         
-        releaseKnob.setBounds(215, 230, 90, 90);
+        releaseKnob.setBounds(215, 260, 90, 90);
         
         ratioKnob.setBounds(415, 140, 90, 90);
         
-        levelKnob.setBounds(415, 230, 90, 90);
+        levelKnob.setBounds(415, 260, 90, 90);
     }
     
     void buttonClicked(juce::Button* button) override
@@ -118,21 +132,18 @@ private:
     
     
     // Sliders
-    juce::Slider thresholdKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment;
+    juce::Slider thresholdKnob, attackKnob, releaseKnob, ratioKnob, levelKnob;
     
-    juce::Slider attackKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
-    
-    juce::Slider releaseKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
-    
-    juce::Slider ratioKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ratioAttachment;
-    
-    juce::Slider levelKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> levelAttachment;
-    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdAttachment,
+                                                                          attackAttachment,
+                                                                          releaseAttachment,
+                                                                          ratioAttachment,
+                                                                          levelAttachment;
+    juce::Label thresholdLabel,
+                attackLabel,
+                releaseLabel,
+                ratioLabel,
+                levelLabel;
     
     juce::Label compLabel;
 };
