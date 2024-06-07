@@ -12,7 +12,8 @@
 
 //==============================================================================
 RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(p),
-                                                                 multiSceneComponent(p), presetPanel(audioProcessor.getPresetManager())
+                                                                 multiSceneComponent(p), presetPanel(audioProcessor.getPresetManager()),
+                                                                 helpComponent()
 {
     
     // Vertical Input & Output Meters
@@ -23,7 +24,10 @@ RasterComponent::RasterComponent(ArtisianDSPAudioProcessor& p) : audioProcessor(
     // Refresh Rate for Meter
     startTimerHz(60);
     
-    
+    // Help Menu
+    addAndMakeVisible(helpButton);
+    helpButton.setButtonText("?");
+    helpButton.addListener(this);
     
     
     
@@ -102,7 +106,7 @@ void RasterComponent::paint (juce::Graphics& g)
     g.fillAll(juce::Colours::black);
     
     g.setColour(juce::Colour (26, 26, 26));
-    g.fillRect(getBounds().removeFromBottom(32));
+    g.fillRect(getBounds().removeFromBottom(30));
     
     
 }
@@ -115,7 +119,7 @@ void RasterComponent::resized()
     
 
     
-    multiSceneComponent.setBounds(bounds);
+    multiSceneComponent.setBounds(0, 0, 720, 506);
     
     verticalInputMeterL.setBounds(15, 15, 20, 205);
 //    verticalInputMeterR.setBounds(25, 15, 15, 200);
@@ -131,6 +135,7 @@ void RasterComponent::resized()
 //    presetSelector.setBounds(280, 80, 160, 25);
     presetPanel.setBounds(156, 72, 415, 41);
     
+    helpButton.setBounds(0, 510, 30, 30);
     
 }
 
@@ -227,3 +232,27 @@ void RasterComponent::comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged)
     {
     }
 }
+
+void RasterComponent::buttonClicked (juce::Button* button)
+{
+    if (button == &helpButton)
+    {
+        if (!helpComponent)
+        {
+            helpComponent = std::make_unique<HelpComponent>();
+            addAndMakeVisible(helpComponent.get());
+            helpComponent->setBounds(0, 0, 720, 510);
+        }
+        else
+        {
+            helpComponent->setVisible(!helpComponent->isVisible());
+            if (helpComponent->isVisible())
+            {
+                helpComponent->setBounds(0, 0, 720, 510);
+            }
+            helpComponent->toFront(true);
+        }
+    }
+}
+
+//======================================================================

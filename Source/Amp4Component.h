@@ -118,7 +118,7 @@ public:
         
         bassKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
         bassKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
-        bassKnob.setTextValueSuffix(" Bass");
+        bassKnob.setTextValueSuffix("");
         bassKnob.setRange(0.f, 2.f);
         bassKnob.setValue(0.f);
         bassKnob.addListener(this);
@@ -135,7 +135,7 @@ public:
         
         midsKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
         midsKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
-        midsKnob.setTextValueSuffix(" Mids");
+        midsKnob.setTextValueSuffix("");
         midsKnob.setRange(0.f, 2.f);
         midsKnob.setValue(1.f);
         midsKnob.addListener(this);
@@ -151,7 +151,7 @@ public:
         
         trebleKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
         trebleKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
-        trebleKnob.setTextValueSuffix(" Treble");
+        trebleKnob.setTextValueSuffix("");
         trebleKnob.setRange(0.f, 2.f);
         trebleKnob.setValue(0.f);
         trebleKnob.addListener(this);

@@ -45,11 +45,10 @@
               file="Source/PresetManager.cpp"/>
         <FILE id="ST8icd" name="PresetManager.h" compile="0" resource="0" file="Source/PresetManager.h"/>
       </GROUP>
-      <FILE id="mMRXtm" name="Utils.cpp" compile="1" resource="0" file="Source/Utils.cpp"/>
-      <FILE id="IQiSS6" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
       <GROUP id="{6EE2CD03-7313-1380-10EC-D7A7C997CCB0}" name="Components">
         <FILE id="BWy3Wz" name="AudioProcessorGraph.h" compile="0" resource="0"
               file="Source/AudioProcessorGraph.h"/>
+        <FILE id="DpK2Zo" name="HelpComponent.h" compile="0" resource="0" file="Source/HelpComponent.h"/>
         <FILE id="YWLx5u" name="Jb_knobs.h" compile="0" resource="0" file="Source/Jb_knobs.h"/>
         <FILE id="bO1FCS" name="PresetPanel.h" compile="0" resource="0" file="Source/PresetPanel.h"/>
         <FILE id="hL4TWG" name="VerticalMeter.h" compile="0" resource="0" file="Source/VerticalMeter.h"/>

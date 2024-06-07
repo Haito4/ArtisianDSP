@@ -14,13 +14,16 @@
 #include "VerticalMeter.h"
 #include "melatonin_inspector/melatonin_inspector.h"
 #include "PresetPanel.h"
+#include "HelpComponent.h"
 
 
 //==============================================================================
 /**
 */
+
 class RasterComponent  : public juce::Component,
                          public juce::Slider::Listener,
+                         public juce::Button::Listener,
                          public juce::ComboBox::Listener,
                          public juce::Timer
 {
@@ -33,6 +36,7 @@ public:
     void timerCallback() override;
     void paint (juce::Graphics&) override;
     void resized() override;
+    
     
 
     // Slider Object Decleration
@@ -47,7 +51,7 @@ public:
     
     void sliderValueChanged(juce::Slider* slider) override;
     void comboBoxChanged(juce::ComboBox* comboBoxThatHasChanged) override;
-
+    void buttonClicked (juce::Button* button) override;
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     Gui::PresetPanel presetPanel;
@@ -66,6 +70,9 @@ private:
     
     melatonin::Inspector inspector { *this , false };
     
+    
+    juce::TextButton helpButton {"?"};
+    std::unique_ptr<HelpComponent> helpComponent = std::make_unique<HelpComponent>();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RasterComponent)
 };
@@ -85,8 +92,8 @@ private:
     
     
     
-    
-    
     RasterComponent rasterComponent;
     juce::ApplicationProperties applicationProperties;
 };
+
+
