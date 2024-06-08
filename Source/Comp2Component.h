@@ -1,15 +1,33 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-//#include "Utils.h"
+#include "Jb_knobs.h"
 
 class Comp2Component : public juce::Component,
                        public juce::Button::Listener,
-                       public juce::Slider::Listener
+                       public juce::Slider::Listener,
+                       public juce::ValueTree::Listener
 {
 public:
     Comp2Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
     {
+        // Comp Image
+        compSvg = juce::Drawable::createFromImageData(BinaryData::compressor_svg, BinaryData::compressor_svgSize);
+        addAndMakeVisible(compSvg.get());
+        
+        // Bypass
+        if (audioProcessor.usingComp)
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOn_png, BinaryData::ledOn_pngSize));
+        }
+        else
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOff_png, BinaryData::ledOff_pngSize));
+        }
+        
+        addAndMakeVisible(bypassLed);
+        
+        
         // Bypass Switch
         addAndMakeVisible(compToggleImage);
         compToggleImage.addListener(this);
@@ -25,13 +43,12 @@ public:
         // Threshold
         addAndMakeVisible(thresholdKnob);
         thresholdKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        thresholdKnob.setLookAndFeel(&pedalLookAndFeel);
+        
         thresholdKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         thresholdKnob.setRange(-100.0, 6.0);
         thresholdKnob.setValue(1.0);
         thresholdKnob.setTextValueSuffix(" dB");
-        
-        thresholdLabel.setText ("Threshold", juce::NotificationType::dontSendNotification);
-        thresholdLabel.attachToComponent (&thresholdKnob, false);
         
         thresholdKnob.addListener(this);
         thresholdAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_THRES", thresholdKnob);
@@ -39,12 +56,12 @@ public:
         // Attack
         addAndMakeVisible(attackKnob);
         attackKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        attackKnob.setLookAndFeel(&pedalLookAndFeel);
+        
         attackKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         attackKnob.setRange(1.0, 100.0);
         attackKnob.setValue(50.0);
         attackKnob.setTextValueSuffix(" ms");
-        attackLabel.setText ("Attack", juce::NotificationType::dontSendNotification);
-        attackLabel.attachToComponent (&attackKnob, false);
         
         attackKnob.addListener(this);
         attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_ATTACK", attackKnob);
@@ -52,13 +69,12 @@ public:
         // Release
         addAndMakeVisible(releaseKnob);
         releaseKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        releaseKnob.setLookAndFeel(&pedalLookAndFeel);
+        
         releaseKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         releaseKnob.setRange(1.0, 100.0);
         releaseKnob.setValue(50.0);
         releaseKnob.setTextValueSuffix(" ms");
-        
-        releaseLabel.setText ("Release", juce::NotificationType::dontSendNotification);
-        releaseLabel.attachToComponent (&releaseKnob, false);
         
         releaseKnob.addListener(this);
         releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_RELEASE", releaseKnob);
@@ -66,13 +82,12 @@ public:
         // Ratio
         addAndMakeVisible(ratioKnob);
         ratioKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        ratioKnob.setLookAndFeel(&pedalLookAndFeel);
+        
         ratioKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         ratioKnob.setRange(1.0, 8.0);
         ratioKnob.setValue(1.0);
         ratioKnob.setTextValueSuffix(": 1");
-        
-        ratioLabel.setText ("Ratio", juce::NotificationType::dontSendNotification);
-        ratioLabel.attachToComponent (&ratioKnob, false);
         
         ratioKnob.addListener(this);
         ratioAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_RATIO", ratioKnob);
@@ -80,13 +95,12 @@ public:
         // Level
         addAndMakeVisible(levelKnob);
         levelKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        levelKnob.setLookAndFeel(&pedalLookAndFeel);
+        
         levelKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         levelKnob.setRange(-20.f, 10.f);
         levelKnob.setValue(0.f);
         levelKnob.setTextValueSuffix(" dB");
-        
-        levelLabel.setText ("Level", juce::NotificationType::dontSendNotification);
-        levelLabel.attachToComponent (&levelKnob, false);
         
         levelKnob.addListener(this);
         levelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMP_LEVEL", levelKnob);
@@ -101,30 +115,76 @@ public:
     
     virtual void resized() override
     {
-//        compLabel.setBounds(getLocalBounds());
         
-        compToggleImage.setBounds(335, 410, 91, 91);
+        if (audioProcessor.usingComp)
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOn_png, BinaryData::ledOn_pngSize));
+        }
+        else
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOff_png, BinaryData::ledOff_pngSize));
+        }
+        bypassLed.setBounds(340, 433, 40, 40);
         
-        thresholdKnob.setBounds(315, 140, 90, 90);
         
-        attackKnob.setBounds(215, 140, 90, 90);
+
+        juce::Rectangle<int> pedalBounds;
+        pedalBounds.setBounds(250, 115, compSvg->getWidth() * 1.85, compSvg->getHeight() * 1.85);
+        compSvg->setTransformToFit(pedalBounds.toFloat(), juce::RectanglePlacement::stretchToFit);
+
         
-        releaseKnob.setBounds(215, 260, 90, 90);
+        compToggleImage.setBounds(328, 374, 91, 91);
         
-        ratioKnob.setBounds(415, 140, 90, 90);
+        attackKnob.setBounds(268, 144, 60, 75);
         
-        levelKnob.setBounds(415, 260, 90, 90);
+        thresholdKnob.setBounds(330, 144, 60, 75);
+        
+        ratioKnob.setBounds(392, 144, 60, 75);
+        
+        releaseKnob.setBounds(268, 239, 61, 75);
+
+        levelKnob.setBounds(392, 239, 60, 75);
     }
     
     void buttonClicked(juce::Button* button) override
     {
+
     }
+    
+    void buttonStateChanged(juce::Button* button) override
+    {
+        if (button == &compToggleImage)
+        {
+            if (compToggleImage.getToggleState())
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOn_png, BinaryData::ledOn_pngSize));
+            }
+            else
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOff_png, BinaryData::ledOff_pngSize));
+            }
+        }
+    }
+    
     
     virtual void sliderValueChanged (juce::Slider* slider) override
     {
     }
+    
+    void valueTreeRedirected(juce::ValueTree& treeWhichHasBeenChanged) override
+    {
+        
+    }
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
+    PedalLookAndFeel pedalLookAndFeel;
+    
+    // Pedal Image
+    std::unique_ptr<juce::Drawable> compSvg;
+    
+    // Bypass Light
+    juce::ImageComponent bypassLed;
+    
     
     // Bypass
     juce::ImageButton compToggleImage;
@@ -139,11 +199,6 @@ private:
                                                                           releaseAttachment,
                                                                           ratioAttachment,
                                                                           levelAttachment;
-    juce::Label thresholdLabel,
-                attackLabel,
-                releaseLabel,
-                ratioLabel,
-                levelLabel;
     
     juce::Label compLabel;
 };

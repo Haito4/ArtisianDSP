@@ -81,7 +81,8 @@ public:
     bool shouldLoadIr = false;
     
     
-    
+    // Comp
+    bool usingComp = false;
    
     
     
@@ -146,7 +147,7 @@ private:
     
     // Compressor
     juce::dsp::Compressor<float> comPressor;
-    bool usingComp = false;
+    
     float compAttack = 50 * 0.001;
     float compRelease = 50 * 0.001;
     int compRatio = 1;

@@ -15,6 +15,7 @@ public:
         ampLabel.setText("Amplifier", juce::dontSendNotification);
         addAndMakeVisible(ampLabel);
         
+        // Amp Image
         ampSvg = juce::Drawable::createFromImageData(BinaryData::amplifier_svg, BinaryData::amplifier_svgSize);
         addAndMakeVisible(ampSvg.get());
         
