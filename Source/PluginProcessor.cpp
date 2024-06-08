@@ -686,7 +686,9 @@ void ArtisianDSPAudioProcessor::getStateInformation (juce::MemoryBlock& destData
 
     DBG("Getting state information...");
     
+    
     copyXmlToBinary(*xml, destData);
+    
 }
 
 void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -696,14 +698,23 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
     DBG("Setting State information...");
     
     
+    
     const auto xmlState = getXmlFromBinary(data, sizeInBytes);
     if (xmlState == nullptr)
         return;
     
+    
+    DBG("passed xmlstate nullptr");
     const auto newTree = juce::ValueTree::fromXml(*xmlState);
     apvts.replaceState(newTree);
     
+    DBG("breakpoint 2");
+    
     shouldUpdate = true;
+    
+    if (!juce::File(presetManager->getCurrentPresetPath()).exists())
+        return;
+    
     
     // Ir loading from preset
     presetManager->getCurrentPresetIrType();
