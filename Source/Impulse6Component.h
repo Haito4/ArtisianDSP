@@ -52,7 +52,6 @@ public:
         binaryIrChooser.addItem("The Violent Sleep of Reason", 12);
         binaryIrChooser.addItem("Immutable", 13);
         
-//        binaryIrChooser.setSelectedId(1); // Default value
         
         
         // Ir Selector (from file)
@@ -96,27 +95,31 @@ public:
                     DBG("Current IR: " + audioProcessor.lastIrName);
                     DBG("Current IR Path: " + audioProcessor.lastIrPath);
                     
+                    binaryIrChooser.setSelectedId(0);
                     
-//                    audioProcessor.apvts.state.setProperty("IRPath", result.getFullPathName(), nullptr);
-//                    audioProcessor.apvts.state.setProperty("IRName", result.getFileName(), nullptr);
                 }
             });
         };
         
         addAndMakeVisible(irName);
         irName.setJustificationType(juce::Justification::horizontallyCentred);
-        
-        
+        if (audioProcessor.shouldDoBinaryGUI) // Hide if initital IR is binary
+        {
+            irName.setText("", juce::dontSendNotification);
+            binaryIrChooser.setSelectedId(audioProcessor.currentBinaryIrId);
+            
+            DBG("Settext to nothing!!");
+        }
         
         
         
         // Button to Fix IR locations from broken presets
         addAndMakeVisible(fixButton);
-        fixButton.setButtonText("Fix");
+        fixButton.setButtonText("Fix IR Path");
         if (audioProcessor.validIrLoaded == false) // If the initally loaded Ir is invalid
         {
             fixButton.setVisible(true);
-            irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+            irName.setText("Preset Contains Invalid IR!", juce::dontSendNotification);
         }
         else
         {
@@ -193,6 +196,7 @@ public:
                     fixButton.setVisible(false); // hide button after successfully chosen file
                     audioProcessor.validIrLoaded = true;
                     DBG("ir fix finished!!!!!");
+                    binaryIrChooser.setSelectedId(0);
                 }
             });
         };
@@ -214,7 +218,7 @@ public:
         irName.setBounds(260, 320, 200, 50);
         
         
-        if (audioProcessor.isIrBinary)
+        if (audioProcessor.shouldDoBinaryGUI)
         {
             irName.setText("", juce::dontSendNotification);
             binaryIrChooser.setSelectedId(audioProcessor.currentBinaryIrId);
@@ -223,11 +227,13 @@ public:
         {
             if (audioProcessor.validIrLoaded == false) // If the initally loaded Ir is invalid
             {
-                irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+                irName.setText("Preset Contains Invalid IR!", juce::dontSendNotification);
             }
             else
             {
                 irName.setText(audioProcessor.lastIrName, juce::dontSendNotification);
+                
+                DBG("hit resized breakpoint");
             }
         }
         
@@ -283,7 +289,7 @@ public:
                 if (audioProcessor.validIrLoaded == false)
                 {
                     fixButton.setVisible(true); // show button to locate missing ir
-                    irName.setText("Invalid IR Loaded!", juce::dontSendNotification);
+                    irName.setText("Preset Contains Invalid IR!", juce::dontSendNotification);
                 }
                 else
                 {
@@ -309,12 +315,14 @@ public:
             int selectedId = binaryIrChooser.getSelectedId();
             audioProcessor.currentBinaryIrId = selectedId;
             
+            DBG("Selected ID: " + juce::String(selectedId));
+            
             if (selectedId != 0)
             {
                 audioProcessor.loadBinaryIr(selectedId);
-                audioProcessor.currentBinaryIrName = audioProcessor.getBinaryIrName(selectedId);
                 audioProcessor.isIrBinary = true;
                 irName.setText("", juce::dontSendNotification);
+                audioProcessor.shouldDoBinaryGUI = true;
             }
             else
             {

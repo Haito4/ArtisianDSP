@@ -620,8 +620,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         
         
-       
-        
         
         // Output Gain
         channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
@@ -727,10 +725,14 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
         presetManager->getCurrentPresetIrId();
         shouldLoadIr = true;
         validIrLoaded = true;
-        DBG("Loading initial IR from Binary Data");
+        DBG("Loading initial IR from Binary Data...");
+        
+        shouldDoBinaryGUI = true;
     }
     else
     {
+        shouldDoBinaryGUI = false;
+        
         presetManager->getCurrentPresetIr();
         
         if (juce::File(lastIrPath).existsAsFile())
@@ -746,18 +748,9 @@ void ArtisianDSPAudioProcessor::setStateInformation (const void* data, int sizeI
             shouldLoadIr = false;
             DBG("Invalid initial IR");
             
-            
         }
     }
     
-    
-}
-
-
-
-
-void loadBinaryIr(int impulseId)
-{
     
 }
 
@@ -832,76 +825,6 @@ void ArtisianDSPAudioProcessor::loadBinaryIr(int impulseId)
                                       juce::dsp::Convolution::Trim::yes, 0);
 
     DBG("Loaded IR: " + juce::String(impulseId));
-}
-
-
-juce::String ArtisianDSPAudioProcessor::getBinaryIrName(int impulseId)
-{
-    juce::MemoryBlock irMemoryBlock;
-    const char* data = nullptr;
-    size_t dataSize = 0;
-
-    switch (impulseId)
-    {
-        case 1:
-            data = BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav;
-            dataSize = BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize;
-            break;
-        case 2:
-            data = BinaryData::Contradictions_Collapse_wav;
-            dataSize = BinaryData::Contradictions_Collapse_wavSize;
-            break;
-        case 3:
-            data = BinaryData::Destroy_Erase_Improve_wav;
-            dataSize = BinaryData::Destroy_Erase_Improve_wavSize;
-            break;
-        case 4:
-            data = BinaryData::Chaosphere_wav;
-            dataSize = BinaryData::Chaosphere_wavSize;
-            break;
-        case 5:
-            data = BinaryData::Nothing_wav;
-            dataSize = BinaryData::Nothing_wavSize;
-            break;
-        case 6:
-            data = BinaryData::Nothing_2006_wav;
-            dataSize = BinaryData::Nothing_2006_wavSize;
-            break;
-        case 7:
-            data = BinaryData::I_wav;
-            dataSize = BinaryData::I_wavSize;
-            break;
-        case 8:
-            data = BinaryData::Catch_33_wav;
-            dataSize = BinaryData::Catch_33_wavSize;
-            break;
-        case 9:
-            data = BinaryData::obZen_wav;
-            dataSize = BinaryData::obZen_wavSize;
-            break;
-        case 10:
-            data = BinaryData::Koloss_wav;
-            dataSize = BinaryData::Koloss_wavSize;
-            break;
-        case 11:
-            data = BinaryData::Pitch_Black_wav;
-            dataSize = BinaryData::Pitch_Black_wavSize;
-            break;
-        case 12:
-            data = BinaryData::The_Violent_Sleep_of_Reason_wav;
-            dataSize = BinaryData::The_Violent_Sleep_of_Reason_wavSize;
-            break;
-        case 13:
-            data = BinaryData::Immutable_Blend_wav;
-            dataSize = BinaryData::Immutable_Blend_wavSize;
-            break;
-        default:
-            DBG("Unknown selection 2");
-            return "null";
-            
-            
-    }
-    return data;
 }
 
 

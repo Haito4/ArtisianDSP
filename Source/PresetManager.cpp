@@ -120,7 +120,7 @@ namespace Service
         {
             DBG("got through true");
             
-            
+            audioProcessor.shouldDoBinaryGUI = true;
             audioProcessor.isIrBinary = true;
             audioProcessor.shouldLoadIr = true;
             
@@ -150,6 +150,7 @@ namespace Service
             
             if (juce::File(audioProcessor.lastIrPath).existsAsFile())
             {
+                audioProcessor.shouldDoBinaryGUI = false;
                 audioProcessor.isIrBinary = false;
                 audioProcessor.validIrLoaded = true;
                 audioProcessor.shouldLoadIr = true;

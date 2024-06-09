@@ -101,11 +101,9 @@ public:
     
     
     void loadBinaryIr(int impulseId);
-    juce::String getBinaryIrName(int impulseId);
-    
     
     bool isIrBinary = false;
-    juce::String currentBinaryIrName;
+    bool shouldDoBinaryGUI = false;
     int currentBinaryIrId;
     
     
