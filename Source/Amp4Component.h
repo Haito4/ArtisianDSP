@@ -8,7 +8,7 @@ class Amp4Component : public juce::Component,
                       public juce::Slider::Listener
 {
 public:
-    Amp4Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
+    Amp4Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor), tooltipWindow(this, 900)
     {
         ampLabel.setFont(20.f);
         ampLabel.setJustificationType(juce::Justification::centred);
@@ -29,11 +29,12 @@ public:
 
         ampToggleImage.setClickingTogglesState(true);
         ampToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_AMP", ampToggleImage);
-        
+        ampToggleImage.setTooltip("Turns the amplifier On/Off.");
     
         
         // Input Gain
         addAndMakeVisible(inputGainKnob);
+        inputGainKnob.setTooltip("Adjusts the input signal level. Increase for more gain, decrease for a cleaner sound.");
         inputGainKnob.setLookAndFeel(&afxLookAndFeel);
         
         inputGainKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -51,6 +52,7 @@ public:
         
         // Preamp
         addAndMakeVisible(driveKnob);
+//        driveKnob.setTooltip();
         driveKnob.setLookAndFeel(&afxLookAndFeel);
         
         driveKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -95,6 +97,7 @@ public:
         
         // Presence
         addAndMakeVisible(presenceKnob);
+        presenceKnob.setTooltip("Adjusts the high-end clarity and sparkle. Increase for a sharper sound, decrease for a smoother one.");
         presenceKnob.setLookAndFeel(&afxLookAndFeel);
         
         presenceKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -115,6 +118,7 @@ public:
         
         // Bass
         addAndMakeVisible(bassKnob);
+        bassKnob.setTooltip("Controls the low-frequency response. Increase to add thickness, decrease for a tighter sound.");
         bassKnob.setLookAndFeel(&afxLookAndFeel);
         
         bassKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -132,6 +136,7 @@ public:
         
         // Mids
         addAndMakeVisible(midsKnob);
+        midsKnob.setTooltip("Controls the mid-frequency response. Increase to hear your guitar.");
         midsKnob.setLookAndFeel(&afxLookAndFeel);
         
         midsKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -148,6 +153,7 @@ public:
         
         // Treble
         addAndMakeVisible(trebleKnob);
+        trebleKnob.setTooltip("Controls the high-frequency response. Increase for more brightness and presence, decrease to reduce harshness.");
         trebleKnob.setLookAndFeel(&afxLookAndFeel);
         
         trebleKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -164,6 +170,7 @@ public:
         
         // Master Level
         addAndMakeVisible(masterKnob);
+        masterKnob.setTooltip("Sets the final output volume level. Use it to match the amp's overall volume to the desired level.");
         masterKnob.setLookAndFeel(&afxLookAndFeel);
         
         masterKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -181,6 +188,7 @@ public:
         
         // Output Gain
         addAndMakeVisible(outputGainKnob);
+        outputGainKnob.setTooltip("Controls the output level of the amplifier stage. Increase for more drive, decrease to reduce volume.");
         outputGainKnob.setLookAndFeel(&afxLookAndFeel);
         
         outputGainKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -244,6 +252,8 @@ public:
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     AfxLookAndFeel afxLookAndFeel;
+    
+    juce::TooltipWindow tooltipWindow;
     
     
 //    juce::Image ampSVG = BinaryData::amplifier_svg;

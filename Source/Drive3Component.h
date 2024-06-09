@@ -8,7 +8,7 @@ class Drive3Component : public juce::Component,
                         public juce::Slider::Listener
 {
 public:
-    Drive3Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
+    Drive3Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor), tooltipWindow(this, 900)
     {
         // Toggle Button
         addAndMakeVisible(driveToggleImage);
@@ -19,7 +19,7 @@ public:
                                  juce::ImageCache::getFromMemory(BinaryData::fsdown_png, BinaryData::fsdown_pngSize), 1.0f, juce::Colours::transparentBlack);
         driveToggleImage.setClickingTogglesState(true);
         driveToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_TS", driveToggleImage);
-        
+        driveToggleImage.setTooltip("Turns the overdrive On/Off.");
         
         // Text
         driveSceneLabel.setFont(20.f);
@@ -29,6 +29,7 @@ public:
         
         // Knobs
         addAndMakeVisible(driveKnob);
+        driveKnob.setTooltip("Adjusts the amount of distortion applied to the signal. Higher values result in more aggressive distortion.");
         driveKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
         driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
         driveKnob.setRange(0.1f, 200.f);
@@ -40,7 +41,11 @@ public:
         driveKnob.addListener(this);
         driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_DRIVE", driveKnob);
         
+        
+        
+        
         addAndMakeVisible(toneKnob);
+        toneKnob.setTooltip("Alters the starting point of the low-cut filter. Higher values result in a tighter, brighter sound, while lower values result in warmer, muddier tone.");
         toneKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         toneKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         toneKnob.setTextValueSuffix(" Hz");
@@ -54,6 +59,7 @@ public:
         toneAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_TONE", toneKnob);
         
         addAndMakeVisible(volumeKnob);
+        volumeKnob.setTooltip("Adjusts the overall output level of the affected signal.");
         volumeKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
         volumeKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
         volumeKnob.setTextValueSuffix(" %");
@@ -94,6 +100,7 @@ public:
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     
+    juce::TooltipWindow tooltipWindow;
     
     // Buttons, Sliders
     juce::ImageButton driveToggleImage;

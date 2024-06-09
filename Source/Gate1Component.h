@@ -9,7 +9,7 @@ class Gate1Component : public juce::Component,
 {
 public:
     Gate1Component(ArtisianDSPAudioProcessor& processor)
-     : audioProcessor(processor)
+     : audioProcessor(processor), tooltipWindow(this, 900)
     {
         // Bypass Switch
         addAndMakeVisible(gateToggleImage);
@@ -21,6 +21,7 @@ public:
 
         gateToggleImage.setClickingTogglesState(true);
         gateToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_GATE", gateToggleImage);
+        gateToggleImage.setTooltip("Turns the gate On/Off.");
         
         
         helloLabel.setFont(20.0f);
@@ -29,30 +30,37 @@ public:
         addAndMakeVisible(helloLabel);
         
         
+        addAndMakeVisible(thresholdSlider);
+        thresholdSlider.setTooltip("Sets the level below which the gate closes. Signals quieter than this threshold will be affected by the gate.");
         thresholdSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         thresholdSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         thresholdSlider.setRange(-100.0, 6.0);
         thresholdSlider.setValue(1.0);
         thresholdSlider.setTextValueSuffix(" dB");
-        addAndMakeVisible(thresholdSlider);
+        
         thresholdLabel.setText ("Threshold", juce::NotificationType::dontSendNotification);
         thresholdLabel.attachToComponent (&thresholdSlider, false);
         
+        
+        addAndMakeVisible(attackSlider);
+        attackSlider.setTooltip("Controls how quickly the gate opens when the input signal exceeds the threshold. Lower values result in faster opening times.");
         attackSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         attackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         attackSlider.setRange(1.0, 100.0);
         attackSlider.setValue(50.0);
         attackSlider.setTextValueSuffix(" ms");
-        addAndMakeVisible(attackSlider);
+        
         attackLabel.setText ("Attack", juce::NotificationType::dontSendNotification);
         attackLabel.attachToComponent (&attackSlider, false);
         
+        addAndMakeVisible(releaseSlider);
+        releaseSlider.setTooltip("Controls how quickly the gate closes after the input signal falls below the threshold. Shorter release times result in faster closure.");
         releaseSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         releaseSlider.setRange(1.0, 100.0);
         releaseSlider.setValue(50.0);
         releaseSlider.setTextValueSuffix(" ms");
-        addAndMakeVisible(releaseSlider);
+        
         releaseLabel.setText ("Release", juce::NotificationType::dontSendNotification);
         releaseLabel.attachToComponent (&releaseSlider, false);
         
@@ -95,6 +103,9 @@ public:
     
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
+    
+    
+    juce::TooltipWindow tooltipWindow;
     
     juce::Label helloLabel;
     

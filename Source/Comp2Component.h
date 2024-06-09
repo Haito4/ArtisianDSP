@@ -9,7 +9,7 @@ class Comp2Component : public juce::Component,
                        public juce::ValueTree::Listener
 {
 public:
-    Comp2Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
+    Comp2Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor), tooltipWindow(this, 900)
     {
         // Comp Image
         compSvg = juce::Drawable::createFromImageData(BinaryData::compressor_svg, BinaryData::compressor_svgSize);
@@ -38,10 +38,12 @@ public:
 
         compToggleImage.setClickingTogglesState(true);
         compToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_COMP", compToggleImage);
+        compToggleImage.setTooltip("Turns the compressor On/Off.");
         
         
         // Threshold
         addAndMakeVisible(thresholdKnob);
+        thresholdKnob.setTooltip("Sets the level above which compression begins. Signals louder than this threshold will be reduced in volume.");
         thresholdKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         thresholdKnob.setLookAndFeel(&pedalLookAndFeel);
         
@@ -56,6 +58,7 @@ public:
         // Attack
         addAndMakeVisible(attackKnob);
         attackKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+        attackKnob.setTooltip("Adjusts how quickly the compressor responds to incoming signals. Lower values result in faster response times.");
         attackKnob.setLookAndFeel(&pedalLookAndFeel);
         
         attackKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
@@ -68,6 +71,7 @@ public:
         
         // Release
         addAndMakeVisible(releaseKnob);
+        releaseKnob.setTooltip("Controls how quickly the compressor stops compressing after the input signal drops below the threshold. Shorter release times can help retain transients.");
         releaseKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         releaseKnob.setLookAndFeel(&pedalLookAndFeel);
         
@@ -81,12 +85,13 @@ public:
         
         // Ratio
         addAndMakeVisible(ratioKnob);
+        ratioKnob.setTooltip("Determines the amount of gain reduction applied once the input signal exceeds the threshold. Higher ratios result in more compression.");
         ratioKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         ratioKnob.setLookAndFeel(&pedalLookAndFeel);
         
         ratioKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
         ratioKnob.setRange(1.0, 8.0);
-        ratioKnob.setValue(1.0);
+        ratioKnob.setValue(4.0);
         ratioKnob.setTextValueSuffix(": 1");
         
         ratioKnob.addListener(this);
@@ -94,6 +99,7 @@ public:
         
         // Level
         addAndMakeVisible(levelKnob);
+        levelKnob.setTooltip("Adjusts the overall output level of the compressed signal.");
         levelKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         levelKnob.setLookAndFeel(&pedalLookAndFeel);
         
@@ -178,6 +184,9 @@ public:
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
     PedalLookAndFeel pedalLookAndFeel;
+    
+    juce::TooltipWindow tooltipWindow;
+    
     
     // Pedal Image
     std::unique_ptr<juce::Drawable> compSvg;

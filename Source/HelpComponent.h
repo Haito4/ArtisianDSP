@@ -7,6 +7,15 @@ class HelpComponent : public juce::Component
 public:
     HelpComponent()
     {
+        addAndMakeVisible(onlineHelpButton);
+        onlineHelpButton.setButtonText("Go to Online Help");
+        onlineHelpButton.onClick = [this](){
+            juce::URL url("https://haito4.github.io/docs/");
+            url.launchInDefaultBrowser();
+        };
+        
+        
+        
     }
 
     void paint(juce::Graphics& g) override
@@ -21,14 +30,20 @@ public:
     
     void resized() override
     {
+        onlineHelpButton.setBounds(563, 433, 120, 50);
+        
         if (isVisible())
         {
-            auto overlayWidth = getWidth() / 2;
-            auto overlayHeight = getHeight() / 2;
+            auto overlayWidth = getWidth() / 1.1;
+            auto overlayHeight = getHeight() / 1.1;
             helpOverlayBounds = juce::Rectangle<int>((getWidth() - overlayWidth) / 2, (getHeight() - overlayHeight) / 2, overlayWidth, overlayHeight);
         }
     }
     
 private:
     juce::Rectangle<int> helpOverlayBounds;
+    
+    juce::TextButton onlineHelpButton;
+    
+    
 };

@@ -75,7 +75,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("COMP_THRES", "Compressor Threshold", -100.0f, 6.0f, -20.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("COMP_ATTACK", "Compressor Attack", 1.0f, 100.0f, 50.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("COMP_RELEASE", "Compressor Release", 1.0f, 100.0f, 50.0f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("COMP_RATIO", "Compressor Ratio", 1.0f, 8.0f, 1.0f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("COMP_RATIO", "Compressor Ratio", 1.0f, 8.0f, 4.0f));
     params.add(std::make_unique<juce::AudioParameterFloat>("COMP_LEVEL", "Compressor Level", -20.f, 10.f, 0.f));
     
     // Tube Screamer

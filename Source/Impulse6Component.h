@@ -11,7 +11,7 @@ class Impulse6Component : public juce::Component,
                           public juce::Timer
 {
 public:
-    Impulse6Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor)
+    Impulse6Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor), tooltipWindow(this, 900)
     {
         audioProcessor.apvts.state.addListener(this);
         
@@ -32,10 +32,12 @@ public:
                                                       juce::ImageCache::getFromMemory(BinaryData::dored_png, BinaryData::dored_pngSize), 0.5f, juce::Colours::red);
         irToggleImage.setClickingTogglesState(true);
         irToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_IR", irToggleImage);
+        irToggleImage.setTooltip("Turns the Impulse Response Loader On/Off.");
         
         // Ir Selector (from binary data)
         addAndMakeVisible(binaryIrChooser);
         binaryIrChooser.addListener(this);
+        binaryIrChooser.setTooltip("Choose an Impulse Response to use.");
         
         // Available Binary IRs
         binaryIrChooser.addItem("ML Sound Lab - Best IR in The World", 1);
@@ -56,6 +58,7 @@ public:
         
         // Ir Selector (from file)
         addAndMakeVisible(loadBtn);
+        loadBtn.setTooltip("Choose an Impulse Response from a directory (.wav only).");
         loadBtn.setButtonText("Load IR");
         loadBtn.onClick = [this]()
         {
@@ -335,6 +338,7 @@ public:
     
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
+    juce::TooltipWindow tooltipWindow;
     
     AfxLookAndFeel afxLookAndFeel;
     
