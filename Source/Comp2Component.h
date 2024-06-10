@@ -47,7 +47,7 @@ public:
         thresholdKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         thresholdKnob.setLookAndFeel(&pedalLookAndFeel);
         
-        thresholdKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        thresholdKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 15);
         thresholdKnob.setRange(-100.0, 6.0);
         thresholdKnob.setValue(1.0);
         thresholdKnob.setTextValueSuffix(" dB");
@@ -61,7 +61,7 @@ public:
         attackKnob.setTooltip("Adjusts how quickly the compressor responds to incoming signals. Lower values result in faster response times.");
         attackKnob.setLookAndFeel(&pedalLookAndFeel);
         
-        attackKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        attackKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 15);
         attackKnob.setRange(1.0, 100.0);
         attackKnob.setValue(50.0);
         attackKnob.setTextValueSuffix(" ms");
@@ -75,7 +75,7 @@ public:
         releaseKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         releaseKnob.setLookAndFeel(&pedalLookAndFeel);
         
-        releaseKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        releaseKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 15);
         releaseKnob.setRange(1.0, 100.0);
         releaseKnob.setValue(50.0);
         releaseKnob.setTextValueSuffix(" ms");
@@ -89,7 +89,7 @@ public:
         ratioKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         ratioKnob.setLookAndFeel(&pedalLookAndFeel);
         
-        ratioKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        ratioKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 15);
         ratioKnob.setRange(1.0, 8.0);
         ratioKnob.setValue(4.0);
         ratioKnob.setTextValueSuffix(": 1");
@@ -103,7 +103,7 @@ public:
         levelKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
         levelKnob.setLookAndFeel(&pedalLookAndFeel);
         
-        levelKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        levelKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 15);
         levelKnob.setRange(-20.f, 10.f);
         levelKnob.setValue(0.f);
         levelKnob.setTextValueSuffix(" dB");

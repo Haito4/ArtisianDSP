@@ -74,14 +74,15 @@ public:
     float inputGainFloat{ 0.0f };
     
     float outputGainFloat{ 0.0f };
-    bool usingGate = false;
+    
     
     bool shouldUpdate = true;
     
     bool shouldLoadIr = false;
     
     
-    // Comp
+    // Using Effects
+    bool usingGate = false;
     bool usingComp = false;
    
     
