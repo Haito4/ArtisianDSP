@@ -23,13 +23,29 @@ public:
         impulseLabel.setText("Impulse Response", juce::dontSendNotification);
         addAndMakeVisible(impulseLabel);
         
+        // Bypass Indicator
+        if (audioProcessor.usingIR)
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOn_png, BinaryData::ledOn_pngSize));
+        }
+        else
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOff_png, BinaryData::ledOff_pngSize));
+        }
+        
+        addAndMakeVisible(bypassLed);
+        
+        
+        // Cabinet Image
+        cabImage.setImage(juce::Image(juce::ImageCache::getFromMemory(BinaryData::cabinet_png, BinaryData::cabinet_pngSize)));
+        addAndMakeVisible(cabImage);
         
         // Bypass Switch
         addAndMakeVisible(irToggleImage);
         irToggleImage.addListener(this);
-        irToggleImage.setImages(false, true, true, juce::ImageCache::getFromMemory(BinaryData::dogreen_png, BinaryData::dogreen_pngSize), 0.5f, juce::Colours::green,
-                                                      juce::ImageCache::getFromMemory(BinaryData::dohover_png, BinaryData::dohover_pngSize), 0.5f, juce::Colours::blue,
-                                                      juce::ImageCache::getFromMemory(BinaryData::dored_png, BinaryData::dored_pngSize), 0.5f, juce::Colours::red);
+        irToggleImage.setImages(false, true, true, juce::ImageCache::getFromMemory(BinaryData::dored_png, BinaryData::dored_pngSize), 0.5f, juce::Colours::grey,
+                                                      juce::ImageCache::getFromMemory(BinaryData::dohover_png, BinaryData::dohover_pngSize), 0.5f, juce::Colours::grey,
+                                                      juce::ImageCache::getFromMemory(BinaryData::dogreen_png, BinaryData::dogreen_pngSize), 0.5f, juce::Colours::green);
         irToggleImage.setClickingTogglesState(true);
         irToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_IR", irToggleImage);
         irToggleImage.setTooltip("Turns the Impulse Response Loader On/Off.");
@@ -59,7 +75,7 @@ public:
         // Ir Selector (from file)
         addAndMakeVisible(loadBtn);
         loadBtn.setTooltip("Choose an Impulse Response from a directory (.wav only).");
-        loadBtn.setButtonText("Load IR");
+        loadBtn.setButtonText("Load IR from file");
         loadBtn.onClick = [this]()
         {
             fileChooser = std::make_unique<juce::FileChooser>("Choose IR File",
@@ -215,10 +231,20 @@ public:
     
     virtual void resized() override
     {
-        impulseLabel.setBounds(290, 150, 140, 50);
+        impulseLabel.setBounds(270, 150, 180, 50);
         
-        loadBtn.setBounds(488, 244, 130, 45);
+        loadBtn.setBounds(460, 220, 130, 45);
         irName.setBounds(260, 320, 200, 50);
+        
+        cabImage.setBounds(159, 179, 388, 321);
+        
+        // Bypass Indicator
+        if (audioProcessor.usingIR)
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOn_png, BinaryData::ledOn_pngSize));
+        else
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOff_png, BinaryData::ledOff_pngSize));
+        bypassLed.setBounds(435, 156, 40, 40);
+        
         
         
         if (audioProcessor.shouldDoBinaryGUI)
@@ -244,7 +270,7 @@ public:
         
         fixButton.setBounds(310, 370, 100, 50);
         
-        binaryIrChooser.setBounds(100, 230, 200, 25);
+        binaryIrChooser.setBounds(100, 230, 240, 25);
         
     }
     
@@ -335,6 +361,22 @@ public:
     }
     
     
+    void buttonStateChanged(juce::Button* button) override
+    {
+        if (button == &irToggleImage)
+        {
+            if (irToggleImage.getToggleState())
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOn_png, BinaryData::ledOn_pngSize));
+            }
+            else
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::ledOff_png, BinaryData::ledOff_pngSize));
+            }
+        }
+    }
+    
+    
     
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
@@ -342,6 +384,10 @@ private:
     
     AfxLookAndFeel afxLookAndFeel;
     
+    
+    // Pedal Image
+    juce::ImageComponent cabImage;
+    juce::ImageComponent bypassLed;
     
     juce::ImageButton irToggleImage;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> irToggleAttachment;

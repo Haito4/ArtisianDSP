@@ -85,7 +85,7 @@ public:
     bool usingGate = false;
     bool usingComp = false;
     bool usingTS = false;
-    
+    bool usingIR = false;
     
     // Cabinet
     juce::dsp::Convolution speakerModule;
@@ -207,7 +207,6 @@ private:
     
     
     // Cabinet
-    bool usingIR = false;
     juce::dsp::Gain<float> speakerCompensate;
     
     bool switchEnator = false;

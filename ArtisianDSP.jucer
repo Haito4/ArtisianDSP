@@ -7,6 +7,7 @@
     <GROUP id="{064151A4-02E9-3190-055C-A5DF9304743C}" name="Assets">
       <GROUP id="{728C0B21-486A-00BA-55E2-8DA680312C97}" name="SVG">
         <FILE id="jdbORw" name="amplifier.svg" compile="0" resource="1" file="Assets/SVG/amplifier.svg"/>
+        <FILE id="OVbGYe" name="cabinet.png" compile="0" resource="1" file="Assets/SVG/cabinet.png"/>
         <FILE id="Kqiqja" name="compressor.svg" compile="0" resource="1" file="Assets/SVG/compressor.svg"/>
         <FILE id="ku8RIC" name="noisegate.svg" compile="0" resource="1" file="Assets/SVG/noisegate.svg"/>
         <FILE id="htQ0lB" name="tubescreamer.svg" compile="0" resource="1"
