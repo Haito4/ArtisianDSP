@@ -84,7 +84,7 @@ public:
     // Using Effects
     bool usingGate = false;
     bool usingComp = false;
-   
+    bool usingTS = false;
     
     
     // Cabinet
@@ -155,7 +155,6 @@ private:
     // Tube Screamer
     juce::dsp::IIR::Filter<float> highPassFilter;
     float tscutoffFrequency;
-    bool usingTS = false;
     float tsDrive;
     float tsLevel;
     

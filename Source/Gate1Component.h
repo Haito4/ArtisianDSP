@@ -104,7 +104,7 @@ public:
         bypassLed.setBounds(340, 360, 40, 40);
         
         // Bypass Button
-        gateToggleImage.setBounds(323, 399, 100, 100);
+        gateToggleImage.setBounds(324, 399, 100, 100);
         
         // Sliders
         thresholdSlider.setBounds(324, 203, 73, 90);

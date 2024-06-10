@@ -9,6 +9,8 @@
         <FILE id="jdbORw" name="amplifier.svg" compile="0" resource="1" file="Assets/SVG/amplifier.svg"/>
         <FILE id="Kqiqja" name="compressor.svg" compile="0" resource="1" file="Assets/SVG/compressor.svg"/>
         <FILE id="ku8RIC" name="noisegate.svg" compile="0" resource="1" file="Assets/SVG/noisegate.svg"/>
+        <FILE id="htQ0lB" name="tubescreamer.svg" compile="0" resource="1"
+              file="Assets/SVG/tubescreamer.svg"/>
       </GROUP>
       <GROUP id="{EED0913A-EF12-2453-8C65-C89545F50DF0}" name="IRs">
         <FILE id="M3reEs" name="Catch 33.wav" compile="0" resource="1" file="Assets/IRs/Catch 33.wav"/>

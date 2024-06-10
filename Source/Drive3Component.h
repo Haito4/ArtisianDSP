@@ -2,6 +2,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
+#include "Jb_knobs.h"
 
 class Drive3Component : public juce::Component,
                         public juce::Button::Listener,
@@ -10,6 +11,23 @@ class Drive3Component : public juce::Component,
 public:
     Drive3Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor), tooltipWindow(this, 900)
     {
+        // Overdrive Image
+        odSvg = juce::Drawable::createFromImageData(BinaryData::tubescreamer_svg, BinaryData::tubescreamer_svgSize);
+        addAndMakeVisible(odSvg.get());
+        
+        // Bypass Indicator
+        if (audioProcessor.usingTS)
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOn_png, BinaryData::redLedOn_pngSize));
+        }
+        else
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOff_png, BinaryData::redLedOff_pngSize));
+        }
+        
+        addAndMakeVisible(bypassLed);
+        
+        
         // Toggle Button
         addAndMakeVisible(driveToggleImage);
         driveToggleImage.addListener(this);
@@ -21,55 +39,48 @@ public:
         driveToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "USING_TS", driveToggleImage);
         driveToggleImage.setTooltip("Turns the overdrive On/Off.");
         
-        // Text
-        driveSceneLabel.setFont(20.f);
-        driveSceneLabel.setJustificationType(juce::Justification::centred);
-        driveSceneLabel.setText("Overdrive", juce::dontSendNotification);
-        addAndMakeVisible(driveSceneLabel);
         
-        // Knobs
+        // Drive
         addAndMakeVisible(driveKnob);
+        driveKnob.setLookAndFeel(&pedalLookAndFeel);
         driveKnob.setTooltip("Adjusts the amount of distortion applied to the signal. Higher values result in more aggressive distortion.");
         driveKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 15);
         driveKnob.setRange(0.1f, 200.f);
         driveKnob.setValue(0.5);
-        
-        driveLabel.setText ("Drive", juce::NotificationType::dontSendNotification);
-        driveLabel.attachToComponent (&driveKnob, false);
+        driveKnob.setColour(juce::Slider::textBoxTextColourId, juce::Colours::black);
         
         driveKnob.addListener(this);
         driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_DRIVE", driveKnob);
         
         
-        
-        
+        // Tone
         addAndMakeVisible(toneKnob);
+        toneKnob.setLookAndFeel(&pedalLookAndFeel);
         toneKnob.setTooltip("Alters the starting point of the low-cut filter. Higher values result in a tighter, brighter sound, while lower values result in warmer, muddier tone.");
         toneKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-        toneKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 15);
+        toneKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 15);
         toneKnob.setTextValueSuffix(" Hz");
         toneKnob.setRange(20.f, 700.f);
         toneKnob.setValue(20.f);
-        
-        toneLabel.setText ("Tone", juce::NotificationType::dontSendNotification);
-        toneLabel.attachToComponent (&toneKnob, false);
+        toneKnob.setColour(juce::Slider::textBoxTextColourId, juce::Colours::black);
         
         toneKnob.addListener(this);
         toneAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_TONE", toneKnob);
         
+        
+        // Level
         addAndMakeVisible(volumeKnob);
+        volumeKnob.setLookAndFeel(&pedalLookAndFeel);
         volumeKnob.setTooltip("Adjusts the overall output level of the affected signal.");
         volumeKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        volumeKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 15);
+        volumeKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 15);
         volumeKnob.setTextValueSuffix(" %");
         volumeKnob.setRange(0.f, 1.f);
         volumeKnob.setValue(1.f);
+        volumeKnob.setColour(juce::Slider::textBoxTextColourId, juce::Colours::black);
         
-        volumeLabel.setText ("Level", juce::NotificationType::dontSendNotification);
-        volumeLabel.attachToComponent (&volumeKnob, false);
-        
-        driveKnob.addListener(this);
+        volumeKnob.addListener(this);
         volumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TS_LEVEL", volumeKnob);
     }
     
@@ -77,20 +88,46 @@ public:
     
     virtual void resized() override
     {
-        driveSceneLabel.setBounds(290, 350, 140, 50);
+        // Pedal Image
+        juce::Rectangle<int> pedalBounds;
+        pedalBounds.setBounds(250, 115, odSvg->getWidth() * 1.85, odSvg->getHeight() * 1.85);
+        odSvg->setTransformToFit(pedalBounds.toFloat(), juce::RectanglePlacement::stretchToFit);
         
-        driveKnob.setBounds(400, 130, 100, 100);
-        toneKnob.setBounds(315, 230, 90, 90);
-        volumeKnob.setBounds(220, 130, 100, 100);
+        // Bypass Indicator
+        if (audioProcessor.usingTS)
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOn_png, BinaryData::redLedOn_pngSize));
+        else
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOff_png, BinaryData::redLedOff_pngSize));
+        bypassLed.setBounds(340, 185, 40, 40);
         
-        driveToggleImage.setBounds(326, 421, 100, 100);
+        // Bypass Button
+        driveToggleImage.setBounds(324, 381, 100, 100);
+        
+        // Sliders
+        volumeKnob.setBounds(257, 149, 85, 87);
+        driveKnob.setBounds(377, 149, 85, 87);
+        
+        toneKnob.setBounds(327, 229, 67, 76);
     }
     
     void buttonClicked(juce::Button* button) override
     {
-        
     }
     
+    void buttonStateChanged(juce::Button* button) override
+    {
+        if (button == &driveToggleImage)
+        {
+            if (driveToggleImage.getToggleState())
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOn_png, BinaryData::redLedOn_pngSize));
+            }
+            else
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOff_png, BinaryData::redLedOff_pngSize));
+            }
+        }
+    }
     
     void sliderValueChanged(juce::Slider* slider) override
     {
@@ -99,8 +136,15 @@ public:
 
 private:
     ArtisianDSPAudioProcessor& audioProcessor;
+    PedalLookAndFeel pedalLookAndFeel;
     
     juce::TooltipWindow tooltipWindow;
+    
+    // Pedal Image
+    std::unique_ptr<juce::Drawable> odSvg;
+    
+    // Bypass Led
+    juce::ImageComponent bypassLed;
     
     // Buttons, Sliders
     juce::ImageButton driveToggleImage;
@@ -113,11 +157,5 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment,
                                                                           toneAttachment,
                                                                           volumeAttachment;
-    juce::Label driveLabel,
-                toneLabel,
-                volumeLabel;
-    
-    // GUI
-    juce::Label driveSceneLabel;
 
 };

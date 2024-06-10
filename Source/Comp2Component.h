@@ -139,7 +139,7 @@ public:
         compSvg->setTransformToFit(pedalBounds.toFloat(), juce::RectanglePlacement::stretchToFit);
 
         
-        compToggleImage.setBounds(328, 374, 91, 91);
+        compToggleImage.setBounds(324, 374, 100, 100);
         
         attackKnob.setBounds(268, 144, 60, 75);
         
