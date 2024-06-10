@@ -15,9 +15,21 @@ public:
         ampLabel.setText("Amplifier", juce::dontSendNotification);
         addAndMakeVisible(ampLabel);
         
+        
         // Amp Image
         ampSvg = juce::Drawable::createFromImageData(BinaryData::amplifier_svg, BinaryData::amplifier_svgSize);
         addAndMakeVisible(ampSvg.get());
+        
+        // Bypass Indicator
+        if (audioProcessor.usingAmp)
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOn_png, BinaryData::redLedOn_pngSize));
+        }
+        else
+        {
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOff_png, BinaryData::redLedOff_pngSize));
+        }
+        addAndMakeVisible(bypassLed);
         
         // Bypass
         addAndMakeVisible(ampToggleImage);
@@ -38,7 +50,7 @@ public:
         inputGainKnob.setLookAndFeel(&afxLookAndFeel);
         
         inputGainKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        inputGainKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
+        inputGainKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
         inputGainKnob.setTextValueSuffix(" dB");
         inputGainKnob.setRange(0.f, 40.f);
         inputGainKnob.setValue(0.f);
@@ -48,24 +60,6 @@ public:
         addAndMakeVisible(inputGainLabel);
         inputGainLabel.setText ("Input Gain", juce::dontSendNotification);
         inputGainLabel.attachToComponent(&inputGainKnob, false);
-        
-        
-        // Preamp
-        addAndMakeVisible(driveKnob);
-//        driveKnob.setTooltip();
-        driveKnob.setLookAndFeel(&afxLookAndFeel);
-        
-        driveKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        driveKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
-        driveKnob.setTextValueSuffix(" %");
-        driveKnob.setRange(0.f, 1.f);
-        driveKnob.setValue(0.f);
-        driveKnob.addListener(this);
-        driveAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_DRIVE", driveKnob);
-        
-        addAndMakeVisible(driveLabel);
-        driveLabel.setText ("Drive", juce::dontSendNotification);
-        driveLabel.attachToComponent(&driveKnob, false);
         
         
         // Tight
@@ -78,31 +72,13 @@ public:
         tightToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "AMP_TIGHT", tightToggleImage);
         
         
-        // Resonance
-        addAndMakeVisible(resonanceKnob);
-        resonanceKnob.setLookAndFeel(&afxLookAndFeel);
-        
-        resonanceKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        resonanceKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
-        resonanceKnob.setTextValueSuffix(" %");
-        resonanceKnob.setRange(1.f, 10.f);
-        resonanceKnob.setValue(5.f);
-        resonanceKnob.addListener(this);
-        resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "AMP_RESONANCE", resonanceKnob);
-        
-        addAndMakeVisible(resonanceLabel);
-        resonanceLabel.setText ("Resonance", juce::dontSendNotification);
-        resonanceLabel.attachToComponent(&resonanceKnob, false);
-        
-        
         // Presence
         addAndMakeVisible(presenceKnob);
         presenceKnob.setTooltip("Adjusts the high-end clarity and sparkle. Increase for a sharper sound, decrease for a smoother one.");
         presenceKnob.setLookAndFeel(&afxLookAndFeel);
         
         presenceKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        presenceKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
-        presenceKnob.setTextValueSuffix(" %");
+        presenceKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
         presenceKnob.setRange(0.5f, 1.5f);
         presenceKnob.setValue(1.f);
         presenceKnob.addListener(this);
@@ -122,7 +98,7 @@ public:
         bassKnob.setLookAndFeel(&afxLookAndFeel);
         
         bassKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        bassKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
+        bassKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
         bassKnob.setTextValueSuffix("");
         bassKnob.setRange(0.f, 2.f);
         bassKnob.setValue(0.f);
@@ -140,7 +116,7 @@ public:
         midsKnob.setLookAndFeel(&afxLookAndFeel);
         
         midsKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        midsKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
+        midsKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
         midsKnob.setTextValueSuffix("");
         midsKnob.setRange(0.f, 2.f);
         midsKnob.setValue(1.f);
@@ -157,7 +133,7 @@ public:
         trebleKnob.setLookAndFeel(&afxLookAndFeel);
         
         trebleKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        trebleKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
+        trebleKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
         trebleKnob.setTextValueSuffix("");
         trebleKnob.setRange(0.f, 2.f);
         trebleKnob.setValue(0.f);
@@ -174,8 +150,7 @@ public:
         masterKnob.setLookAndFeel(&afxLookAndFeel);
         
         masterKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        masterKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
-        masterKnob.setTextValueSuffix(" %");
+        masterKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
         masterKnob.setRange(0.f, 2.f);
         masterKnob.setValue(1.f);
         masterKnob.addListener(this);
@@ -192,7 +167,7 @@ public:
         outputGainKnob.setLookAndFeel(&afxLookAndFeel);
         
         outputGainKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        outputGainKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
+        outputGainKnob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
         outputGainKnob.setTextValueSuffix(" dB");
         outputGainKnob.setRange(-10.f, 10.f);
         outputGainKnob.setValue(0.f);
@@ -211,7 +186,12 @@ public:
     {
         ampSvg->setBounds(5, 245, 710, 260);
         
-        
+        // Bypass Indicator
+        if (audioProcessor.usingAmp)
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOn_png, BinaryData::redLedOn_pngSize));
+        else
+            bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOff_png, BinaryData::redLedOff_pngSize));
+        bypassLed.setBounds(24, 426, 40, 40);
         
         ampLabel.setBounds(290, 102, 190, 50);
         
@@ -220,12 +200,6 @@ public:
         
         
         inputGainKnob.setBounds(55, 420, 80, 80);
-        
-//        driveKnob.setBounds(102, 280, 100, 100);
-        
-        
-//        resonanceKnob.setBounds(206, 180, 80, 80);
-        
         
         
         bassKnob.setBounds(155, 420, 80, 80);
@@ -241,8 +215,23 @@ public:
     
     void buttonClicked(juce::Button* button) override
     {
-    
     }
+    
+    void buttonStateChanged(juce::Button* button) override
+    {
+        if (button == &ampToggleImage)
+        {
+            if (ampToggleImage.getToggleState())
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOn_png, BinaryData::redLedOn_pngSize));
+            }
+            else
+            {
+                bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOff_png, BinaryData::redLedOff_pngSize));
+            }
+        }
+    }
+    
     
     void sliderValueChanged(juce::Slider* slider) override
     {
@@ -259,6 +248,8 @@ private:
 //    juce::Image ampSVG = BinaryData::amplifier_svg;
     std::unique_ptr<juce::Drawable> ampSvg;
     
+    // Bypass Led
+    juce::ImageComponent bypassLed;
     
     
     
@@ -276,17 +267,10 @@ private:
     juce::Slider inputGainKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainAttachment;
     
-    juce::Slider driveKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
-    
     //-------
     
     juce::Slider presenceKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> presenceAttachment;
-    
-    juce::Slider resonanceKnob;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> resonanceAttachment;
-    
     
     juce::Slider bassKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bassAttachment;
@@ -307,7 +291,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainAttachment;
     
     
-    juce::Label inputGainLabel, driveLabel, resonanceLabel, presenceLabel, bassLabel, midsLabel, trebleLabel, masterLabel, outputGainLabel;
+    juce::Label inputGainLabel, presenceLabel, bassLabel, midsLabel, trebleLabel, masterLabel, outputGainLabel;
     
     
     juce::Label ampLabel;

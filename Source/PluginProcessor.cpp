@@ -91,10 +91,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     
     
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_PRESENCE", "Amplifier Presence", 0.5f, 1.5f, 1.0f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_RESONANCE", "Amplifier Resonance", 1.f, 10.f, 5.f));
     
-    
-    params.add(std::make_unique<juce::AudioParameterFloat>("AMP_DRIVE", "Amplifier Drive", 0.f, 1.f, 0.5f));
     
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_BASS", "Amp Lows", 0.f, 2.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("AMP_MIDS", "Amp Middle", 0.f, 2.f, 1.f));
@@ -109,7 +106,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout ArtisianDSPAudioProcessor::c
     params.add(std::make_unique<juce::AudioParameterFloat>("VERB_DAMPING", "Reverb Damping", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("VERB_WIDTH", "Reverb Width", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
     params.add(std::make_unique<juce::AudioParameterFloat>("VERB_DRYWET", "Reverb Dry/Wet", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f, 1.0f), 0.5f));
-
     
     // Impulse Response
     params.add(std::make_unique<juce::AudioParameterBool>("USING_IR", "Using Impulse Response", false));
@@ -243,11 +239,6 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     
     tight.prepare(spec);
     
-    resonanceFilter.prepare(spec);
-//    resonanceFilter.setMode(juce::dsp::LadderFilterMode::LPF12);
-//    resonanceFilter.setResonance(0.2f);
-//    resonanceFilter.setDrive(1.0f);
-//
     presenceFilter.prepare(spec);
     
     bass = juce::jlimit(0.01f, 2.0f, bass);
@@ -404,15 +395,9 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         ampInputGain.setGainDecibels(*apvts.getRawParameterValue("AMP_INPUTGAIN"));
         ampOutputGain.setGainDecibels(*apvts.getRawParameterValue("AMP_OUTPUTGAIN"));
         
-        ampOD = static_cast<float>(*apvts.getRawParameterValue("AMP_DRIVE"));
-//        ampOD = juce::jlimit(0.001f, 1.0f, ampOD);
-        
         
         tight = juce::dsp::IIR::Coefficients<float>::makeLowShelf(getSampleRate(), 400.0f, 0.4f, 0.4f);
         tightEnabled = static_cast<bool>(*apvts.getRawParameterValue("AMP_TIGHT"));
-        
-        
-        resonanceFilter.setCutoffFrequencyHz(*apvts.getRawParameterValue("AMP_RESONANCE") * 1000.0f);
         
         
         presenceEQ = *apvts.getRawParameterValue("AMP_PRESENCE");
@@ -584,9 +569,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         // Amplifier
         if (usingAmp)
         {
-            // Resonance
-//            channelData[sample] = resonanceFilter.processSample(channelData[sample], 0);
-            
             channelData[sample] = tight.processSample(channelData[sample]);
             
             

@@ -85,6 +85,7 @@ public:
     bool usingGate = false;
     bool usingComp = false;
     bool usingTS = false;
+    bool usingAmp = false;
     bool usingIR = false;
     
     // Cabinet
@@ -159,7 +160,7 @@ private:
     float tsLevel;
     
     // Amp
-    bool usingAmp = false;
+    
     
     juce::dsp::Gain<float> ampInputGain;
     juce::dsp::WaveShaper<float> waveshaper;
