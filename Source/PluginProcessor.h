@@ -87,6 +87,7 @@ public:
     bool usingTS = false;
     bool usingAmp = false;
     bool usingIR = false;
+    bool usingVerb;
     
     // Cabinet
     juce::dsp::Convolution speakerModule;
@@ -201,7 +202,7 @@ private:
    juce::dsp::Reverb verbL, verbR;
    juce::dsp::Reverb::Parameters verbParams;
    
-   bool usingVerb;
+   
    float roomsize;
    float damping;
    float width;

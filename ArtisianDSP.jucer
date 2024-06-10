@@ -10,6 +10,7 @@
         <FILE id="OVbGYe" name="cabinet.png" compile="0" resource="1" file="Assets/SVG/cabinet.png"/>
         <FILE id="Kqiqja" name="compressor.svg" compile="0" resource="1" file="Assets/SVG/compressor.svg"/>
         <FILE id="ku8RIC" name="noisegate.svg" compile="0" resource="1" file="Assets/SVG/noisegate.svg"/>
+        <FILE id="dZb2aB" name="reverb.svg" compile="0" resource="1" file="Assets/SVG/reverb.svg"/>
         <FILE id="htQ0lB" name="tubescreamer.svg" compile="0" resource="1"
               file="Assets/SVG/tubescreamer.svg"/>
       </GROUP>
