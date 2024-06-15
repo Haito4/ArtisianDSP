@@ -37,7 +37,7 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
         }
     };
     
-    
+
     
     apvts.state.setProperty(Service::PresetManager::presetNameProperty, "", nullptr);
     apvts.state.setProperty("version", ProjectInfo::versionString, nullptr);
@@ -452,14 +452,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             rmsLevelLeft.setCurrentAndTargetValue(value); // otherwise immediately jump to higher value
         
     }
-    // RMS Right Channel
-    {
-        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
-        if (value < rmsLevelRight.getCurrentValue())
-            rmsLevelRight.setTargetValue(value);
-        else
-            rmsLevelRight.setCurrentAndTargetValue(value);
-    }
     //==============================================================================
 
     // Clears any output channels that didn't contain input data
@@ -579,6 +571,15 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
     //-----------------------------------------------------------------
     
+
+    // RMS Output Channel
+    {
+        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
+        if (value < rmsLevelRight.getCurrentValue())
+            rmsLevelRight.setTargetValue(value);
+        else
+            rmsLevelRight.setCurrentAndTargetValue(value);
+    }
 }
 
 

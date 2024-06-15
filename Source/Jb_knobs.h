@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-//#define M_PI        3.14159265358979323846f
+#define M_PI        3.14159265358979323846f
 #define jcolor  juce::Colours::white
 
 
@@ -86,6 +86,13 @@ public:
         g.setColour(jcolor);
         g.strokePath(p3 , juce::PathStrokeType(1.0));
     }
+
+
+//private:
+//    juce::Typeface::Ptr findTypefaceFor(const juce::Font& font)
+//    {
+//        return juce::Typeface::createSystemTypefaceFor("Calibri");
+//    }
 };
 
 class PedalLookAndFeel : public juce::LookAndFeel_V4
@@ -94,6 +101,7 @@ public:
     PedalLookAndFeel()
     {
         setColour (juce::Slider::thumbColourId, juce::Colours::red);
+
     }
     
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
@@ -127,4 +135,10 @@ public:
         g.fillPath (p);
 
     }
+
+//private:
+//    juce::Typeface::Ptr findTypefaceFor(const juce::Font& font)
+//    {
+//        return juce::Typeface::createSystemTypefaceFor("Calibri");
+//    }
 };

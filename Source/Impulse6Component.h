@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Jb_knobs.h"
+//#include "Jb_knobs.h"
 
 class Impulse6Component : public juce::Component,
                           public juce::Button::Listener,
@@ -382,7 +382,7 @@ private:
     ArtisianDSPAudioProcessor& audioProcessor;
     juce::TooltipWindow tooltipWindow;
     
-    AfxLookAndFeel afxLookAndFeel;
+    //AfxLookAndFeel afxLookAndFeel;
     
     
     // Pedal Image
