@@ -155,6 +155,4 @@ private:
     juce::TextButton onlineHelpButton;
     juce::TextButton viewCodeButton;
     
-    
-    
 };

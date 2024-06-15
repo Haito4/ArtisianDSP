@@ -81,7 +81,7 @@ public:
     bool shouldLoadIr = false;
     
     
-    // Using Effects
+    // Using Effects?
     bool usingGate = false;
     bool usingComp = false;
     bool usingTS = false;
@@ -100,8 +100,6 @@ public:
     bool irFound;
     bool validIrLoaded = false;
     juce::String presetName;
-    
-    
     
     void loadBinaryIr(int impulseId);
     
@@ -131,20 +129,7 @@ private:
     //==============================================================================
     
     // Noise Gate
-    float thresholdValue = -20;
-    float attackTime = 50 * 0.001;
-    float releaseTime = 50 * 0.001;
-    
-    double attackRate = 0.0;
-    double releaseRate = 0.0;
-    double averagingBufferDuration = 0.015;
-    double averagedValue;
-    
-    int currentBufferIndex = 0;
-    double gateMultiplier = 0;
-    double openTime = 0.0;
-    bool isOpen = false;
-    std::vector<float> averagingBuffer;
+    juce::dsp::NoiseGate<float> noiseGate;
     
     // Compressor
     juce::dsp::Compressor<float> comPressor;
@@ -161,56 +146,44 @@ private:
     float tsLevel;
     
     // Amp
-    
-    
     juce::dsp::Gain<float> ampInputGain;
     juce::dsp::WaveShaper<float> waveshaper;
     
     juce::dsp::IIR::Filter<float> tight;
     float tightEnabled;
     
-    
     juce::dsp::LadderFilter<float> resonanceFilter;
     
     float presenceEQ;
     juce::dsp::IIR::Filter<float> presenceFilter;
     
-    
-    
     float ampOD;
     float ampGain;
     float masterVol = 1;
     
-    
-    
     float treble = 1;
     float mids = 1;
     float bass = 1;
-    
-
-    
+        
     juce::dsp::IIR::Filter<float> lowPeak;
     juce::dsp::IIR::Filter<float> midPeak;
     juce::dsp::IIR::Filter<float> highPeak;
     
-    
     juce::dsp::Gain<float> ampOutputGain;
     
     
-    
     // Reverb
-   juce::dsp::Reverb verbL, verbR;
-   juce::dsp::Reverb::Parameters verbParams;
-   
-   
-   float roomsize;
-   float damping;
-   float width;
+    juce::dsp::Reverb verbL, verbR;
+    juce::dsp::Reverb::Parameters verbParams;
+    
+    
+    float roomsize;
+    float damping;
+    float width;
     
     
     // Cabinet
     juce::dsp::Gain<float> speakerCompensate;
-    
     bool switchEnator = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArtisianDSPAudioProcessor)

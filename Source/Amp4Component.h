@@ -89,9 +89,6 @@ public:
         presenceLabel.attachToComponent(&presenceKnob, false);
         
         
-        
-        
-        
         // Bass
         addAndMakeVisible(bassKnob);
         bassKnob.setTooltip("Controls the low-frequency response. Increase to add thickness, decrease for a tighter sound.");
@@ -196,8 +193,6 @@ public:
         ampLabel.setBounds(290, 102, 190, 50);
         
         ampToggleImage.setBounds(645, 418, 50, 61);
-//        tightToggleImage.setBounds(640, 250, 50, 50);
-        
         
         inputGainKnob.setBounds(55, 420, 80, 80);
         
@@ -244,8 +239,6 @@ private:
     
     juce::TooltipWindow tooltipWindow;
     
-    
-//    juce::Image ampSVG = BinaryData::amplifier_svg;
     std::unique_ptr<juce::Drawable> ampSvg;
     
     // Bypass Led
@@ -262,12 +255,12 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> tightToggleAttachment;
     
     
-    //-------
+    //----------------------------------
     
     juce::Slider inputGainKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainAttachment;
     
-    //-------
+    //----------------------------------
     
     juce::Slider presenceKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> presenceAttachment;
@@ -282,7 +275,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trebleAttachment;
     
     
-    //-------
+    //----------------------------------
     
     juce::Slider masterKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterAttachment;

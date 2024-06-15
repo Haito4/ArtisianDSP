@@ -113,7 +113,6 @@ void RasterComponent::paint (juce::Graphics& g)
 
 void RasterComponent::resized()
 {
-    auto bounds = getLocalBounds();
     
     sliderThreshold.setBounds(100, 100, 20, 20);
     
@@ -131,8 +130,6 @@ void RasterComponent::resized()
     inputGainLabel.setBounds(40, 159, 100, 25);
     outputGainLabel.setBounds(575, 159, 100, 25);
     
-    
-//    presetSelector.setBounds(280, 80, 160, 25);
     presetPanel.setBounds(156, 72, 415, 41);
     
     helpButton.setBounds(0, 510, 30, 30);

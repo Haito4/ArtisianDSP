@@ -12,7 +12,6 @@
 #include "PluginProcessor.h"
 #include "MultiSceneComponent.h"
 #include "VerticalMeter.h"
-#include "melatonin_inspector/melatonin_inspector.h"
 #include "PresetPanel.h"
 #include "HelpComponent.h"
 
@@ -66,10 +65,6 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachmentThreshold;
     
     gui::VerticalMeter verticalOutputMeterL, verticalOutputMeterR;
-    
-    
-    melatonin::Inspector inspector { *this , false };
-    
     
     juce::TextButton helpButton {"?"};
     std::unique_ptr<HelpComponent> helpComponent = std::make_unique<HelpComponent>();

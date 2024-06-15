@@ -42,16 +42,6 @@ ArtisianDSPAudioProcessor::ArtisianDSPAudioProcessor()
     apvts.state.setProperty(Service::PresetManager::presetNameProperty, "", nullptr);
     apvts.state.setProperty("version", ProjectInfo::versionString, nullptr);
     presetManager = std::make_unique<Service::PresetManager>(apvts, *this);
-    
-//    apvts.state.setProperty("IRPath", "", nullptr);
-//    apvts.state.setProperty("IRName", "", nullptr);
-    
-    
-    isOpen = true;
-    
-    double sampleRate = getSampleRate();
-    int bufferSize = static_cast<int>(0.015 * sampleRate);
-    averagingBuffer.resize(bufferSize, 0.0f);
 
 }
 
@@ -184,13 +174,6 @@ void ArtisianDSPAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Noise Gate
-    int bufferSize = static_cast<int>(0.015 * sampleRate);
-    averagingBuffer.resize(bufferSize, 0.0f);
-    attackRate = 1 / (sampleRate * attackTime);
-    releaseRate = 1 / (sampleRate * releaseTime);
-
-
     // RMS
     rmsLevelLeft.reset(sampleRate, 0.5);
     rmsLevelRight.reset(sampleRate, 0.5);
@@ -203,6 +186,15 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 2;
+    
+    //-----------------------------------------------------------------
+    
+    // Noise Gate
+    noiseGate.prepare(spec);
+    noiseGate.setRatio(4.f);
+    noiseGate.setAttack(50);
+    noiseGate.setRelease(50);
+    noiseGate.setThreshold(-20.f);
     
     //-----------------------------------------------------------------
     
@@ -232,7 +224,7 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
         x = x * 0.25f;
         a = std::abs (x);
         x2 = x * x;
-        y = 1 - 1 / (1 + a + x2 + 0.66422417311781f * x2 * a + 0.36483285408241f * x2 * x2);
+        y = 1 - 1 / (1 + a + x2 + 0.66422416312785f * x2 * a + 0.36483285418262f * x2 * x2);
         return (x >= 0) ? y : -y;
     };
     
@@ -262,26 +254,6 @@ void ArtisianDSPAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     
     // Impulse Response
     speakerModule.prepare(spec);
-    
-//    speakerModule.loadImpulseResponse(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
-//                                      BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize,
-//                                      juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
-//    bestIrInTheWorld.append(BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wav,
-//                            BinaryData::ML_Sound_Labs_BEST_IR_IN_THE_WORLD_wavSize);
-//    catch33;
-//    chaosphere;
-//    cCollapse;
-//    destroyEraseImprove;
-//    eyeIr;
-//    immutable;
-//    koloss;
-//    nothing;
-//    nothingRR;
-//    obZen;
-//    pitchBlack;
-//    tVSoR;
-    
-    
     
     speakerCompensate.prepare(spec);
     speakerCompensate.setRampDurationSeconds(0.02);
@@ -368,11 +340,12 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     {
         // Noise Gate
         usingGate = static_cast<bool>(*apvts.getRawParameterValue("USING_GATE"));
-        thresholdValue = juce::Decibels::decibelsToGain(static_cast<float>(*apvts.getRawParameterValue("THRESHOLD")));
-        attackTime = static_cast<float>(*apvts.getRawParameterValue("ATTACK")) * 0.001; // Convert value to seconds
-        releaseTime = static_cast<float>(*apvts.getRawParameterValue("RELEASE")) * 0.001;
-        attackRate = 1 / (getSampleRate() * attackTime);
-        releaseRate = 1 / (getSampleRate() * releaseTime);
+        
+        noiseGate.setThreshold(static_cast<float>(*apvts.getRawParameterValue("THRESHOLD")));
+        noiseGate.setAttack(static_cast<float>(*apvts.getRawParameterValue("ATTACK")));
+        noiseGate.setRelease(static_cast<float>(*apvts.getRawParameterValue("RELEASE")));
+        
+        //-----------------------------------------------------------------
         
         // Compressor
         usingComp = static_cast<bool>(*apvts.getRawParameterValue("USING_COMP"));
@@ -382,6 +355,8 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         comPressor.setRatio(static_cast<float>(*apvts.getRawParameterValue("COMP_RATIO")));
         compressorLevel.setGainDecibels(*apvts.getRawParameterValue("COMP_LEVEL"));
         
+        //-----------------------------------------------------------------
+        
         // Overdrive
         usingTS = static_cast<bool>(*apvts.getRawParameterValue("USING_TS"));
         tscutoffFrequency = static_cast<float>(*apvts.getRawParameterValue("TS_TONE"));
@@ -389,16 +364,16 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         tsDrive = static_cast<float>(*apvts.getRawParameterValue("TS_DRIVE"));
         tsLevel = static_cast<float>(*apvts.getRawParameterValue("TS_LEVEL"));
         
+        //-----------------------------------------------------------------
+        
         // Amp
         usingAmp = static_cast<bool>(*apvts.getRawParameterValue("USING_AMP"));
         
         ampInputGain.setGainDecibels(*apvts.getRawParameterValue("AMP_INPUTGAIN"));
         ampOutputGain.setGainDecibels(*apvts.getRawParameterValue("AMP_OUTPUTGAIN"));
         
-        
         tight = juce::dsp::IIR::Coefficients<float>::makeLowShelf(getSampleRate(), 400.0f, 0.4f, 0.4f);
         tightEnabled = static_cast<bool>(*apvts.getRawParameterValue("AMP_TIGHT"));
-        
         
         presenceEQ = *apvts.getRawParameterValue("AMP_PRESENCE");
         float centerFrequency = 3000.0f + presenceEQ * 500.0f;
@@ -406,7 +381,6 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         centerFrequency = juce::jlimit (1000.0f, 6000.0f, centerFrequency);
         qFactor = juce::jlimit (0.1f, 1.0f, qFactor);
         presenceFilter = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), centerFrequency, qFactor, presenceEQ);
-        
 
         bass = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_BASS")->load());
         mids = juce::jlimit(0.01f, 2.0f, apvts.getRawParameterValue("AMP_MIDS")->load());
@@ -418,24 +392,26 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         
         masterVol = static_cast<float>(*apvts.getRawParameterValue("AMP_MASTER"));
         
+        //-----------------------------------------------------------------
+        
         // IR
         usingIR = static_cast<bool>(*apvts.getRawParameterValue("USING_IR"));
         
+        //-----------------------------------------------------------------
 
         // Reverb
         usingVerb = static_cast<bool>(*apvts.getRawParameterValue("USING_VERB"));
         
-        
-        verbParams.roomSize = *apvts.getRawParameterValue ("VERB_SIZE");
-        verbParams.damping = *apvts.getRawParameterValue ("VERB_DAMPING");
-        verbParams.width = *apvts.getRawParameterValue ("VERB_WIDTH");
-        verbParams.wetLevel = *apvts.getRawParameterValue ("VERB_DRYWET");
-        verbParams.dryLevel = 1.0f - *apvts.getRawParameterValue ("VERB_DRYWET");
-
+        verbParams.roomSize = *apvts.getRawParameterValue("VERB_SIZE");
+        verbParams.damping = *apvts.getRawParameterValue("VERB_DAMPING");
+        verbParams.width = *apvts.getRawParameterValue("VERB_WIDTH");
+        verbParams.wetLevel = *apvts.getRawParameterValue("VERB_DRYWET");
+        verbParams.dryLevel = 1.0f - *apvts.getRawParameterValue("VERB_DRYWET");
 
         verbL.setParameters(verbParams);
         verbR.setParameters(verbParams);
 
+        //-----------------------------------------------------------------
         
         shouldUpdate = false;
     }
@@ -494,49 +470,20 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     auto* channelData = buffer.getWritePointer(0);
     for (int sample = 0; sample < buffer.getNumSamples(); sample++)
     {
+        //-----------------------------------------------------------------
+        
         // Input Gain
         channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(inputGainFloat);
 
+        //-----------------------------------------------------------------
         
         // Noise Gate
         if (usingGate)
         {
-            auto current = channelData[sample];
-            // Adds the squared value of the current sample to the averaging buffer at the current index
-            averagingBuffer[currentBufferIndex] = current * current;
-            // increment current index while staying within buffer size
-            currentBufferIndex = (currentBufferIndex + 1) % averagingBuffer.size();
-            
-            // Average of the squared values from the averaging buffer for use when comparing to threshold
-            float sumSquaredValues = std::accumulate(averagingBuffer.begin(), averagingBuffer.end(), 0.0f);
-            float averagedValue = sumSquaredValues / static_cast<float>(averagingBuffer.size());
-            
-            if (isOpen == true) // If Gate Open
-            {
-                // Increment by reciprocal of sample rate to track time open
-                openTime += 1 / getSampleRate();
-                gateMultiplier += attackRate;
-                gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier); // clamp value within range of 0 and 1
-                if ((averagedValue < thresholdValue)) // && (openTime > holdTime)
-                {
-                    isOpen = false; // Close the Gate
-                    openTime = 0.0;
-                }
-            }
-            else // If Gate Closed
-            {
-                openTime += 1/ getSampleRate();
-                gateMultiplier -= releaseRate;
-                gateMultiplier = juce::jlimit(0.0, 1.0, gateMultiplier);
-                if ((averagedValue > thresholdValue))
-                {
-                    isOpen = true; // Open the Gate
-                    openTime = 0.0;
-                }
-            }
-            channelData[sample] *= gateMultiplier; // apply the changes
+            channelData[sample] = noiseGate.processSample(0, channelData[sample]);
         }
         
+        //-----------------------------------------------------------------
         
         // Compressor
         if (usingComp)
@@ -545,6 +492,7 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             channelData[sample] = compressorLevel.processSample(channelData[sample]);
         }
         
+        //-----------------------------------------------------------------
         
         // Overdrive
         if (usingTS)
@@ -565,23 +513,16 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             channelData[sample] *= tsLevel;
         }
         
+        //-----------------------------------------------------------------
         
         // Amplifier
         if (usingAmp)
         {
             channelData[sample] = tight.processSample(channelData[sample]);
             
-            
             // Preamp
             channelData[sample] = ampInputGain.processSample(channelData[sample]);
             channelData[sample] = waveshaper.processSample(channelData[sample]);
-//            float output = (3 + (ampOD * 250)) * channelData[sample] / (std::abs(channelData[sample] * (ampOD * 250)) + 1); // soft clipping
-//            channelData[sample] = juce::jlimit(-1.0f, 1.0f, output);
-            
-
-            if (tightEnabled)
-            {
-            }
             
             // Prescence
             channelData[sample] = presenceFilter.processSample(channelData[sample]);
@@ -592,25 +533,26 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             channelData[sample] = midPeak.processSample(channelData[sample]);
             channelData[sample] = highPeak.processSample(channelData[sample]);
             
-            
+            // Post Gain
             channelData[sample] = ampOutputGain.processSample(channelData[sample]);
-            
             channelData[sample] = channelData[sample] * masterVol;
             
+            // Limit Signal
             channelData[sample] = juce::jlimit(0.0f, 0.35f * masterVol, channelData[sample]);
         }
         
-        
-        
+        //-----------------------------------------------------------------
         
         // Output Gain
         channelData[sample] = channelData[sample] * juce::Decibels::decibelsToGain(outputGainFloat);
         
+        //-----------------------------------------------------------------
         
         auto* rightChannelData = buffer.getWritePointer(1);
         rightChannelData[sample] = channelData[sample]; // copy audio data to right side channel
     }
     
+    //-----------------------------------------------------------------
     
     // Reverb
     if (usingVerb)
@@ -626,14 +568,17 @@ void ArtisianDSPAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         verbR.process(rightContext);
     }
     
+    //-----------------------------------------------------------------
     
+    // Impulse Response
     if (usingIR) {
         juce::dsp::AudioBlock<float> block {buffer};
         speakerModule.process(juce::dsp::ProcessContextReplacing<float>(block));
         speakerCompensate.process(juce::dsp::ProcessContextReplacing<float>(block)); // boost by 6dB
     }
 
-
+    //-----------------------------------------------------------------
+    
 }
 
 

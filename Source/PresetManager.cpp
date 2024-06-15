@@ -190,10 +190,6 @@ namespace Service
                 DBG("BinaryIR atm: false");
         }
         
-        
-        
-        
-        
         currentPreset.setValue(presetName);
     }
 
