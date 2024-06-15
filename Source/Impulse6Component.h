@@ -57,17 +57,17 @@ public:
         
         // Available Binary IRs
         binaryIrChooser.addItem("ML Sound Lab - Best IR in The World", 1);
-        binaryIrChooser.addItem("Contradictions Collapse", 2);
+        binaryIrChooser.addItem("Orange 4x12 sm57 Edge", 2);
         binaryIrChooser.addItem("Destroy Erase Improve", 3);
         binaryIrChooser.addItem("Chaosphere", 4);
-        binaryIrChooser.addItem("Nothing", 5);
+        binaryIrChooser.addItem("Periphery 1", 5);
         binaryIrChooser.addItem("Nothing (Rerelease)", 6);
-        binaryIrChooser.addItem("I", 7);
-        binaryIrChooser.addItem("Catch 33", 8);
+        binaryIrChooser.addItem("God's Cab", 7);
+        binaryIrChooser.addItem("Mesa 4x12 sm57 V30s", 8);
         binaryIrChooser.addItem("obZen", 9);
         binaryIrChooser.addItem("Koloss", 10);
-        binaryIrChooser.addItem("Pitch Black", 11);
-        binaryIrChooser.addItem("The Violent Sleep of Reason", 12);
+        binaryIrChooser.addItem("Friedman", 11);
+        binaryIrChooser.addItem("Done", 12);
         binaryIrChooser.addItem("Immutable", 13);
         
         

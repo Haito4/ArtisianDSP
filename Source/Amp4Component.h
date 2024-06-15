@@ -10,10 +10,6 @@ class Amp4Component : public juce::Component,
 public:
     Amp4Component(ArtisianDSPAudioProcessor& processor) : audioProcessor(processor), tooltipWindow(this, 900)
     {
-        ampLabel.setFont(20.f);
-        ampLabel.setJustificationType(juce::Justification::centred);
-        ampLabel.setText("Amplifier", juce::dontSendNotification);
-        addAndMakeVisible(ampLabel);
         
         
         // Amp Image
@@ -190,8 +186,6 @@ public:
             bypassLed.setImage(juce::ImageCache::getFromMemory(BinaryData::redLedOff_png, BinaryData::redLedOff_pngSize));
         bypassLed.setBounds(24, 426, 40, 40);
         
-        ampLabel.setBounds(290, 102, 190, 50);
-        
         ampToggleImage.setBounds(645, 418, 50, 61);
         
         inputGainKnob.setBounds(55, 420, 80, 80);
@@ -285,7 +279,5 @@ private:
     
     
     juce::Label inputGainLabel, presenceLabel, bassLabel, midsLabel, trebleLabel, masterLabel, outputGainLabel;
-    
-    
-    juce::Label ampLabel;
+
 };
