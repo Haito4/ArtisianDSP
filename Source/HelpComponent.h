@@ -127,7 +127,7 @@ public:
         helpMenuHeading.setBounds(260, 27, 200, 50);
         
         howToUseHeading.setBounds(100, 50, 200, 50);
-        howToUseBody.setBounds(60, 90, 595, 800); // Slightly narrower than the viewport because of scrollbar
+        howToUseBody.setBounds(60, 90, 595, 840); // Slightly narrower than the viewport because of scrollbar
         howToUseBodyViewport.setBounds(60, 90, 600, 300);
         
         privacyHeading.setBounds(36, 408, 230, 25);
