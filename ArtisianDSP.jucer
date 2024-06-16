@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="KToqpb" name="ArtisianDSP2" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="Artisian2"
-              pluginFormats="buildStandalone,buildVST3">
+              pluginFormats="buildStandalone,buildVST3" defines="JUCE_DISPLAY_SPLASH_SCREEN=0">
   <MAINGROUP id="jQ0XFJ" name="ArtisianDSP2">
     <GROUP id="{064151A4-02E9-3190-055C-A5DF9304743C}" name="Assets">
       <GROUP id="{728C0B21-486A-00BA-55E2-8DA680312C97}" name="SVG">

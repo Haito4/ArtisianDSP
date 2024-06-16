@@ -97,7 +97,7 @@ public:
         addAndMakeVisible(viewCodeButton);
         viewCodeButton.setButtonText("View Source Code");
         viewCodeButton.onClick = [this](){
-            juce::URL url("https://github.com/Haito4/ArtisianDSP/tree/6d8ce1b1b9851edd188b81b02a9eb14add4b9f76/Source");
+            juce::URL url("https://github.com/Haito4/ArtisianDSP/tree/master/Source");
             url.launchInDefaultBrowser();
         };
         
