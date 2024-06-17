@@ -31,12 +31,12 @@ public:
 
             "Compressor:\n"
             "The compressor helps to even out the dynamics of your guitar by reducing the volume of loud sounds and increasing the volume of softer sounds. "
-            "This results in a more consistent tone. It's particularly useful for tapping, ensuring that every note is clearly balance levelwise.\n\n"
+            "This results in a more consistent tone. It's particularly useful for tapping, ensuring that every note is clearly balanced levelwise.\n\n"
             
             "Overdrive:\n"
             "The overdrive pedal serves multiple purposes. "
-            "It can be used to tighten up high-gain tones by cutting out the low frequencies with the tone knob, or used as the main source of distortion with drive knob. "
-            "The latter case serves as an excellent way to add clarity modern metal tones. \n\n"
+            "It can be used to tighten up high-gain tones by cutting out the low frequencies with the tone knob, or used as the main source of distortion with the drive knob. "
+            "The latter use case serves as an excellent way to add clarity to modern metal tones. \n\n"
             
             "Amplifier:\n"
             "The amp sim provides the saturated distortion needed for metal genres, whilst also being able to be used lightly. "
@@ -54,7 +54,7 @@ public:
             
             "Preset System:\n"
             "This plugin contains a preset system that allows you to save the state of all of your adjusted parameters and store them within a unique file. When clicking the save button, a file prompt will open. Choose a name for the preset and click save. It will now be available to load via the dropdown menu. \n"
-            "Presets are also navigatable via the arrow buttons adjacent to the dropdown box. Should you no longer wish to have a certain preset, you can delete it with the delete button. \n"
+            "Presets are also navigable via the arrow buttons adjacent to the dropdown box. Should you no longer wish to have a certain preset, you can delete it with the delete button. \n"
             "If a preset contains a path to an IR file that doesn't exist, a \"fix\" prompt will appear, allowing you to select the path of the file. The new path will be added to file automatically, and loaded. \n"
             "This plugin comes with some example presets that you can find prefixed with \"EX\". These allow you to jump straight into a fully-designed preset and get straight to the point.",
             juce::dontSendNotification);
